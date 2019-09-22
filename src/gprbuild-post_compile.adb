@@ -66,6 +66,9 @@ package body Gprbuild.Post_Compile is
    --  Return True if the object Object_Name is not overridden by a source
    --  in a project extending project Project.
 
+   procedure Wait_For_Slots_Less_Then (Count : Positive);
+   --  Wait for the number of available process slots less then Count
+
    type Library_Object is record
       Path  : Path_Name_Type;
       TS    : Time_Stamp_Type;
@@ -3620,9 +3623,7 @@ package body Gprbuild.Post_Compile is
 
    procedure Run is
 
-      Data : Process_Data;
       Main : Main_Info;
-      OK   : Boolean;
 
       procedure Do_Post (Project : Project_Id; Tree : Project_Tree_Ref);
 
@@ -3659,15 +3660,7 @@ package body Gprbuild.Post_Compile is
          Post_Compile_All (Main_Project, Project_Tree);
       end if;
 
-      while Outstanding_Processes > 0 loop
-         Await_Process (Data, OK);
-
-         if not OK then
-            Record_Failure (Data.Main);
-         end if;
-
-         Display_Processes ("bind");
-      end loop;
+      Wait_For_Slots_Less_Then (1);
 
       if Bad_Processes.Length = 1 then
          Main := Bad_Processes.First_Element;
@@ -3727,8 +3720,6 @@ package body Gprbuild.Post_Compile is
          Main_Source : Source_Id;
          Dep_Files   : out Boolean);
       --  Put the dependency files of the project in the binder exchange file
-
-      procedure Wait_For_Available_Slot;
 
       --------------------------
       -- Add_Dependency_Files --
@@ -4924,25 +4915,6 @@ package body Gprbuild.Post_Compile is
          end if;
       end Bind_Language;
 
-      -----------------------------
-      -- Wait_For_Available_Slot --
-      -----------------------------
-
-      procedure Wait_For_Available_Slot is
-         Data : Process_Data;
-         OK   : Boolean;
-      begin
-         while Outstanding_Processes >= Opt.Maximum_Processes loop
-            Await_Process (Data, OK);
-
-            if not OK then
-               Record_Failure (Data.Main);
-            end if;
-
-            Display_Processes ("bind");
-         end loop;
-      end Wait_For_Available_Slot;
-
    --  Start of processing for Post_Compilation_Phase
 
    begin
@@ -5066,7 +5038,7 @@ package body Gprbuild.Post_Compile is
 
                   B_Data := Builder_Data (Main_File.Tree).Binding;
                   while B_Data /= null loop
-                     Wait_For_Available_Slot;
+                     Wait_For_Slots_Less_Then (Opt.Maximum_Processes);
                      exit when Stop_Spawning;
                      Change_To_Object_Directory (Main_Proj);
                      Bind_Language
@@ -5080,5 +5052,24 @@ package body Gprbuild.Post_Compile is
          end;
       end loop;
    end Post_Compilation_Phase;
+
+   ------------------------------
+   -- Wait_For_Slots_Less_Then --
+   ------------------------------
+
+   procedure Wait_For_Slots_Less_Then (Count : Positive) is
+      Data : Process_Data;
+      OK   : Boolean;
+   begin
+      while Outstanding_Processes >= Count loop
+         Await_Process (Data, OK);
+
+         if not OK then
+            Record_Failure (Data.Main);
+         end if;
+
+         Display_Processes ("bind");
+      end loop;
+   end Wait_For_Slots_Less_Then;
 
 end Gprbuild.Post_Compile;
