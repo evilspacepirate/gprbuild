@@ -181,7 +181,7 @@ package body Gprbuild.Post_Compile is
 
       Library_Options_Success : Boolean := False;
 
-      package Lang_Set is new Containers.Ordered_Sets (Name_Id);
+      package Lang_Set renames GPR.Name_Id_Set;
 
       procedure Get_Objects;
       --  Get the paths of the object files of the library in ordered set

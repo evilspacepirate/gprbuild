@@ -19,7 +19,6 @@
 with Ada.Characters.Handling;                use Ada.Characters.Handling;
 with Ada.Containers.Indefinite_Ordered_Sets;
 with Ada.Containers.Indefinite_Vectors;      use Ada;
-with Ada.Containers.Ordered_Sets;
 with Ada.Containers.Vectors;
 with Ada.Directories;                        use Ada.Directories;
 with Ada.Strings.Equal_Case_Insensitive;
@@ -45,8 +44,6 @@ with Gpr_Build_Util; use Gpr_Build_Util;
 package body Gprinstall.Install is
 
    use GNAT;
-
-   package Name_Id_Set is new Containers.Ordered_Sets (Name_Id);
 
    package String_Vector is
      new Containers.Indefinite_Vectors (Positive, String);
