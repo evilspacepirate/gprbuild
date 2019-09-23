@@ -44,6 +44,9 @@ package body Gprbuild.Post_Compile is
    Langs : Lang_Names_Ptr := new Lang_Names (1 .. 4);
    Last_Lang : Natural := 0;
 
+   Libs_Are_Building : Name_Id_Set.Set;
+   --  Libraries currently being built
+
    procedure Build_Library
      (For_Project  : Project_Id;
       Project_Tree : Project_Tree_Ref;
@@ -66,7 +69,7 @@ package body Gprbuild.Post_Compile is
    --  Return True if the object Object_Name is not overridden by a source
    --  in a project extending project Project.
 
-   procedure Wait_For_Slots_Less_Then (Count : Positive);
+   procedure Wait_For_Slots_Less_Than (Count : Positive);
    --  Wait for the number of available process slots less then Count
 
    type Library_Object is record
@@ -3508,7 +3511,43 @@ package body Gprbuild.Post_Compile is
                   end if;
                end if;
 
-               Spawn (Library_Builder.all, Arguments, Success);
+               declare
+                  L : Project_List := For_Project.All_Imported_Projects;
+               begin
+                  while L /= null loop
+                     while Libs_Are_Building.Contains (L.Project.Name) loop
+                        Wait_For_Slots_Less_Than (Outstanding_Processes);
+                     end loop;
+
+                     L := L.Next;
+                  end loop;
+               end;
+
+               Wait_For_Slots_Less_Than (Opt.Maximum_Processes);
+
+               if Stop_Spawning then
+                  return;
+               end if;
+
+               declare
+                  Pid : Process_Id;
+                  MI  : Main_Info;
+               begin
+                  Pid := Non_Blocking_Spawn (Library_Builder.all, Arguments);
+
+                  Success := Pid /= Invalid_Pid;
+
+                  if Success then
+                     MI.File    := No_File;
+                     MI.Project := For_Project;
+                     MI.Tree    := Project_Tree;
+
+                     Libs_Are_Building.Insert (For_Project.Name);
+                     Add_Process (Pid, (Binding, Pid, MI));
+
+                     Display_Processes ("bind");
+                  end if;
+               end;
 
             else
                Success := False;
@@ -3644,6 +3683,7 @@ package body Gprbuild.Post_Compile is
 
    begin
       Clear_Time_Stamp_Cache;
+      Libs_Are_Building.Clear;
       Outstanding_Processes := 0;
       Stop_Spawning := False;
 
@@ -3660,18 +3700,24 @@ package body Gprbuild.Post_Compile is
          Post_Compile_All (Main_Project, Project_Tree);
       end if;
 
-      Wait_For_Slots_Less_Then (1);
+      Wait_For_Slots_Less_Than (1);
 
       if Bad_Processes.Length = 1 then
          Main := Bad_Processes.First_Element;
          Fail_Program
            (Main.Tree,
-            "unable to bind " & Get_Name_String (Main.File));
+            (if Main.File = No_File -- It was gprlib call
+             then "could not build library for project "
+                  & Get_Name_String (Main.Project.Name)
+             else "unable to bind " & Get_Name_String (Main.File)));
 
       elsif not Bad_Processes.Is_Empty then
          for Main of Bad_Processes loop
             Put ("   binding of ");
-            Put (Get_Name_String (Main.File));
+            Put
+              (if Main.File = No_File -- gprlib call
+               then Get_Name_String (Main.Project.Name)
+               else Get_Name_String (Main.File));
             Put_Line (" failed");
          end loop;
 
@@ -4962,6 +5008,7 @@ package body Gprbuild.Post_Compile is
                                 Proj.Is_Aggregated
                                   or else Opt.CodePeer_Mode
                                   or else Target_Name.all = "c");
+                           exit when Stop_Spawning;
                         end if;
 
                         if not Is_Static (Proj.Proj) then
@@ -4988,6 +5035,8 @@ package body Gprbuild.Post_Compile is
       --  Proceed to bind (or rebind if needed) for each main
 
       Mains.Reset;
+
+      Wait_For_Slots_Less_Than (1);
 
       loop
          declare
@@ -5038,7 +5087,7 @@ package body Gprbuild.Post_Compile is
 
                   B_Data := Builder_Data (Main_File.Tree).Binding;
                   while B_Data /= null loop
-                     Wait_For_Slots_Less_Then (Opt.Maximum_Processes);
+                     Wait_For_Slots_Less_Than (Opt.Maximum_Processes);
                      exit when Stop_Spawning;
                      Change_To_Object_Directory (Main_Proj);
                      Bind_Language
@@ -5057,19 +5106,21 @@ package body Gprbuild.Post_Compile is
    -- Wait_For_Slots_Less_Then --
    ------------------------------
 
-   procedure Wait_For_Slots_Less_Then (Count : Positive) is
+   procedure Wait_For_Slots_Less_Than (Count : Positive) is
       Data : Process_Data;
       OK   : Boolean;
    begin
       while Outstanding_Processes >= Count loop
          Await_Process (Data, OK);
 
-         if not OK then
+         if OK then
+            Libs_Are_Building.Exclude (Data.Main.Project.Name);
+         else
             Record_Failure (Data.Main);
          end if;
 
          Display_Processes ("bind");
       end loop;
-   end Wait_For_Slots_Less_Then;
+   end Wait_For_Slots_Less_Than;
 
 end Gprbuild.Post_Compile;
