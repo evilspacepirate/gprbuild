@@ -6331,12 +6331,13 @@ package body GPR.Nmsc is
          return;
       end if;
 
-      if Src_Subdirs /= null then
+      --  If we were provided src-subdirs, add <object dir>/<src-subdirs> in
+      --  front of the source directories so that files found in this directory
+      --  will override original source files.
 
-         --  If found, add <object dir>/<src-subdirs> in front of the source
-         --  directories so that files found in this directory will override
-         --  original source files.
-
+      if Src_Subdirs /= null
+        and then Project.Qualifier /= Abstract_Project
+      then
          declare
             N         : String :=
                           Get_Name_String (Project.Object_Directory.Name)
