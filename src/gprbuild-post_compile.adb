@@ -4999,6 +4999,11 @@ package body Gprbuild.Post_Compile is
                   if not Project_Compilation_Failed (Proj.Proj) then
                      if Proj.Proj.Extended_By = No_Project then
                         if not Proj.Proj.Externally_Built then
+                           while Libs_Are_Building.Contains (Proj.Proj.Name)
+                           loop
+                              Wait_For_Slots_Less_Than (Outstanding_Processes);
+                           end loop;
+
                            Build_Library
                              (Proj.Proj, Project_Tree,
                               No_Create =>
