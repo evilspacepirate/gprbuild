@@ -4447,7 +4447,7 @@ Project Level Attributes
 
   * **Run_Path_Origin**: single
 
-    Value is the the string that may replace the path name of the executable
+    Value is the string that may replace the path name of the executable
     directory in the run path options.
 
   * **Separate_Run_Path_Options**: single
@@ -4585,7 +4585,7 @@ Project Level Attributes
 
   * **Shared_Library_Suffix**: single
 
-    Value is the the extension of the name of shared library files. When not
+    Value is the extension of the name of shared library files. When not
     declared, the extension is ".so".
 
   * **Symbolic_Link_Supported**: single

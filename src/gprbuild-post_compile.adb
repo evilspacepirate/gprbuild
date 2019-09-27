@@ -2799,7 +2799,7 @@ package body Gprbuild.Post_Compile is
 
       Change_To_Object_Directory (For_Project);
 
-      --  Get the name of of the library exchange file
+      --  Get the name of the library exchange file
 
       Get_Name_String (For_Project.Library_Name);
       Add_Str_To_Name_Buffer (Library_Exchange_Suffix);

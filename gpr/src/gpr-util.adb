@@ -2051,7 +2051,7 @@ package body GPR.Util is
          if Source.Language.Config.Dependency_Kind /= None
             and then Source.Dep_Path = No_Path
          then
-            --  If we we have not found a dependency file in the object
+            --  If we have not found a dependency file in the object
             --  project, it means that the Source.Project is extended and that
             --  we are in gprls node. We need to look for an actual dependency
             --  file in the extended projects. If none is found, the dependency

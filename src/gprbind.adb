@@ -849,7 +849,7 @@ begin
 
             Close (FD);
 
-            --  And invoke gnatbind with this this response file
+            --  And invoke gnatbind with this response file
 
             if not GNAT_6_4_Or_Higher then
                Spawn
