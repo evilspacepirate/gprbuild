@@ -2369,10 +2369,13 @@ package body Scanner is
    -----------------------
    -- Store_String_Char --
    -----------------------
+
    procedure Store_String_Char (Code : Char_Code) is
    begin
-      String_Last := String_Last + 1;
-      String_Buffer (String_Last) := Code;
+      if String_Last < String_Buffer'Last then
+         String_Last := String_Last + 1;
+         String_Buffer (String_Last) := Code;
+      end if;
    end Store_String_Char;
 
    -----------------
