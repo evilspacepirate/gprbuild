@@ -463,7 +463,7 @@ package body GPR.Err is
       if Sfile /= Current_Error_Source_File then
          Write_Str ("==============Messages for file: ");
 
-         Write_Name (Name_Id (Full_File_Name (Sfile)));
+         Write_Name (Full_File_Name (Sfile));
          Write_Eol;
 
          Current_Error_Source_File := Sfile;
