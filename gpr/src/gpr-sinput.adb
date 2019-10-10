@@ -344,6 +344,10 @@ package body GPR.Sinput is
       S      : Source_Ptr;
 
    begin
+      if Src = null then
+         return No_Location;
+      end if;
+
       S := P;
       while S > Sfirst
         and then Src (S - 1) /= ASCII.CR
