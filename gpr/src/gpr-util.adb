@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2001-2019, Free Software Foundation, Inc.         --
+--          Copyright (C) 2001-2020, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -366,6 +366,18 @@ package body GPR.Util is
 
       Free (File);
    end Close;
+
+   ------------------------------
+   -- Compilation_Phase_Failed --
+   ------------------------------
+
+   procedure Compilation_Phase_Failed
+     (Project_Tree : Project_Tree_Ref; No_Message : Boolean := False) is
+   begin
+      Fail_Program
+        (Project_Tree, "*** compilation phase failed",
+         No_Message => No_Message);
+   end Compilation_Phase_Failed;
 
    ------------
    -- Create --

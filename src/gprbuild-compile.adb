@@ -2,7 +2,7 @@
 --                                                                          --
 --                             GPR TECHNOLOGY                               --
 --                                                                          --
---                     Copyright (C) 2011-2019, AdaCore                     --
+--                     Copyright (C) 2011-2020, AdaCore                     --
 --                                                                          --
 -- This is  free  software;  you can redistribute it and/or modify it under --
 -- terms of the  GNU  General Public License as published by the Free Soft- --
@@ -1184,9 +1184,8 @@ package body Gprbuild.Compile is
                      GPR.Compilation.Slave.Unregister_Remote_Slaves;
                   end if;
 
-                  Fail_Program
-                    (Tree, "*** compilation phase failed",
-                     No_Message => Opt.No_Exit_Message);
+                  Compilation_Phase_Failed
+                    (Tree, No_Message => Opt.No_Exit_Message);
                end if;
             end if;
          end if;
@@ -3432,6 +3431,11 @@ package body Gprbuild.Compile is
                Object_Check   => Object_Checked,
                Always_Compile => Always_Compile);
 
+            if Total_Errors_Detected > 0 then
+               Compilation_Phase_Failed
+                 (Source.Tree, No_Message => Opt.No_Exit_Message);
+            end if;
+
             if The_ALI /= ALI.No_ALI_Id then
                declare
                   Success : Boolean := True;
@@ -3441,10 +3445,9 @@ package body Gprbuild.Compile is
                      Src_Data     => Source,
                      Success      => Success);
 
-                  if not Success then
-                     Fail_Program
-                       (Source.Tree, "*** compilation phase failed",
-                        No_Message => Opt.No_Exit_Message);
+                  if not Success or else Total_Errors_Detected > 0 then
+                     Compilation_Phase_Failed
+                       (Source.Tree, No_Message => Opt.No_Exit_Message);
                   end if;
                end;
             end if;
