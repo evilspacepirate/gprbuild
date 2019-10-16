@@ -2115,8 +2115,8 @@ package body Gpr_Build_Util is
                      Error_Msg
                        ("no compiler for language %%, cannot compile {{",
                         Flag_Location => Location);
-                     Fail_Program
-                       (Project_Tree, "*** compilation phase failed");
+
+                     Compilation_Phase_Failed (Project_Tree);
                   end if;
 
                   if Is_Allowed_Language (Source.Language.Name)

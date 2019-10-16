@@ -132,6 +132,11 @@ package GPR.Util is
    --  according to Exit_Code. This properly removes all temporary files. Don't
    --  issue any message when No_Message is True.
 
+   procedure Compilation_Phase_Failed
+     (Project_Tree : Project_Tree_Ref; No_Message : Boolean := False);
+   --  Terminate program with "*** compilation phase failed" message and a
+   --  fatal status code. Don't issue any message when No_Message is True.
+
    procedure Duplicate
      (This   : in out Name_List_Index;
       Shared : Shared_Project_Tree_Data_Access);

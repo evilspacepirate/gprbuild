@@ -367,6 +367,18 @@ package body GPR.Util is
       Free (File);
    end Close;
 
+   ------------------------------
+   -- Compilation_Phase_Failed --
+   ------------------------------
+
+   procedure Compilation_Phase_Failed
+     (Project_Tree : Project_Tree_Ref; No_Message : Boolean := False) is
+   begin
+      Fail_Program
+        (Project_Tree, "*** compilation phase failed",
+         No_Message => No_Message);
+   end Compilation_Phase_Failed;
+
    ------------
    -- Create --
    ------------
