@@ -1743,6 +1743,15 @@ package body Scanner is
                   end if;
                end loop;
 
+            elsif Source (Scan_Ptr) = '$' then
+               Scan_Ptr := Scan_Ptr + 1;
+
+               if Identifier_Char (Source (Scan_Ptr)) then
+                  goto Scan_Identifier;
+               else
+                  Error_Illegal_Character;
+               end if;
+
             else
                Error_Illegal_Character;
             end if;
