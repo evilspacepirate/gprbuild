@@ -3445,7 +3445,7 @@ package body Gprbuild.Compile is
                      Src_Data     => Source,
                      Success      => Success);
 
-                  if not Success or else Total_Errors_Detected > 0 then
+                  if not Success then
                      Compilation_Phase_Failed
                        (Source.Tree, No_Message => Opt.No_Exit_Message);
                   end if;
