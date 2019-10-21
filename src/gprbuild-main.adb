@@ -2226,12 +2226,12 @@ procedure Gprbuild.Main is
 
          --  Line for -m
 
-         Put ("  -m       Minimum Ada recompilation, timestamp-based");
+         Put ("  -m       Minimum Ada recompilation");
          New_Line;
 
          --  Line for -m2
 
-         Put ("  -m2      Minimum Ada recompilation, checksum-based");
+         Put ("  -m2      Checksum based Ada recompilation");
          New_Line;
 
          --  Line for -o

@@ -580,7 +580,14 @@ package Builder of the main project (attribute Switches):
 * :samp:`-m` (Minimum Ada recompilation)
 
   Do not recompile Ada code if timestamps are different but checksums are the
-  same.
+  same. Note that for the case when source code contains preprocessing
+  directives, this switch has no effect.
+
+* :samp:`-m2` (Checksum based recompilation)
+
+  Recompile Ada code even if timestamps are the same, but checksums are
+  different. Note that for the case when source code contains preprocessing
+  directives, this switch has the same effect as -f.
 
 * :samp:`-p` or :samp:`--create-missing-dirs` (Create missing object, library and exec directories)
 
