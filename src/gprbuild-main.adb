@@ -2,7 +2,7 @@
 --                                                                          --
 --                             GPR TECHNOLOGY                               --
 --                                                                          --
---                     Copyright (C) 2011-2019, AdaCore                     --
+--                     Copyright (C) 2011-2020, AdaCore                     --
 --                                                                          --
 -- This is  free  software;  you can redistribute it and/or modify it under --
 -- terms of the  GNU  General Public License as published by the Free Soft- --
@@ -2226,12 +2226,12 @@ procedure Gprbuild.Main is
 
          --  Line for -m
 
-         Put ("  -m       Minimum Ada recompilation, timestamp-based");
+         Put ("  -m       Minimum Ada recompilation");
          New_Line;
 
          --  Line for -m2
 
-         Put ("  -m2      Minimum Ada recompilation, checksum-based");
+         Put ("  -m2      Checksum based Ada recompilation");
          New_Line;
 
          --  Line for -o
