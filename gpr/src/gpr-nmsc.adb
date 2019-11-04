@@ -3913,7 +3913,9 @@ package body GPR.Nmsc is
             end if;
 
             if not Dir_Exists then
-               if Directories_Must_Exist_In_Projects then
+               if Directories_Must_Exist_In_Projects
+                 and then Project.Qualifier /= Abstract_Project
+               then
 
                   --  Get the absolute name of the library directory that does
                   --  not exist, to report an error.
@@ -6974,13 +6976,12 @@ package body GPR.Nmsc is
       declare
          Full_Path_Name : String_Access :=
                             new String'(Get_Name_String (Full_Name));
-
       begin
          if (Setup_Projects or else Subdirs /= null)
            and then Create'Length > 0
+           and then Project.Qualifier /= Abstract_Project
          then
             if not Is_Directory (Full_Path_Name.all) then
-
                --  If project is externally built, do not create a subdir,
                --  use the specified directory, without the subdir.
 
