@@ -471,6 +471,7 @@ procedure Gprlib is
                                Library_Dependency_Directory.all &
                                Directory_Separator &
                                File_Name;
+               Remain      : Natural;
                Disregard   : Boolean;
                pragma Warnings (Off, Disregard);
 
@@ -504,12 +505,21 @@ procedure Gprlib is
 
                   --  Read the file.
 
-                  Curr := 1;
-                  Actual_Len := Len;
+                  Curr   := 1;
+                  Remain := Len;
 
-                  while Actual_Len /= 0 loop
-                     Actual_Len := Read (FD, S (Curr)'Address, Len);
-                     Curr := Curr + Actual_Len;
+                  while Remain > 0 loop
+                     Actual_Len := Read (FD, S (Curr)'Address, Remain);
+
+                     if Actual_Len < 0 then
+                        Fail_Program
+                          (null,
+                           "Error """ & GNAT.OS_Lib.Errno_Message
+                           & """ on read ALI file " & ALI_File);
+                     end if;
+
+                     Curr   := Curr   + Actual_Len;
+                     Remain := Remain - Actual_Len;
                   end loop;
 
                   --  We are done with the input file, so we close it
