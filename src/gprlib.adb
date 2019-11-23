@@ -572,10 +572,6 @@ procedure Gprlib is
                         --  created file has been correctly written.
 
                         Success := Status and Actual_Len = Len + 3;
-
-                        if Success then
-                           Set_Read_Only (Name_Buffer (1 .. Name_Len - 1));
-                        end if;
                      end if;
                   end if;
                end if;
