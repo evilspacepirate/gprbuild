@@ -490,6 +490,11 @@ begin
          Compilers,
          Target_Specified,
          Selected_Target);
+
+      --  Selected target may have changed due to fallback, need to update
+      --  corresponding target set.
+      Get_Targets_Set
+        (Base, To_String (Selected_Target), Selected_Targets_Set);
    else
       declare
          Iter : All_Iterator (Length (Filters));
