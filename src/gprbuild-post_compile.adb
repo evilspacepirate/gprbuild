@@ -234,6 +234,9 @@ package body Gprbuild.Post_Compile is
       procedure Write_Response_Files;
       procedure Write_Mapping_File;
 
+      procedure Wait_For_Dependency (P : Project_Id);
+      --  Wait for dependent library project P build completed
+
       Project_Name       : constant String :=
                              Get_Name_String (For_Project.Name);
       Current_Dir        : constant String := Get_Current_Dir;
@@ -246,6 +249,7 @@ package body Gprbuild.Post_Compile is
       Library_Builder_Name      : String_Access;
       Library_Builder           : String_Access;
       Library_Needs_To_Be_Built : Boolean := False;
+      Dependencies_Ready        : Boolean := False;
 
       Object_Path : Path_Name_Type;
       Object_TS   : Time_Stamp_Type;
@@ -1096,6 +1100,17 @@ package body Gprbuild.Post_Compile is
             end loop;
          end if;
       end Get_Objects;
+
+      -------------------------
+      -- Wait_For_Dependency --
+      -------------------------
+
+      procedure Wait_For_Dependency (P : Project_Id) is
+      begin
+         while Libs_Are_Building.Contains (P.Name) loop
+            Wait_For_Slots_Less_Than (Outstanding_Processes);
+         end loop;
+      end Wait_For_Dependency;
 
       ------------------------
       -- Write_Object_Files --
@@ -3136,13 +3151,18 @@ package body Gprbuild.Post_Compile is
 
             Lib_Timestamp1 : constant Time_Stamp_Type :=
                                For_Project.Library_TS;
-
          begin
             List := For_Project.All_Imported_Projects;
             while List /= null loop
                Proj2 := List.Project;
 
-               if Proj2.Library and then Lib_Timestamp1 < Proj2.Library_TS then
+               Wait_For_Dependency (Proj2);
+
+               if not Library_Needs_To_Be_Built
+                 and then Proj2.Library
+                 and then (Proj2.Was_Built
+                           or else Lib_Timestamp1 < Proj2.Library_TS)
+               then
                   Library_Needs_To_Be_Built := True;
 
                   if Opt.Verbosity_Level > Opt.Low then
@@ -3152,12 +3172,15 @@ package body Gprbuild.Post_Compile is
                         & " is more recent than library file for project "
                         & Get_Name_String (For_Project.Display_Name));
                   end if;
-
-                  exit;
                end if;
+
+               exit when Library_Needs_To_Be_Built
+                         and then Libs_Are_Building.Is_Empty;
 
                List := List.Next;
             end loop;
+
+            Dependencies_Ready := True;
          end;
       end if;
 
@@ -3505,17 +3528,16 @@ package body Gprbuild.Post_Compile is
                   end if;
                end if;
 
-               declare
-                  L : Project_List := For_Project.All_Imported_Projects;
-               begin
-                  while L /= null loop
-                     while Libs_Are_Building.Contains (L.Project.Name) loop
-                        Wait_For_Slots_Less_Than (Outstanding_Processes);
+               if not Dependencies_Ready then
+                  declare
+                     L : Project_List := For_Project.All_Imported_Projects;
+                  begin
+                     while L /= null loop
+                        Wait_For_Dependency (L.Project);
+                        L := L.Next;
                      end loop;
-
-                     L := L.Next;
-                  end loop;
-               end;
+                  end;
+               end if;
 
                Wait_For_Slots_Less_Than (Opt.Maximum_Processes);
 
@@ -5108,6 +5130,7 @@ package body Gprbuild.Post_Compile is
 
          if OK then
             Libs_Are_Building.Exclude (Data.Main.Project.Name);
+            Data.Main.Project.Was_Built := True;
          else
             Record_Failure (Data.Main);
          end if;

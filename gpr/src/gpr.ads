@@ -2176,6 +2176,9 @@ package GPR is
       Library_TS : Time_Stamp_Type := Empty_Time_Stamp;
       --  The timestamp of a library file in a library project
 
+      Was_Built : Boolean := False;
+      --  The library project has been built in the current gprbuild execution
+
       Library_Src_Dir : Path_Information := No_Path_Information;
       --  If a Stand-Alone Library project, path name of the directory where
       --  the sources of the interfaces of the library are copied. By default,
