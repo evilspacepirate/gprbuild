@@ -2218,9 +2218,6 @@ package GPR is
       Symbol_Data : Symbol_Record := No_Symbols;
       --  Symbol file name, reference symbol file name, symbol policy
 
-      Need_To_Build_Lib : Boolean := False;
-      --  True if the library of a Library Project needs to be built or rebuilt
-
       -------------
       -- Sources --
       -------------

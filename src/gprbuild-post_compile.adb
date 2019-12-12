@@ -3144,25 +3144,18 @@ package body Gprbuild.Post_Compile is
             while List /= null loop
                Proj2 := List.Project;
 
-               if Proj2.Library then
-                  if Proj2.Need_To_Build_Lib
-                    or else
-                      (Lib_Timestamp1 < Proj2.Library_TS)
-                  then
-                     Library_Needs_To_Be_Built := True;
+               if Proj2.Library and then Lib_Timestamp1 < Proj2.Library_TS then
+                  Library_Needs_To_Be_Built := True;
 
-                     if  Opt.Verbosity_Level > Opt.Low then
-                        Put
-                          ("      -> library file for project ");
-                        Put (Get_Name_String (Proj2.Display_Name));
-                        Put
-                          (" is more recent than library file for project ");
-                        Put_Line
-                          (Get_Name_String (For_Project.Display_Name));
-                     end if;
-
-                     exit;
+                  if Opt.Verbosity_Level > Opt.Low then
+                     Put_Line
+                       ("      -> library file for project "
+                        & Get_Name_String (Proj2.Display_Name)
+                        & " is more recent than library file for project "
+                        & Get_Name_String (For_Project.Display_Name));
                   end if;
+
+                  exit;
                end if;
 
                List := List.Next;
