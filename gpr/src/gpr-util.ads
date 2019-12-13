@@ -709,6 +709,10 @@ package GPR.Util is
       --  Return the normalized name of the host on which gprbuild is running.
       --  The knowledge base must have been parsed first.
 
+      function Normalized_Target (Target_Name : String) return String;
+      --  Return the normalized name of the specified target.
+      --  The knowledge base must have been parsed first.
+
       procedure Parse_Knowledge_Base
         (Project_Tree : Project_Tree_Ref;
          Directory : String := "");

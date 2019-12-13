@@ -1710,6 +1710,7 @@ package body GPR.Conf is
 
       if Target_Name = "" then
          Opt.Target_Value  := new String'(N_Hostname.all);
+         Opt.Target_Value_Canonical  := new String'(N_Hostname.all);
          Opt.Target_Origin := Default;
          Native_Target := True;
 
@@ -1722,6 +1723,12 @@ package body GPR.Conf is
       else
          Opt.Target_Value  := new String'(Target_Name);
          Opt.Target_Origin := Specified;
+         declare
+            Tgt : constant String := Target_Name;
+         begin
+            Opt.Target_Value_Canonical :=
+              new String'(Knowledge.Normalized_Target (Tgt));
+         end;
 
          --  Target specified explicitly, no point for fallback check
          Fallback_Try_Again := False;
@@ -1856,6 +1863,9 @@ package body GPR.Conf is
                elsif Target_Try_Again then
                   Opt.Target_Value :=
                     new String'(Get_Name_String (Variable.Value));
+                  Opt.Target_Value_Canonical :=
+                    new String'(Knowledge.Normalized_Target
+                                (Opt.Target_Value.all));
                   Target_Try_Again := False;
 
                   --  Target explicitly specified in the project file,
@@ -1924,7 +1934,9 @@ package body GPR.Conf is
                      N_Hostname :=
                        new String'(Get_Name_String (Variable.Value));
                      Free (Opt.Target_Value);
+                     Free (Opt.Target_Value_Canonical);
                      Opt.Target_Value  := new String'(N_Hostname.all);
+                     Opt.Target_Value_Canonical := new String'(N_Hostname.all);
 
                      Success          := False;
                      Target_Try_Again := True;

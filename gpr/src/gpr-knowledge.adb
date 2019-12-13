@@ -3742,7 +3742,7 @@ package body GPR.Knowledge is
          begin
             while Has_Element (C) loop
                if GNAT.Regpat.Match
-                 (Target_Lists.Element (C).all, Target) > 0
+                 (Target_Lists.Element (C).all, Target & "") > Target'First - 1
                then
                   return I;
                end if;

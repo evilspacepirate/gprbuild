@@ -144,7 +144,7 @@ package body GPR.Attr is
    "Saobject_generated#" &
    "Saobjects_linked#" &
    "SVtargetDtarget_value#" &
-   "SVcanonical_targetDtarget_value#" &
+   "SVcanonical_targetDcanonical_target_value#" &
    "SaruntimeDruntime_value#" &
    "Saruntime_library_dir#" &
    "Laruntime_library_dirs#" &

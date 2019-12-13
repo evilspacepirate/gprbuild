@@ -199,6 +199,9 @@ package GPR.Opt is
    Target_Value : String_Access := null;
    --  Indicates the value of attribute Target in project files
 
+   Target_Value_Canonical : String_Access := null;
+   --  Canonical value of specified target
+
    Unchecked_Shared_Lib_Imports : Boolean := False;
    --  Set to True when shared library projects are allowed to import projects
    --  that are not shared library projects. Set on by use of the switch

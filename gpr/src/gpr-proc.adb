@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2001-2018, Free Software Foundation, Inc.         --
+--          Copyright (C) 2001-2019, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -1038,6 +1038,14 @@ package body GPR.Proc is
                            Add_Str_To_Name_Buffer (Opt.Target_Value.all);
                            The_Variable.Value := Name_Find;
 
+                        elsif The_Default = Canonical_Target_Value
+                          and then Opt.Target_Value_Canonical /= null
+                        then
+                           Name_Len := 0;
+                           Add_Str_To_Name_Buffer
+                             (Opt.Target_Value_Canonical.all);
+                           The_Variable.Value := Name_Find;
+
                         --  Check special value for Runtime (<lang>): --RTS=
                         --  overrides declaration of Runtime (<lang>).
 
@@ -1089,6 +1097,17 @@ package body GPR.Proc is
                                        The_Variable.Value := Name_Find;
                                     end if;
 
+                                 when Canonical_Target_Value =>
+                                    if Opt.Target_Value_Canonical = null then
+                                       The_Variable.Value := Empty_String;
+
+                                    else
+                                       Name_Len := 0;
+                                       Add_Str_To_Name_Buffer
+                                         (Opt.Target_Value_Canonical.all);
+                                       The_Variable.Value := Name_Find;
+                                    end if;
+
                                  when Runtime_Value =>
                                     null;
                               end case;
@@ -1105,9 +1124,10 @@ package body GPR.Proc is
                                     The_Variable.Values :=
                                       Shared.Dot_String_List;
 
-                                 when Object_Dir_Value |
-                                      Target_Value     |
-                                      Runtime_Value    =>
+                                 when Object_Dir_Value       |
+                                      Target_Value           |
+                                      Runtime_Value          |
+                                      Canonical_Target_Value =>
                                     null;
                               end case;
                            end case;
