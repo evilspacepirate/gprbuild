@@ -2935,9 +2935,7 @@ package body Gprbuild.Post_Compile is
                For_Project.Library_TS :=
                  File_Stamp (File_Name_Type'(Name_Find));
 
-               if String (For_Project.Library_TS) <
-                  String (Latest_Object_TS)
-               then
+               if For_Project.Library_TS < Latest_Object_TS then
                   Library_Needs_To_Be_Built := True;
                   Close (Exchange_File);
 

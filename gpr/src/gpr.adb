@@ -41,8 +41,6 @@ with GPR.Snames; use GPR.Snames;
 
 package body GPR is
 
-   package body Stamps is separate;
-
    type Restricted_Lang;
    type Restricted_Lang_Access is access Restricted_Lang;
    type Restricted_Lang is record

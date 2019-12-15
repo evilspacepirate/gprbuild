@@ -205,25 +205,13 @@ package GPR is
       --  although this is not private, clients should not rely on the exact
       --  way in which this string is represented, and instead should use the
       --  subprograms below.
+      --  Note : the Empty_Time_Stamp value less than any non-empty time stamp
+      --  value.
 
       Dummy_Time_Stamp : constant Time_Stamp_Type := (others => '0');
       --  This is used for dummy time stamp values used in the D lines for
       --  non-existent files, and is intended to be an impossible value.
 
-      function "="  (Left, Right : Time_Stamp_Type) return Boolean;
-      function "<=" (Left, Right : Time_Stamp_Type) return Boolean;
-      function ">=" (Left, Right : Time_Stamp_Type) return Boolean;
-      function "<"  (Left, Right : Time_Stamp_Type) return Boolean;
-      function ">"  (Left, Right : Time_Stamp_Type) return Boolean;
-      --  Comparison functions on time stamps. Note that two time stamps are
-      --  defined as being equal if they have the same day/month/year and the
-      --  hour/minutes/seconds values are within 2 seconds of one another. This
-      --  deals with rounding effects in library file time stamps caused by
-      --  copying operations during installation. We have particularly noticed
-      --  that WinNT seems susceptible to such changes.
-      --
-      --  Note : the Empty_Time_Stamp value looks equal to itself, and less
-      --  than any non-empty time stamp value.
    end Stamps;
 
    use Stamps;
