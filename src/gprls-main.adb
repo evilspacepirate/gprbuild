@@ -2,7 +2,7 @@
 --                                                                          --
 --                             GPR TECHNOLOGY                               --
 --                                                                          --
---                    Copyright (C) 2015-2018, AdaCore                      --
+--                    Copyright (C) 2015-2019, AdaCore                      --
 --                                                                          --
 -- This is  free  software;  you can redistribute it and/or modify it under --
 -- terms of the  GNU  General Public License as published by the Free Soft- --
@@ -47,6 +47,9 @@ procedure Gprls.Main is
 
    Project_File_Name_Expected : Boolean := False;
    --  True when switch "-P" has just been scanned
+
+   Search_Project_Dir_Expected : Boolean := False;
+   --  True when last switch was -aP
 
    Path_Name : String_Access;
 
@@ -552,6 +555,17 @@ procedure Gprls.Main is
             Project_File_Name_Expected := False;
          end if;
 
+      --  -aP xxx
+
+      elsif Search_Project_Dir_Expected then
+         if Argv (1) = '-' then
+            Fail ("directory name missing after -aP");
+         else
+            Search_Project_Dir_Expected := False;
+            Add_Directories
+              (Root_Environment.Project_Path, Argv, Prepend => True);
+         end if;
+
       elsif Argv (1) = '-' then
          if Argv'Length = 1 then
             Fail ("switch character '-' cannot be followed by a blank");
@@ -565,11 +579,17 @@ procedure Gprls.Main is
 
          --  Processing for -aP<dir>
 
-         elsif Argv'Length > 3 and then Argv (1 .. 3) = "-aP" then
-            Add_Directories
-              (Root_Environment.Project_Path,
-               Argv (4 .. Argv'Last),
-               Prepend => True);
+         elsif Argv'Length >= 3 and then Argv (1 .. 3) = "-aP" then
+
+            if Argv'Length = 3 then
+               Search_Project_Dir_Expected := True;
+
+            else
+               Add_Directories
+                 (Root_Environment.Project_Path,
+                  Argv (4 .. Argv'Last),
+                  Prepend => True);
+            end if;
 
          --  Processing for --unchecked-shared-lib-imports
 
@@ -914,6 +934,9 @@ begin
 
    if Project_File_Name_Expected then
       Fail ("project file name missing");
+
+   elsif Search_Project_Dir_Expected then
+      Fail ("directory name missing after -aP");
    end if;
 
    --  Output usage information when requested

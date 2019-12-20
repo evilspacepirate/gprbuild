@@ -49,6 +49,8 @@ procedure Gprclean.Main is
 
    Project_File_Name_Expected : Boolean := False;
 
+   Search_Project_Dir_Expected : Boolean := False;
+
    User_Project_Node : Project_Node_Id;
 
    In_Package_Clean : Boolean := False;
@@ -198,6 +200,17 @@ procedure Gprclean.Main is
                      Index := Index + 1;
                      Project_File_Name := new String'(Argument (Index));
                      Project_File_Name_Expected := False;
+
+                  elsif Search_Project_Dir_Expected then
+                     if Index = Last then
+                        Fail_Program
+                          (Project_Tree, "directory name missing after -aP");
+                     end if;
+
+                     Index := Index + 1;
+                     GPR.Env.Add_Directories
+                       (Root_Environment.Project_Path, Argument (Index));
+                     Search_Project_Dir_Expected := False;
                   end if;
 
                else
@@ -562,21 +575,19 @@ procedure Gprclean.Main is
             end if;
 
          when 'a' =>
-            if In_Package_Clean then
+            if In_Package_Clean
+              or else Switch'Length < 3
+              or else Switch (3) /= 'P'
+            then
                Bad_Switch;
             end if;
 
-            if Switch'Length < 4 then
-               Bad_Switch;
-            end if;
-
-            if Switch (3) = 'P' then
+            if Switch'Length > 3 then
                GPR.Env.Add_Directories
                  (Root_Environment.Project_Path,
                   Switch (4 .. Switch'Last));
-
             else
-               Bad_Switch;
+               Search_Project_Dir_Expected := True;
             end if;
 
          when 'c'    =>
