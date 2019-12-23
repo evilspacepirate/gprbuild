@@ -786,83 +786,83 @@ procedure Gprls.Main is
 
       --  Line for -Pproj
 
-      Put_Line ("  -Pproj       use project file proj");
+      Put_Line ("  -Pproj       Use project file proj");
 
       --  Line for -a
 
-      Put_Line ("  -a           also output relevant predefined units");
+      Put_Line ("  -a           Also output relevant predefined units");
 
       --  Line for -u
 
-      Put_Line ("  -u           output only relevant unit names");
+      Put_Line ("  -u           Output only relevant unit names");
 
       --  Line for -U
 
-      Put_Line ("  -U           list sources for all projects");
+      Put_Line ("  -U           List sources for all projects");
 
       --  Line for -h
 
-      Put_Line ("  -h           output this help message");
+      Put_Line ("  -h           Output this help message");
 
       --  Line for -s
 
-      Put_Line ("  -s           output only relevant source names");
+      Put_Line ("  -s           Output only relevant source names");
 
       --  Line for -o
 
-      Put_Line ("  -o           output only relevant object names");
+      Put_Line ("  -o           Output only relevant object names");
 
       --  Line for -d
 
-      Put_Line ("  -d           output sources on which specified units " &
+      Put_Line ("  -d           Output sources on which specified units " &
                                "depend");
 
       --  Line for -v
 
-      Put_Line ("  -v           verbose output, full path and unit " &
+      Put_Line ("  -v           Verbose output, full path and unit " &
                                "information");
 
       --  Line for -vPx
 
-      Put_Line ("  -vPx         specify verbosity when parsing project " &
+      Put_Line ("  -vPx         Specify verbosity when parsing project " &
                   "files (x = 0/1/2)");
 
       --  Line for --closure
 
-      Put_Line ("  --closure    list paths of sources in closures of mains");
+      Put_Line ("  --closure    List paths of sources in closures of mains");
 
       New_Line;
       --  Line for -files=
 
-      Put_Line ("  -files=fil   files are listed in text file 'fil'");
+      Put_Line ("  -files=fil   Files are listed in text file 'fil'");
 
       --  Line for -aP switch
 
-      Put_Line ("  -aPdir       specify project search path");
+      Put_Line ("  -aP dir      Add directory dir to project search path");
 
       --  Line for --target=
 
-      Put_Line ("  --target=xxx specify target xxx");
+      Put_Line ("  --target=xxx Specify target xxx");
 
       --  Line for --RTS
 
-      Put_Line ("  --RTS=dir    specify the Ada runtime");
+      Put_Line ("  --RTS=dir    Specify the Ada runtime");
 
       --  Line for --unchecked-shared-lib-imports
 
       Put_Line ("  --unchecked-shared-lib-imports");
       Put_Line
-        ("               shared library projects may import any project");
+        ("               Shared library projects may import any project");
 
       --  Line for -X
 
-      Put_Line ("  -Xnm=val     specify an external reference for " &
+      Put_Line ("  -Xnm=val     Specify an external reference for " &
                   "project files");
 
       --  File Status explanation
 
       New_Line;
-      Put_Line (" file status can be:");
+      Put_Line (" File status can be:");
 
       for ST in File_Status loop
          Put ("   ");

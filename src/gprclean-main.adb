@@ -816,7 +816,7 @@ procedure Gprclean.Main is
          Put_Line ("           Shared lib projects may import any project");
          New_Line;
 
-         Put_Line ("  -aPdir   Add directory dir to project search path");
+         Put_Line ("  -aP dir  Add directory dir to project search path");
          Put_Line ("  -c       Only delete compiler generated files");
          Put_Line ("  -eL      Follow symbolic links when processing "
                    & "project files");
