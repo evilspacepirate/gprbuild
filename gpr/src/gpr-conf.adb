@@ -82,21 +82,21 @@ package body GPR.Conf is
    --  Head of the list of compiler roots
 
    package RTS_Languages is new GNAT.HTable.Simple_HTable
-     (Header_Num => GPR.Header_Num,
+     (Header_Num => Header_Num,
       Element    => Name_Id,
       No_Element => No_Name,
       Key        => Name_Id,
-      Hash       => GPR.Hash,
+      Hash       => Hash,
       Equal      => "=");
    --  Stores the runtime names for the various languages. This is in general
    --  set from a --RTS command line option.
 
    package Toolchain_Languages is new GNAT.HTable.Simple_HTable
-     (Header_Num => GPR.Header_Num,
+     (Header_Num => Header_Num,
       Element    => Name_Id,
       No_Element => No_Name,
       Key        => Name_Id,
-      Hash       => GPR.Hash,
+      Hash       => Hash,
       Equal      => "=");
    --  Stores the toolchain names for the various languages
 
@@ -113,9 +113,9 @@ package body GPR.Conf is
    -----------------------
 
    function Check_Target
-     (Config_File        : GPR.Project_Id;
+     (Config_File        : Project_Id;
       Autoconf_Specified : Boolean;
-      Project_Tree       : GPR.Project_Tree_Ref;
+      Project_Tree       : Project_Tree_Ref;
       Target             : String := "") return Boolean;
    --  Check that the config file's target matches Target.
    --  Target should be set to the empty string when the user did not specify
@@ -132,8 +132,8 @@ package body GPR.Conf is
    --  Raises exception Invalid_Config with given message
 
    procedure Apply_Config_File
-     (Config_File  : GPR.Project_Id;
-      Project_Tree : GPR.Project_Tree_Ref);
+     (Config_File  : Project_Id;
+      Project_Tree : Project_Tree_Ref);
    --  Apply the configuration file settings to all the projects in the
    --  project tree. The Project_Tree must have been parsed first, and
    --  processed through the first phase so that all its projects are known.
@@ -171,8 +171,8 @@ package body GPR.Conf is
    -----------------------
 
    procedure Apply_Config_File
-     (Config_File  : GPR.Project_Id;
-      Project_Tree : GPR.Project_Tree_Ref)
+     (Config_File  : Project_Id;
+      Project_Tree : Project_Tree_Ref)
    is
       procedure Add_Attributes
         (Project_Tree : Project_Tree_Ref;
@@ -498,7 +498,7 @@ package body GPR.Conf is
    function Check_Target
      (Config_File        : Project_Id;
       Autoconf_Specified : Boolean;
-      Project_Tree       : GPR.Project_Tree_Ref;
+      Project_Tree       : Project_Tree_Ref;
       Target             : String := "") return Boolean
    is
       Shared   : constant Shared_Project_Tree_Data_Access :=
@@ -554,15 +554,15 @@ package body GPR.Conf is
      (Project                    : Project_Id;
       Conf_Project               : Project_Id;
       Project_Tree               : Project_Tree_Ref;
-      Project_Node_Tree          : GPR.Tree.Project_Node_Tree_Ref;
-      Env                        : in out GPR.Tree.Environment;
+      Project_Node_Tree          : Tree.Project_Node_Tree_Ref;
+      Env                        : in out Tree.Environment;
       Allow_Automatic_Generation : Boolean;
       Config_File_Name           : String                := "";
       Autoconf_Specified         : Boolean;
       Target_Name                : String                := "";
       Normalized_Hostname        : String;
       Packages_To_Check          : String_List_Access    := null;
-      Config                     : out GPR.Project_Id;
+      Config                     : out Project_Id;
       Config_File_Path           : out String_Access;
       Automatically_Generated    : out Boolean;
       On_Load_Config             : Config_File_Hook      := null;
@@ -1183,11 +1183,11 @@ package body GPR.Conf is
       function Get_Config_Switches return Argument_List_Access is
 
          package Language_Htable is new GNAT.HTable.Simple_HTable
-           (Header_Num => GPR.Header_Num,
+           (Header_Num => Header_Num,
             Element    => Name_Id,
             No_Element => No_Name,
             Key        => Name_Id,
-            Hash       => GPR.Hash,
+            Hash       => Hash,
             Equal      => "=");
          --  Hash table to keep the languages used in the project tree
 
@@ -1569,11 +1569,11 @@ package body GPR.Conf is
       end if;
 
       if Config_File_Path /= null then
-         GPR.Part.Parse
+         Part.Parse
            (In_Tree           => Project_Node_Tree,
             Project           => Config_Project_Node,
             Project_File_Name => Config_File_Path.all,
-            Errout_Handling   => GPR.Part.Finalize_If_Error,
+            Errout_Handling   => Part.Finalize_If_Error,
             Packages_To_Check => Packages_To_Check,
             Current_Directory => Current_Directory,
             Is_Config_File    => True,
@@ -1589,7 +1589,7 @@ package body GPR.Conf is
       end if;
 
       if Config_Project_Node /= Empty_Project_Node then
-         GPR.Proc.Process_Project_Tree_Phase_1
+         Proc.Process_Project_Tree_Phase_1
            (In_Tree                => Project_Tree,
             Project                => Config,
             Packages_To_Check      => Packages_To_Check,
@@ -1648,24 +1648,24 @@ package body GPR.Conf is
    ------------------------------------
 
    procedure Parse_Project_And_Apply_Config
-     (Main_Project               : out GPR.Project_Id;
-      User_Project_Node          : out GPR.Project_Node_Id;
-      Config_File_Name           : String                        := "";
+     (Main_Project               : out Project_Id;
+      User_Project_Node          : out Project_Node_Id;
+      Config_File_Name           : String                    := "";
       Autoconf_Specified         : Boolean;
       Project_File_Name          : String;
-      Project_Tree               : GPR.Project_Tree_Ref;
-      Project_Node_Tree          : GPR.Tree.Project_Node_Tree_Ref;
-      Env                        : in out GPR.Tree.Environment;
+      Project_Tree               : Project_Tree_Ref;
+      Project_Node_Tree          : Tree.Project_Node_Tree_Ref;
+      Env                        : in out Tree.Environment;
       Packages_To_Check          : String_List_Access;
-      Allow_Automatic_Generation : Boolean                       := True;
+      Allow_Automatic_Generation : Boolean                   := True;
       Automatically_Generated    : out Boolean;
       Config_File_Path           : out String_Access;
-      Target_Name                : String                        := "";
+      Target_Name                : String                    := "";
       Normalized_Hostname        : String;
-      On_Load_Config             : Config_File_Hook              := null;
-      Implicit_Project           : Boolean                       := False;
-      On_New_Tree_Loaded         : GPR.Proc.Tree_Loaded_Callback := null;
-      Gprconfig_Options          : String_Vectors.Vector         :=
+      On_Load_Config             : Config_File_Hook          := null;
+      Implicit_Project           : Boolean                   := False;
+      On_New_Tree_Loaded         : Proc.Tree_Loaded_Callback := null;
+      Gprconfig_Options          : String_Vectors.Vector     :=
         String_Vectors.Empty_Vector)
    is
       Success          : Boolean := False;
@@ -1679,8 +1679,7 @@ package body GPR.Conf is
 
       N_Hostname : String_Access := new String'(Normalized_Hostname);
 
-      Finalization : GPR.Part.Errout_Mode :=
-                       GPR.Part.Always_Finalize;
+      Finalization : Part.Errout_Mode := Part.Always_Finalize;
 
       Conf_File_Name : String_Access;
 
@@ -1985,10 +1984,14 @@ package body GPR.Conf is
       end if;
    end Parse_Project_And_Apply_Config;
 
+   --------------------------------
+   -- Update_Project_Search_Path --
+   --------------------------------
+
    procedure Update_Project_Search_Path
-     (Project      : GPR.Project_Id;
-      Project_Tree : GPR.Project_Tree_Ref;
-      Env          : in out GPR.Tree.Environment)
+     (Project      : Project_Id;
+      Project_Tree : Project_Tree_Ref;
+      Env          : in out Tree.Environment)
    is
       S : State := No_State;
 
@@ -2019,6 +2022,7 @@ package body GPR.Conf is
       -------------------
       -- Free_Pointers --
       -------------------
+
       procedure Free_Pointers (Ptr : in out Compiler_Root_Ptr) is
          procedure Free is new Ada.Unchecked_Deallocation
            (Compiler_Root_Data, Compiler_Root_Ptr);
@@ -2026,6 +2030,11 @@ package body GPR.Conf is
            (Runtime_Root_Data, Runtime_Root_Ptr);
 
          procedure Free_Runtimes (Ptr : in out Runtime_Root_Ptr);
+
+         -------------------
+         -- Free_Runtimes --
+         -------------------
+
          procedure Free_Runtimes (Ptr : in out Runtime_Root_Ptr) is
          begin
             if Ptr = null then
@@ -2035,6 +2044,7 @@ package body GPR.Conf is
             Free (Ptr.Root);
             Free (Ptr);
          end Free_Runtimes;
+
       begin
          if Ptr = null then
             return;
@@ -2245,24 +2255,24 @@ package body GPR.Conf is
    --------------------------------------
 
    procedure Process_Project_And_Apply_Config
-     (Main_Project               : out GPR.Project_Id;
-      User_Project_Node          : GPR.Project_Node_Id;
-      Config_File_Name           : String                        := "";
+     (Main_Project               : out Project_Id;
+      User_Project_Node          : Project_Node_Id;
+      Config_File_Name           : String                    := "";
       Autoconf_Specified         : Boolean;
-      Project_Tree               : GPR.Project_Tree_Ref;
-      Project_Node_Tree          : GPR.Tree.Project_Node_Tree_Ref;
-      Env                        : in out GPR.Tree.Environment;
+      Project_Tree               : Project_Tree_Ref;
+      Project_Node_Tree          : Tree.Project_Node_Tree_Ref;
+      Env                        : in out Tree.Environment;
       Packages_To_Check          : String_List_Access;
-      Allow_Automatic_Generation : Boolean                       := True;
+      Allow_Automatic_Generation : Boolean                   := True;
       Automatically_Generated    : out Boolean;
       Config_File_Path           : out String_Access;
-      Target_Name                : String                        := "";
+      Target_Name                : String                    := "";
       Normalized_Hostname        : String;
-      On_Load_Config             : Config_File_Hook              := null;
-      Reset_Tree                 : Boolean                       := True;
-      On_New_Tree_Loaded         : GPR.Proc.Tree_Loaded_Callback := null;
-      Do_Phase_1                 : Boolean                       := True;
-      Gprconfig_Options          : String_Vectors.Vector         :=
+      On_Load_Config             : Config_File_Hook          := null;
+      Reset_Tree                 : Boolean                   := True;
+      On_New_Tree_Loaded         : Proc.Tree_Loaded_Callback := null;
+      Do_Phase_1                 : Boolean                   := True;
+      Gprconfig_Options          : String_Vectors.Vector     :=
         String_Vectors.Empty_Vector)
    is
       Shared              : constant Shared_Project_Tree_Data_Access :=
