@@ -22,8 +22,7 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Ada.Directories;   use Ada.Directories;
-with Ada.Exceptions;    use Ada.Exceptions;
+with Ada.Directories; use Ada.Directories;
 
 with GNAT.Case_Util; use GNAT.Case_Util;
 with GNAT.HTable;    use GNAT.HTable;
@@ -129,8 +128,7 @@ package body GPR.Conf is
    --  Search for Name in the config files directory. Return full path if
    --  found, or null otherwise.
 
-   procedure Raise_Invalid_Config (Msg : String);
-   pragma No_Return (Raise_Invalid_Config);
+   procedure Raise_Invalid_Config (Msg : String) with Inline_Always, No_Return;
    --  Raises exception Invalid_Config with given message
 
    procedure Apply_Config_File
@@ -2430,7 +2428,7 @@ package body GPR.Conf is
 
    procedure Raise_Invalid_Config (Msg : String) is
    begin
-      Raise_Exception (Invalid_Config'Identity, Msg);
+      raise Invalid_Config with Msg;
    end Raise_Invalid_Config;
 
    ----------------------
