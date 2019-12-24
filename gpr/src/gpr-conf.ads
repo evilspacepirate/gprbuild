@@ -181,8 +181,8 @@ package GPR.Conf is
    --  Any error in generating or parsing the config file is reported via the
    --  Invalid_Config exception, with an appropriate message.
    --
-   --  On exit, Configuration_Project_Path is never null (if none could be
-   --  found, Os.Fail was called and the program exited anyway).
+   --  On exit, Config_File_Path is never null (if none could be found, Os.Fail
+   --  was called and the program exited anyway).
    --
    --  The choice and generation of a configuration file depends on several
    --  attributes of the user's project file (given by the Project argument),
