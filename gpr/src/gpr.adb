@@ -31,7 +31,6 @@ with Ada.Unchecked_Deallocation;
 
 with GNAT.Case_Util;            use GNAT.Case_Util;
 with GNAT.Directory_Operations; use GNAT.Directory_Operations;
-with GNAT.HTable;
 
 with GPR.Opt;
 with GPR.Attr;
@@ -1141,26 +1140,19 @@ package body GPR is
    -- Hash --
    ----------
 
-   function Hash is new GNAT.HTable.Hash (Header_Num => Header_Num);
-   --  Used in implementation of other functions Hash below
-
-   ----------
-   -- Hash --
-   ----------
+   function Hash (Name : Name_Id) return Header_Num is
+   begin
+      return Header_Num (Name mod (Max_Header_Num + 1));
+   end Hash;
 
    function Hash (Name : File_Name_Type) return Header_Num is
    begin
-      return Hash (Get_Name_String (Name));
-   end Hash;
-
-   function Hash (Name : Name_Id) return Header_Num is
-   begin
-      return Hash (Get_Name_String (Name));
+      return Hash (Name_Id (Name));
    end Hash;
 
    function Hash (Name : Path_Name_Type) return Header_Num is
    begin
-      return Hash (Get_Name_String (Name));
+      return Hash (Name_Id (Name));
    end Hash;
 
    function Hash (Project : Project_Id) return Header_Num is
@@ -1168,7 +1160,7 @@ package body GPR is
       if Project = No_Project then
          return Header_Num'First;
       else
-         return Hash (Get_Name_String (Project.Name));
+         return Hash (Project.Name);
       end if;
    end Hash;
 
