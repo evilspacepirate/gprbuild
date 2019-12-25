@@ -118,10 +118,6 @@ package body GPR.Knowledge is
    --  If the variable is not defined a warning is emitted and an empty
    --  string is returned.
 
-   function Get_Name_String_Or_Null (Name : Name_Id) return String;
-   --  Return the string stored in Name (or the empty string if Name is
-   --  No_Name)
-
    procedure Put_Verbose (Config : Configuration);
    --  Debug put for Config
 
@@ -3856,20 +3852,6 @@ package body GPR.Knowledge is
          return Name_Find;
       end if;
    end Get_String_Or_No_Name;
-
-   -----------------------------
-   -- Get_Name_String_Or_Null --
-   -----------------------------
-
-   function Get_Name_String_Or_Null (Name : Name_Id) return String is
-   begin
-      if Name = No_Name then
-         return "";
-      else
-         Get_Name_String (Name);
-         return Name_Buffer (1 .. Name_Len);
-      end if;
-   end Get_Name_String_Or_Null;
 
    -------------------
    -- Set_Selection --

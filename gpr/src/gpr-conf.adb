@@ -22,6 +22,7 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
+with Ada.Containers.Hashed_Maps;
 with Ada.Directories; use Ada.Directories;
 
 with GNAT.Case_Util; use GNAT.Case_Util;
@@ -1182,14 +1183,18 @@ package body GPR.Conf is
 
       function Get_Config_Switches return Argument_List_Access is
 
-         package Language_Htable is new GNAT.HTable.Simple_HTable
-           (Header_Num => Header_Num,
-            Element    => Name_Id,
-            No_Element => No_Name,
-            Key        => Name_Id,
-            Hash       => Hash,
-            Equal      => "=");
-         --  Hash table to keep the languages used in the project tree
+         function To_Hash (Item : Name_Id) return Ada.Containers.Hash_Type
+         is (Ada.Containers.Hash_Type (Item));
+
+         package Language_Maps is new Ada.Containers.Hashed_Maps
+           (Key_Type        => Name_Id,
+            Element_Type    => Name_Id,
+            Hash            => To_Hash,
+            Equivalent_Keys => "=");
+         --  Hash table to keep the languages and its required versions used in
+         --  the project tree.
+
+         Language_Htable : Language_Maps.Map;
 
          IDE : constant Package_Id :=
                  Value_Of (Name_Ide, Project.Decl.Packages, Shared);
@@ -1220,7 +1225,49 @@ package body GPR.Conf is
             List          : String_List_Id;
             Elem          : String_Element;
 
+            Current_Array_Id : Array_Id;
+            Current_Array    : Array_Data;
+            Element_Id       : Array_Element_Id;
+            Element          : Array_Element;
+            CL               : Language_Maps.Cursor;
+            OK               : Boolean;
+
          begin
+            --  Required_Toolchain_Version processing
+
+            Current_Array_Id := Project.Decl.Arrays;
+            while Current_Array_Id /= No_Array loop
+               Current_Array := Shared.Arrays.Table (Current_Array_Id);
+
+               Element_Id := Current_Array.Value;
+
+               while Element_Id /= No_Array_Element loop
+                  Element := Shared.Array_Elements.Table (Element_Id);
+
+                  if Current_Array.Name = Name_Required_Toolchain_Version then
+                     --  Attribute Required_Toolchain_Version (<language>)
+
+                     Language_Htable.Insert
+                       (Element.Index, Element.Value.Value, CL, OK);
+                     if not OK
+                       and then Language_Htable (CL) /= Element.Value.Value
+                     then
+                        if Language_Htable (CL) /= No_Name then
+                           Raise_Invalid_Config
+                             ("Attributes Required_Toolchain_Version differ in"
+                              & " projects tree");
+                        end if;
+
+                        Language_Htable (CL) := Element.Value.Value;
+                     end if;
+                  end if;
+
+                  Element_Id := Element.Next;
+               end loop;
+
+               Current_Array_Id := Current_Array.Next;
+            end loop;
+
             Variable :=
               Value_Of (Name_Languages, Project.Decl.Attributes, Shared);
 
@@ -1256,12 +1303,12 @@ package body GPR.Conf is
                      Get_Name_String (Variable.Value);
                      To_Lower (Name_Buffer (1 .. Name_Len));
                      Lang := Name_Find;
-                     Language_Htable.Set (Lang, Lang);
+                     Language_Htable.Insert (Lang, No_Name, CL, OK);
 
                      --  If no default language is declared, default to Ada
 
                   else
-                     Language_Htable.Set (Name_Ada, Name_Ada);
+                     Language_Htable.Insert (Name_Ada, No_Name, CL, OK);
                   end if;
                end if;
 
@@ -1277,7 +1324,7 @@ package body GPR.Conf is
                   Get_Name_String (Elem.Value);
                   To_Lower (Name_Buffer (1 .. Name_Len));
                   Lang := Name_Find;
-                  Language_Htable.Set (Lang, Lang);
+                  Language_Htable.Insert (Lang, No_Name, CL, OK);
 
                   List := Elem.Next;
                end loop;
@@ -1305,18 +1352,12 @@ package body GPR.Conf is
             With_State         => Dummy,
             Include_Aggregated => True);
 
-         Name  := Language_Htable.Get_First;
-         Count := 0;
-         while Name /= No_Name loop
-            Count := Count + 1;
-            Name := Language_Htable.Get_Next;
-         end loop;
-
-         Result := new String_List (1 .. Count);
+         Result := new String_List (1 .. Natural (Language_Htable.Length));
 
          Count := 0;
-         Name  := Language_Htable.Get_First;
-         while Name /= No_Name loop
+         for CL in Language_Htable.Iterate loop
+            Name := Language_Maps.Key (CL);
+
             if not CodePeer_Mode or else Name = Name_Ada then
                Count := Count + 1;
 
@@ -1332,13 +1373,17 @@ package body GPR.Conf is
                     Force_Lower_Case_Index  => True);
 
                declare
-                  Config_Command : constant String :=
-                    "--config=" & Get_Name_String (Name);
-
-                  Runtime_Name   : constant String :=
-                                     Runtime_Name_For (Name);
-                  Toolchain_Name : constant String :=
-                                     Toolchain_Name_For (Name);
+                  Version   : constant String :=
+                                Get_Name_String_Or_Null
+                                  (Language_Maps.Element (CL));
+                  Ver_First : constant Positive := Version'First +
+                    (if Name = Name_Ada
+                       and then Starts_With (Version, GNAT_And_Space)
+                     then GNAT_And_Space'Length else 0);
+                  Config_Common : constant String :=
+                                    "--config=" & Get_Name_String (Name) & ','
+                                    & Version (Ver_First .. Version'Last) & ','
+                                    & Runtime_Name_For (Name) & ',';
 
                begin
                   --  In CodePeer mode, we do not take into account any
@@ -1348,9 +1393,8 @@ package body GPR.Conf is
                     or else Variable = Nil_Variable_Value
                     or else Length_Of_Name (Variable.Value) = 0
                   then
-                     Result (Count) :=
-                       new String'(Config_Command & ",," & Runtime_Name
-                                   & ",," & Toolchain_Name);
+                     Result (Count) := new String'
+                       (Config_Common & ',' & Toolchain_Name_For (Name));
                   else
                      At_Least_One_Compiler_Command := True;
 
@@ -1360,23 +1404,18 @@ package body GPR.Conf is
 
                      begin
                         if Is_Absolute_Path (Compiler_Command) then
-                           Result (Count) :=
-                             new String'
-                               (Config_Command & ",," & Runtime_Name & ","
-                                & Containing_Directory (Compiler_Command) & ","
-                                & Simple_Name (Compiler_Command));
+                           Result (Count) := new String'
+                             (Config_Common
+                              & Containing_Directory (Compiler_Command) & ","
+                              & Simple_Name (Compiler_Command));
                         else
-                           Result (Count) :=
-                             new String'
-                               (Config_Command & ",," & Runtime_Name & ",,"
-                                & Compiler_Command);
+                           Result (Count) := new String'
+                             (Config_Common & ',' & Compiler_Command);
                         end if;
                      end;
                   end if;
                end;
             end if;
-
-            Name  := Language_Htable.Get_Next;
          end loop;
 
          if Count /= Result'Last then
@@ -2447,11 +2486,7 @@ package body GPR.Conf is
 
    function Runtime_Name_For (Language : Name_Id) return String is
    begin
-      if RTS_Languages.Get (Language) /= No_Name then
-         return Get_Name_String (RTS_Languages.Get (Language));
-      else
-         return "";
-      end if;
+      return Get_Name_String_Or_Null (RTS_Languages.Get (Language));
    end Runtime_Name_For;
 
    --------------------------
@@ -2480,11 +2515,7 @@ package body GPR.Conf is
 
    function Toolchain_Name_For (Language : Name_Id) return String is
    begin
-      if Toolchain_Languages.Get (Language) /= No_Name then
-         return Get_Name_String (Toolchain_Languages.Get (Language));
-      else
-         return "";
-      end if;
+      return Get_Name_String_Or_Null (Toolchain_Languages.Get (Language));
    end Toolchain_Name_For;
 
    ----------------------------

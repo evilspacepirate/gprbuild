@@ -392,6 +392,9 @@ package GPR.Util is
    function Is_Ada_Predefined_Unit (Unit : String) return Boolean;
    --  Return True if Unit is an Ada runtime unit
 
+   function Starts_With (Item : String; Prefix : String) return Boolean;
+   --  Return True if Item starts with Prefix
+
    generic
       with procedure Action (Source : Source_Id);
    procedure For_Interface_Sources
@@ -928,5 +931,9 @@ private
       Info : Source_Info;
       Next : Natural;
    end record;
+
+   function Starts_With (Item : String; Prefix : String) return Boolean
+   is (Item'Length >= Prefix'Length
+       and then Item (Item'First .. Item'First + Prefix'Length - 1) = Prefix);
 
 end GPR.Util;

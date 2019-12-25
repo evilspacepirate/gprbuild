@@ -2731,7 +2731,7 @@ package body GPR.Nmsc is
                            --  Version 6.3 or earlier
 
                            if Vers'Length >= 8
-                             and then Vers (1 .. 5) = "GNAT "
+                             and then Vers (1 .. 5) = GNAT_And_Space
                              and then Vers (7) = '.'
                              and then
                                (Vers (6) < '6'
@@ -2991,7 +2991,8 @@ package body GPR.Nmsc is
 
                                           if Start /= 0 then
                                              Name_Len := 0;
-                                             Add_Str_To_Name_Buffer ("GNAT ");
+                                             Add_Str_To_Name_Buffer
+                                               (GNAT_And_Space);
                                              Add_Str_To_Name_Buffer
                                                (Line (Start + 2 .. Last - 1));
                                              Version := Name_Find;
@@ -3138,12 +3139,46 @@ package body GPR.Nmsc is
            and then Lang_Index.Config.Toolchain_Version /=
              Lang_Index.Config.Required_Toolchain_Version
          then
-            Error_Msg
-              (Data.Flags,
-               "Toolchain version for language " &
-                 Get_Name_String (Lang_Index.Name) &
-               " differs from the required one",
-               No_Location, Project);
+            declare
+               function No_GNAT_Prefix (Id : Name_Id) return String;
+               --  Returns version string without "GNAT " prefix for Ada
+               --  language if prefix exists. Returns version string as is for
+               --  non Ada languages.
+
+               --------------------
+               -- No_GNAT_Prefix --
+               --------------------
+
+               function No_GNAT_Prefix (Id : Name_Id) return String is
+                  Result : constant String := Get_Name_String_Or_Null (Id);
+               begin
+                  if Lang_Index.Name = Name_Ada
+                    and then Starts_With (Result, GNAT_And_Space)
+                  then
+                     return Result
+                       (Result'First + GNAT_And_Space'Length .. Result'Last);
+                  else
+                     return Result;
+                  end if;
+               end No_GNAT_Prefix;
+
+               TVC : constant String :=
+                       No_GNAT_Prefix (Lang_Index.Config.Toolchain_Version);
+               TVR : constant String :=
+                       No_GNAT_Prefix
+                         (Lang_Index.Config.Required_Toolchain_Version);
+            begin
+               if TVC /= TVR then
+                  Error_Msg
+                    (Data.Flags,
+                     "Toolchain version "
+                     & (if TVC = "" then "" else '"' & TVC & """ ")
+                     & "for language "
+                     & Get_Name_String (Lang_Index.Name)
+                     & " differs from the required one """ & TVR & '"',
+                     No_Location, Project);
+               end if;
+            end;
          end if;
 
          if Lang_Index.Config.Kind = Unit_Based then

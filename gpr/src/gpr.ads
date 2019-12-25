@@ -410,6 +410,8 @@ package GPR is
    --  constants, because Canonical_Case_File_Name is called on these variables
    --  in the body of Prj.
 
+   GNAT_And_Space : constant String := "GNAT ";
+
    function Empty_File   return File_Name_Type;
    function Empty_String return Name_Id;
    --  Return the id for an empty string ""

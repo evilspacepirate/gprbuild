@@ -434,7 +434,7 @@ begin
                   elsif Line (1 .. Last) = "ada" then
                      Get_Line (IO_File, Line, Last);
 
-                     if Last > 5 and then Line (1 .. 5) = "GNAT " then
+                     if Last > 5 and then Line (1 .. 5) = GNAT_And_Space then
                         GNAT_Version := new String'(Line (6 .. Last));
                         GNAT_Version_Set := True;
                      end if;

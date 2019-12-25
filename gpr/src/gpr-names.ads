@@ -43,6 +43,9 @@ package GPR.Names is
    --  This functional form returns the result as a string without affecting
    --  the contents of either Name_Buffer or Name_Len. The lower bound is 1.
 
+   function Get_Name_String_Or_Null (Id : Name_Id) return String;
+   --  Same as above, except that on No_Name return Empty string
+
    procedure Get_Name_String_And_Append (Id : Name_Id);
    --  Like Get_Name_String but the resulting characters are appended to the
    --  current contents of the entry stored in Name_Buffer, and Name_Len is
@@ -171,5 +174,10 @@ package GPR.Names is
    procedure Set_Casing (C : Casing_Type);
    --  Takes the name stored in the first Name_Len positions of Name_Buffer and
    --  modifies it to be consistent with the casing given by C.
+
+private
+
+   function Get_Name_String_Or_Null (Id : Name_Id) return String
+   is (if Id = No_Name then "" else Get_Name_String (Id));
 
 end GPR.Names;

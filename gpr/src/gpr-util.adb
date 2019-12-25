@@ -2206,20 +2206,6 @@ package body GPR.Util is
 
    function Is_Ada_Predefined_Unit (Unit : String) return Boolean is
       Lower_Unit : String := Unit;
-
-      function Starts_With (Unit : String; Str : String) return Boolean;
-      --  Return True if Unit starts with Str
-
-      -----------------
-      -- Starts_With --
-      -----------------
-
-      function Starts_With (Unit : String; Str : String) return Boolean is
-      begin
-         return Unit'Length >= Str'Length
-           and then Unit (Unit'First .. Unit'First + Str'Length - 1) = Str;
-      end Starts_With;
-
    begin
       To_Lower (Lower_Unit);
 
