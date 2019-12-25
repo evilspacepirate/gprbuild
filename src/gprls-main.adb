@@ -16,10 +16,11 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Ada.Characters.Handling; use Ada.Characters.Handling;
-with Ada.Command_Line;        use Ada.Command_Line;
-with Ada.Exceptions;          use Ada.Exceptions;
-with Ada.Text_IO;             use Ada.Text_IO;
+with Ada.Characters.Handling;    use Ada.Characters.Handling;
+with Ada.Command_Line;           use Ada.Command_Line;
+with Ada.Containers.Generic_Sort;
+with Ada.Exceptions;             use Ada.Exceptions;
+with Ada.Text_IO;                use Ada.Text_IO;
 
 with GNAT.Command_Line; use GNAT.Command_Line;
 
@@ -106,6 +107,20 @@ procedure Gprls.Main is
 
    procedure Look_For_Sources;
    --  Get the source ids
+
+   function Before (Left, Right : Positive) return Boolean
+   is (File_Names (Left).File_Name < File_Names (Right).File_Name);
+   --  Returns True if element of the File_Names in Left position have to be
+   --  before the element in Right position.
+
+   procedure Swap_File_Names (Left, Right : Positive);
+   --  Swap 2 elements in File_Names vector
+
+   procedure Sort_File_Names is new Ada.Containers.Generic_Sort
+     (Index_Type => Positive,
+      Before     => Before,
+      Swap       => Swap_File_Names);
+   --  Sort File_Names vector declared in the GPRls specification
 
    ----------------------
    -- Display_Closures --
@@ -767,6 +782,15 @@ procedure Gprls.Main is
 
    end Scan_Arg;
 
+   ---------------------
+   -- Swap_File_Names --
+   ---------------------
+
+   procedure Swap_File_Names (Left, Right : Positive) is
+   begin
+      File_Names.Swap (Left, Right);
+   end Swap_File_Names;
+
    -----------
    -- Usage --
    -----------
@@ -1160,6 +1184,8 @@ begin
             Unit := Units_Htable.Get_Next (Project_Tree.Units_HT);
          end loop;
       end;
+
+      Sort_File_Names (File_Names.First_Index, File_Names.Last_Index);
 
    else
       --  Find the sources in the project files
