@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2001-2019, Free Software Foundation, Inc.         --
+--          Copyright (C) 2001-2020, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -62,13 +62,7 @@ package body GPR.Proc is
       Equal      => "=");
    --  This hash table contains all processed projects
 
-   package Runtime_Defaults is new GNAT.HTable.Simple_HTable
-     (Header_Num => GPR.Header_Num,
-      Element    => Name_Id,
-      No_Element => No_Name,
-      Key        => Name_Id,
-      Hash       => GPR.Hash,
-      Equal      => "=");
+   Runtime_Defaults : Language_Maps.Map;
    --  Stores the default values of 'Runtime names for the various languages
 
    procedure Add (To_Exp : in out Name_Id; Str : Name_Id);
@@ -1027,7 +1021,7 @@ package body GPR.Proc is
                         The_Default : constant Attribute_Default_Value :=
                           Default_Of
                             (The_Current_Term, From_Project_Node_Tree);
-
+                        CL : Language_Maps.Cursor;
                      begin
                         --  Check the special value for 'Target when specified
 
@@ -1053,9 +1047,9 @@ package body GPR.Proc is
                            Get_Name_String (Index);
                            To_Lower (Name_Buffer (1 .. Name_Len));
 
-                           if Runtime_Defaults.Get (Name_Find) /= No_Name then
-                              The_Variable.Value :=
-                                Runtime_Defaults.Get (Name_Find);
+                           CL := Runtime_Defaults.Find (Name_Find);
+                           if Language_Maps.Has_Element (CL) then
+                              The_Variable.Value := Language_Maps.Element (CL);
                            end if;
 
                         --  Check the defaults
@@ -3372,6 +3366,6 @@ package body GPR.Proc is
    begin
       Name_Len := Value'Length;
       Name_Buffer (1 .. Name_Len) := Value;
-      Runtime_Defaults.Set (Language, Name_Find);
+      Runtime_Defaults.Include (Language, Name_Find);
    end Set_Default_Runtime_For;
 end GPR.Proc;

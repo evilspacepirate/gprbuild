@@ -2,7 +2,7 @@
 --                                                                          --
 --                             GPR TECHNOLOGY                               --
 --                                                                          --
---                     Copyright (C) 2011-2019, AdaCore                     --
+--                     Copyright (C) 2011-2020, AdaCore                     --
 --                                                                          --
 -- This is  free  software;  you can redistribute it and/or modify it under --
 -- terms of the  GNU  General Public License as published by the Free Soft- --
@@ -489,8 +489,7 @@ procedure Gprclean.Main is
 
                         else
                            Set_Runtime_For (Language_Name, RTS);
-                           Set_Default_Runtime_For
-                             (Language_Name, RTS);
+                           Set_Default_Runtime_For (Language_Name, RTS);
                         end if;
                      end;
                   end if;

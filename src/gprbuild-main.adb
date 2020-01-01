@@ -2,7 +2,7 @@
 --                                                                          --
 --                             GPR TECHNOLOGY                               --
 --                                                                          --
---                     Copyright (C) 2011-2019, AdaCore                     --
+--                     Copyright (C) 2011-2020, AdaCore                     --
 --                                                                          --
 -- This is  free  software;  you can redistribute it and/or modify it under --
 -- terms of the  GNU  General Public License as published by the Free Soft- --
@@ -862,7 +862,7 @@ procedure Gprbuild.Main is
                   declare
                      Comp_Id : constant Name_Id := Name_Find;
                   begin
-                     Compiler_Subst_HTable.Set (Lang_Id, Comp_Id);
+                     Compiler_Subst_HTable.Include (Lang_Id, Comp_Id);
                   end;
                end;
             end;

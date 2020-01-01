@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---            Copyright (C) 2006-2019, Free Software Foundation, Inc.       --
+--            Copyright (C) 2006-2020, Free Software Foundation, Inc.       --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -22,11 +22,9 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Ada.Containers.Hashed_Maps;
 with Ada.Directories; use Ada.Directories;
 
 with GNAT.Case_Util; use GNAT.Case_Util;
-with GNAT.HTable;    use GNAT.HTable;
 with GNAT.Table;
 
 with GPR.Env;
@@ -82,23 +80,15 @@ package body GPR.Conf is
    First_Compiler_Root : Compiler_Root_Ptr := null;
    --  Head of the list of compiler roots
 
-   package RTS_Languages is new GNAT.HTable.Simple_HTable
-     (Header_Num => Header_Num,
-      Element    => Name_Id,
-      No_Element => No_Name,
-      Key        => Name_Id,
-      Hash       => Hash,
-      Equal      => "=");
+   function Get_Element_Or_Empty
+     (Self : Language_Maps.Map; Lang : Name_Id) return String;
+   --  Returns String from element or empty string if does not exists
+
+   RTS_Languages : Language_Maps.Map;
    --  Stores the runtime names for the various languages. This is in general
    --  set from a --RTS command line option.
 
-   package Toolchain_Languages is new GNAT.HTable.Simple_HTable
-     (Header_Num => Header_Num,
-      Element    => Name_Id,
-      No_Element => No_Name,
-      Key        => Name_Id,
-      Hash       => Hash,
-      Equal      => "=");
+   Toolchain_Languages : Language_Maps.Map;
    --  Stores the toolchain names for the various languages
 
    package Db_Switch_Args is new GNAT.Table
@@ -547,6 +537,22 @@ package body GPR.Conf is
       return True;
    end Check_Target;
 
+   --------------------------
+   -- Get_Element_Or_Empty --
+   --------------------------
+
+   function Get_Element_Or_Empty
+     (Self : Language_Maps.Map; Lang : Name_Id) return String
+   is
+      C : constant Language_Maps.Cursor := Self.Find (Lang);
+   begin
+      if Language_Maps.Has_Element (C) then
+         return Get_Name_String (Language_Maps.Element (C));
+      else
+         return "";
+      end if;
+   end Get_Element_Or_Empty;
+
    --------------------------------------
    -- Get_Or_Create_Configuration_File --
    --------------------------------------
@@ -596,13 +602,10 @@ package body GPR.Conf is
       --  If Target_Name is empty, get the specified target in the project
       --  file, if any.
 
-      procedure Get_Project_Runtimes;
-      --  Get the various Runtime (<lang>) in the project file or any project
-      --  it extends, if any are specified.
-
-      procedure Get_Project_Toolchains;
-      --  Get the various Toolchain_Name (<lang>) in the project file or any
-      --  project it extends, if any are specified.
+      procedure Get_Project_Attribute
+        (Lang_Map : in out Language_Maps.Map; Attr_Name : Name_Id);
+      --  Put the various Attr_Name (<lang>) into then Lang_Map from the
+      --  project file or any project it extends, if any are specified.
 
       function Get_Config_Switches return Argument_List_Access;
       --  Return the --config switches to use for gprconfig
@@ -618,8 +621,7 @@ package body GPR.Conf is
       ----------------------------
 
       procedure Check_Builder_Switches is
-         Get_RTS_Switches : constant Boolean :=
-                              RTS_Languages.Get_First = No_Name;
+         Get_RTS_Switches : constant Boolean := RTS_Languages.Is_Empty;
          --  If no switch --RTS have been specified on the command line, look
          --  for --RTS switches in the Builder switches.
 
@@ -773,66 +775,36 @@ package body GPR.Conf is
          end if;
       end Get_Project_Target;
 
-      --------------------------
-      -- Get_Project_Runtimes --
-      --------------------------
+      ---------------------------
+      -- Get_Project_Attribute --
+      ---------------------------
 
-      procedure Get_Project_Runtimes is
+      procedure Get_Project_Attribute
+        (Lang_Map : in out Language_Maps.Map; Attr_Name : Name_Id)
+      is
          Element : Array_Element;
          Id      : Array_Element_Id;
          Lang    : Name_Id;
          Proj    : Project_Id;
+         CL      : Language_Maps.Cursor;
+         OK      : Boolean;
 
       begin
          Proj := Project;
          while Proj /= No_Project loop
-            Id := Value_Of (Name_Runtime, Proj.Decl.Arrays, Shared);
+            Id := Value_Of (Attr_Name, Proj.Decl.Arrays, Shared);
             while Id /= No_Array_Element loop
                Element := Shared.Array_Elements.Table (Id);
                Lang := Element.Index;
 
-               if not Runtime_Name_Set_For (Lang) then
-                  Set_Runtime_For
-                    (Lang, RTS_Name => Get_Name_String (Element.Value.Value));
-               end if;
+               Lang_Map.Insert (Lang, Element.Value.Value, CL, OK);
 
                Id := Element.Next;
             end loop;
 
             Proj := Proj.Extends;
          end loop;
-      end Get_Project_Runtimes;
-
-      ----------------------------
-      -- Get_Project_Toolchains --
-      ----------------------------
-
-      procedure Get_Project_Toolchains is
-         Element : Array_Element;
-         Id      : Array_Element_Id;
-         Lang    : Name_Id;
-         Proj    : Project_Id;
-
-      begin
-         Proj := Project;
-         while Proj /= No_Project loop
-            Id := Value_Of (Name_Toolchain_Name, Proj.Decl.Arrays, Shared);
-            while Id /= No_Array_Element loop
-               Element := Shared.Array_Elements.Table (Id);
-               Lang := Element.Index;
-
-               if not Toolchain_Name_Set_For (Lang) then
-                  Set_Toolchain_For
-                    (Lang,
-                     Toolchain_Name => Get_Name_String (Element.Value.Value));
-               end if;
-
-               Id := Element.Next;
-            end loop;
-
-            Proj := Proj.Extends;
-         end loop;
-      end Get_Project_Toolchains;
+      end Get_Project_Attribute;
 
       -----------------------
       -- Default_File_Name --
@@ -1183,17 +1155,6 @@ package body GPR.Conf is
 
       function Get_Config_Switches return Argument_List_Access is
 
-         function To_Hash (Item : Name_Id) return Ada.Containers.Hash_Type
-         is (Ada.Containers.Hash_Type (Item));
-
-         package Language_Maps is new Ada.Containers.Hashed_Maps
-           (Key_Type        => Name_Id,
-            Element_Type    => Name_Id,
-            Hash            => To_Hash,
-            Equivalent_Keys => "=");
-         --  Hash table to keep the languages and its required versions used in
-         --  the project tree.
-
          Language_Htable : Language_Maps.Map;
 
          IDE : constant Package_Id :=
@@ -1453,8 +1414,17 @@ package body GPR.Conf is
       Config := No_Project;
 
       Get_Project_Target;
-      Get_Project_Runtimes;
-      Get_Project_Toolchains;
+
+      --  Get the various Toolchain_Name (<lang>) in the project file or any
+      --  project it extends, if any are specified.
+
+      Get_Project_Attribute (Toolchain_Languages, Name_Toolchain_Name);
+
+      --  Get the various Runtime (<lang>) in the project file or any project
+      --  it extends, if any are specified.
+
+      Get_Project_Attribute (RTS_Languages, Name_Runtime);
+
       Check_Builder_Switches;
 
       --  Makes the Ada RTS absolute if it is not a base name and check if the
@@ -1589,7 +1559,7 @@ package body GPR.Conf is
       --  switch, but not when the config file is generated in memory.
 
       elsif Warn_For_RTS
-        and then RTS_Languages.Get_First /= No_Name
+        and then not RTS_Languages.Is_Empty
         and then Opt.Warning_Mode /= Opt.Suppress
         and then On_Load_Config = null
       then
@@ -2486,7 +2456,7 @@ package body GPR.Conf is
 
    function Runtime_Name_For (Language : Name_Id) return String is
    begin
-      return Get_Name_String_Or_Null (RTS_Languages.Get (Language));
+      return Get_Element_Or_Empty (RTS_Languages, Language);
    end Runtime_Name_For;
 
    --------------------------
@@ -2495,7 +2465,7 @@ package body GPR.Conf is
 
    function Runtime_Name_Set_For (Language : Name_Id) return Boolean is
    begin
-      return RTS_Languages.Get (Language) /= No_Name;
+      return RTS_Languages.Contains (Language);
    end Runtime_Name_Set_For;
 
    ---------------------
@@ -2506,7 +2476,7 @@ package body GPR.Conf is
    begin
       Name_Len := RTS_Name'Length;
       Name_Buffer (1 .. Name_Len) := RTS_Name;
-      RTS_Languages.Set (Language, Name_Find);
+      RTS_Languages.Include (Language, Name_Find);
    end Set_Runtime_For;
 
    ------------------------
@@ -2515,7 +2485,7 @@ package body GPR.Conf is
 
    function Toolchain_Name_For (Language : Name_Id) return String is
    begin
-      return Get_Name_String_Or_Null (Toolchain_Languages.Get (Language));
+      return Get_Element_Or_Empty (Toolchain_Languages, Language);
    end Toolchain_Name_For;
 
    ----------------------------
@@ -2524,7 +2494,7 @@ package body GPR.Conf is
 
    function Toolchain_Name_Set_For (Language : Name_Id) return Boolean is
    begin
-      return Toolchain_Languages.Get (Language) /= No_Name;
+      return Toolchain_Languages.Contains (Language);
    end Toolchain_Name_Set_For;
 
    -----------------------
@@ -2535,7 +2505,7 @@ package body GPR.Conf is
    begin
       Name_Len := Toolchain_Name'Length;
       Name_Buffer (1 .. Name_Len) := Toolchain_Name;
-      Toolchain_Languages.Set (Language, Name_Find);
+      Toolchain_Languages.Include (Language, Name_Find);
    end Set_Toolchain_For;
 
    ----------------------------

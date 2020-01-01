@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2001-2019, Free Software Foundation, Inc.         --
+--          Copyright (C) 2001-2020, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -39,6 +39,7 @@ with Ada.Exceptions;
 
 with GNAT.Calendar.Time_IO;     use GNAT.Calendar.Time_IO;
 with GNAT.Case_Util;            use GNAT.Case_Util;
+with GNAT.HTable;
 with GNAT.Regexp;               use GNAT.Regexp;
 with GNAT.Table;
 with GNAT.Calendar;             use GNAT.Calendar;
@@ -3674,17 +3675,16 @@ package body GPR.Util is
    begin
       if Lang.Config.Compiler_Driver_Path = null then
          declare
-            Compiler : Name_Id := Compiler_Subst_HTable.Get (Lang.Name);
-         begin
+            CL : constant Language_Maps.Cursor :=
+                   Compiler_Subst_HTable.Find (Lang.Name);
+            Compiler : constant Name_Id :=
+                         (if Language_Maps.Has_Element (CL)
+                          then Language_Maps.Element (CL)
+                          else Name_Id (Lang.Config.Compiler_Driver));
             --  If --compiler-subst was used to specify an alternate compiler,
-            --  then Compiler /= No_Name. In the usual case, Compiler =
-            --  No_Name, so we set Compiler to the Compiler_Driver from the
-            --  config file.
-
-            if Compiler = No_Name then
-               Compiler := Name_Id (Lang.Config.Compiler_Driver);
-            end if;
-
+            --  then Language_Maps.Has_Element (CL). In other case set Compiler
+            --  to the Compiler_Driver from the config file.
+         begin
             --  No compiler found, return now
 
             if Compiler = No_Name then

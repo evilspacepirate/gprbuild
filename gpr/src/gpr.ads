@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2001-2019, Free Software Foundation, Inc.         --
+--          Copyright (C) 2001-2020, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -27,6 +27,7 @@
 
 --  Children of this package implement various services on these data types
 
+with Ada.Containers.Hashed_Maps;
 with Ada.Containers.Ordered_Sets;
 
 with GNAT.Dynamic_HTables; use GNAT.Dynamic_HTables;
@@ -2824,7 +2825,21 @@ package GPR is
    --  True when no target is specified on the command line or in the main
    --  project.
 
+   function To_Hash (Item : Name_Id) return Ada.Containers.Hash_Type;
+
+   package Language_Maps is new Ada.Containers.Hashed_Maps
+     (Key_Type        => Name_Id,
+      Element_Type    => Name_Id,
+      Hash            => To_Hash,
+      Equivalent_Keys => "=");
+   --  Hash table to keep the languages and its required versions used in
+   --  the project tree.
+
 private
+
+   function To_Hash (Item : Name_Id) return Ada.Containers.Hash_Type
+   is (Ada.Containers.Hash_Type (Item));
+
    Tool_Name : String_Access := null;
 
    Serious_Errors_Detected : Nat := 0;
