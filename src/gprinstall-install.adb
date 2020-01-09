@@ -2,7 +2,7 @@
 --                                                                          --
 --                             GPR TECHNOLOGY                               --
 --                                                                          --
---                     Copyright (C) 2012-2019, AdaCore                     --
+--                     Copyright (C) 2012-2020, AdaCore                     --
 --                                                                          --
 -- This is  free  software;  you can redistribute it and/or modify it under --
 -- terms of the  GNU  General Public License as published by the Free Soft- --
@@ -1874,7 +1874,7 @@ package body Gprinstall.Install is
 
                   --  Check if a typed variable
 
-                  if V.Value.String_Type /= Empty_Project_Node then
+                  if GPR.Tree.Present (V.Value.String_Type) then
                      Current := Types;
 
                      Type_Loop : while Current /= null loop
@@ -1930,7 +1930,7 @@ package body Gprinstall.Install is
                        (To_String
                           ((Max_Len - Get_Name_String (V.Name)'Length) * ' '));
 
-                     if V.Value.String_Type /= Empty_Project_Node then
+                     if GPR.Tree.Present (V.Value.String_Type) then
                         Write_Str (" : ");
                         Write_Str
                           (Get_Name_String

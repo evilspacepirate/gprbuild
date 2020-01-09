@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2001-2019, Free Software Foundation, Inc.         --
+--          Copyright (C) 2001-2020, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -657,15 +657,12 @@ package body GPR.Part is
 
          Processed_Hash.Set (Project, True);
 
-         declare
-            Declaration : constant Project_Node_Id :=
-                            Project_Declaration_Of (Project, In_Tree);
-         begin
-            Extension_Withs := First_With_Clause_Of (Project, In_Tree);
-            Look_For_Virtual_Projects_For
-              (Extended_Project_Of (Declaration, In_Tree), In_Tree,
-               Potentially_Virtual => False);
-         end;
+         Extension_Withs := First_With_Clause_Of (Project, In_Tree);
+         Look_For_Virtual_Projects_For
+           (Extended_Project_Of
+              (Project_Declaration_Of (Project, In_Tree), In_Tree),
+            In_Tree,
+            Potentially_Virtual => False);
 
          --  Now, check the projects directly imported by the main project.
          --  Remove from the potentially virtual any project extended by one
@@ -684,9 +681,7 @@ package body GPR.Part is
                if Present (Imported) then
                   Declaration := Project_Declaration_Of (Imported, In_Tree);
 
-                  if Extended_Project_Of (Declaration, In_Tree) /=
-                    Empty_Project_Node
-                  then
+                  if Present (Extended_Project_Of (Declaration, In_Tree)) then
                      loop
                         Imported :=
                           Extended_Project_Of (Declaration, In_Tree);

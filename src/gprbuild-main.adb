@@ -2495,7 +2495,7 @@ begin
       Fail_Program
         (Project_Tree,
          """" & Project_File_Name.all & """ processing failed",
-         Flush_Messages => User_Project_Node /= Empty_Project_Node);
+         Flush_Messages => Present (User_Project_Node));
    end if;
 
    if Configuration_Project_Path /= null then

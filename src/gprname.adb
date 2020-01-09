@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---                      Copyright (C) 2001-2019, AdaCore                    --
+--                      Copyright (C) 2001-2020, AdaCore                    --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -806,7 +806,7 @@ package body GPRName is
                             (Of_Kind       => N_Expression,
                              In_Tree       => Tree,
                              And_Expr_Kind => Single);
-                        if Prev_Expr = Empty_Project_Node then
+                        if No (Prev_Expr) then
                            Set_First_Expression_In_List
                              (Node    => Source_List,
                               In_Tree => Tree,

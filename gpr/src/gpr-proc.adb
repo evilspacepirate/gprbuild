@@ -603,7 +603,7 @@ package body GPR.Proc is
       while Present (The_Term) loop
          The_Current_Term := Current_Term (The_Term, From_Project_Node_Tree);
 
-         if The_Current_Term /= Empty_Project_Node then
+         if Present (The_Current_Term) then
             Current_Term_Kind :=
               Kind_Of (The_Current_Term, From_Project_Node_Tree);
 
@@ -2444,7 +2444,7 @@ package body GPR.Proc is
 
       procedure Process_Attribute_Declaration (Current : Project_Node_Id) is
       begin
-         if Expression_Of (Current, Node_Tree) = Empty_Project_Node then
+         if No (Expression_Of (Current, Node_Tree)) then
             Process_Associative_Array (Current);
          else
             Process_Expression (Current);

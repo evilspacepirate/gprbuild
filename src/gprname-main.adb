@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---                     Copyright (C) 2001-2018, AdaCore                     --
+--                     Copyright (C) 2001-2020, AdaCore                     --
 --                                                                          --
 -- This is  free  software;  you can redistribute it and/or modify it under --
 -- terms of the  GNU  General Public License as published by the Free Soft- --
@@ -387,7 +387,7 @@ procedure GPRName.Main is
          Fail_Program
            (Project_Tree,
             """" & File_Path.all & """ processing failed",
-            Flush_Messages => User_Project_Node /= Empty_Project_Node);
+            Flush_Messages => Present (User_Project_Node));
 
       else
          declare

@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2001-2018, Free Software Foundation, Inc.         --
+--          Copyright (C) 2001-2020, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -1508,7 +1508,7 @@ package body GPR.Dect is
                   The_Project := Imported_Or_Extended_Project_Of
                     (Current_Project, In_Tree, Project_Name);
 
-                  if The_Project /= Empty_Project_Node then
+                  if Present (The_Project) then
                      Set_Project_Of_Renamed_Package_Of
                        (Package_Declaration, In_Tree, To => The_Project);
                   else

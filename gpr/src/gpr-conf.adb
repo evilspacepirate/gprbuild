@@ -1597,7 +1597,7 @@ package body GPR.Conf is
             Project_Node_Tree => Project_Node_Tree);
       end if;
 
-      if Config_Project_Node /= Empty_Project_Node then
+      if Present (Config_Project_Node) then
          Proc.Process_Project_Tree_Phase_1
            (In_Tree                => Project_Tree,
             Project                => Config,
@@ -1610,7 +1610,7 @@ package body GPR.Conf is
             On_New_Tree_Loaded     => null);
       end if;
 
-      if Config_Project_Node = Empty_Project_Node
+      if No (Config_Project_Node)
          or else Config = No_Project
       then
          Raise_Invalid_Config
@@ -1799,7 +1799,7 @@ package body GPR.Conf is
 
       Finalization := GPR.Part.Finalize_If_Error;
 
-      if User_Project_Node = Empty_Project_Node then
+      if No (User_Project_Node) then
          return;
       end if;
 

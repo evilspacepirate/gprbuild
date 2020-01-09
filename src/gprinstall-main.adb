@@ -2,7 +2,7 @@
 --                                                                          --
 --                             GPR TECHNOLOGY                               --
 --                                                                          --
---                     Copyright (C) 2012-2018, AdaCore                     --
+--                     Copyright (C) 2012-2020, AdaCore                     --
 --                                                                          --
 -- This is  free  software;  you can redistribute it and/or modify it under --
 -- terms of the  GNU  General Public License as published by the Free Soft- --
@@ -957,7 +957,7 @@ begin
          Fail_Program
            (Project_Tree,
             """" & Project_File_Name.all & """ processing failed",
-            Flush_Messages => User_Project_Node /= Empty_Project_Node);
+            Flush_Messages => Present (User_Project_Node));
       end if;
 
       if Configuration_Project_Path /= null then
