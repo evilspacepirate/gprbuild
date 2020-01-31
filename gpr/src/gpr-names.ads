@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2001-2019, Free Software Foundation, Inc.         --
+--          Copyright (C) 2001-2020, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -74,9 +74,13 @@ package GPR.Names is
    --  Add decimal representation of given value to the end of the string
    --  currently stored in Name_Buffer, incrementing Name_Len as required.
 
-   procedure Add_Str_To_Name_Buffer (S : String);
+   procedure Add_Str_To_Name_Buffer (S : String) with Inline;
    --  Add characters of string S to the end of the string currently stored in
    --  the Name_Buffer, incrementing Name_Len by the length of the string.
+
+   procedure Set_Str_To_Name_Buffer (S : String) with Inline;
+   --  Set string S to the Name_Buffer, Set Name_Len to the length of the
+   --  string.
 
    function Get_Name_Table_Int (Id : Name_Id) return Int;
    function Get_Name_Table_Int (Id : Unit_Name_Type) return Int;
