@@ -182,8 +182,7 @@ procedure Gprclean.Main is
                Db_Directory_Expected := False;
                Knowledge.Parse_Knowledge_Base (Project_Tree, Arg);
 
-               Name_Len := 0;
-               Add_Str_To_Name_Buffer (Arg);
+               Set_Str_To_Name_Buffer (Arg);
                Add_Db_Switch_Arg (Name_Find);
 
             elsif Arg'Length /= 0 then
@@ -455,8 +454,7 @@ procedure Gprclean.Main is
                     Switch'Last
                   loop
                      if Switch (J) = '=' then
-                        Name_Len := 0;
-                        Add_Str_To_Name_Buffer
+                        Set_Str_To_Name_Buffer
                           (Switch
                              (RTS_Language_Option'Length + 1 ..
                                   J - 1));

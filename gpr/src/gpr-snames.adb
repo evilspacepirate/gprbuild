@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---      Copyright (C) 2015-2019, Free Software Foundation, Inc.             --
+--      Copyright (C) 2015-2020, Free Software Foundation, Inc.             --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -36,8 +36,7 @@ package body GPR.Snames is
       Dummy : Name_Id;
       pragma Warnings (Off, Dummy);
    begin
-      Name_Len := 0;
-      Add_Str_To_Name_Buffer (S);
+      Set_Str_To_Name_Buffer (S);
       Dummy := Name_Find;
    end Add_Name;
 

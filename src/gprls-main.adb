@@ -2,7 +2,7 @@
 --                                                                          --
 --                             GPR TECHNOLOGY                               --
 --                                                                          --
---                    Copyright (C) 2015-2019, AdaCore                      --
+--                    Copyright (C) 2015-2020, AdaCore                      --
 --                                                                          --
 -- This is  free  software;  you can redistribute it and/or modify it under --
 -- terms of the  GNU  General Public License as published by the Free Soft- --
@@ -499,8 +499,7 @@ procedure Gprls.Main is
                      Dep_Path : File_Name_Type;
 
                   begin
-                     Name_Len := 0;
-                     Add_Str_To_Name_Buffer (Dep_Path_Name);
+                     Set_Str_To_Name_Buffer (Dep_Path_Name);
                      Dep_Path := Name_Find;
                      Text := Osint.Read_Library_Info (Dep_Path);
                   end;

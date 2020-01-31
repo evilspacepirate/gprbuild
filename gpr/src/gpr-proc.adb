@@ -1028,15 +1028,13 @@ package body GPR.Proc is
                         if The_Default = Target_Value
                           and then Opt.Target_Origin = Specified
                         then
-                           Name_Len := 0;
-                           Add_Str_To_Name_Buffer (Opt.Target_Value.all);
+                           Set_Str_To_Name_Buffer (Opt.Target_Value.all);
                            The_Variable.Value := Name_Find;
 
                         elsif The_Default = Canonical_Target_Value
                           and then Opt.Target_Value_Canonical /= null
                         then
-                           Name_Len := 0;
-                           Add_Str_To_Name_Buffer
+                           Set_Str_To_Name_Buffer
                              (Opt.Target_Value_Canonical.all);
                            The_Variable.Value := Name_Find;
 
@@ -1085,8 +1083,7 @@ package body GPR.Proc is
                                        The_Variable.Value := Empty_String;
 
                                     else
-                                       Name_Len := 0;
-                                       Add_Str_To_Name_Buffer
+                                       Set_Str_To_Name_Buffer
                                          (Opt.Target_Value.all);
                                        The_Variable.Value := Name_Find;
                                     end if;
@@ -1096,8 +1093,7 @@ package body GPR.Proc is
                                        The_Variable.Value := Empty_String;
 
                                     else
-                                       Name_Len := 0;
-                                       Add_Str_To_Name_Buffer
+                                       Set_Str_To_Name_Buffer
                                          (Opt.Target_Value_Canonical.all);
                                        The_Variable.Value := Name_Find;
                                     end if;
@@ -1462,8 +1458,7 @@ package body GPR.Proc is
 
                            if Ext_List then
                               for Ind in Str_List'Range loop
-                                 Name_Len := 0;
-                                 Add_Str_To_Name_Buffer (Str_List (Ind).all);
+                                 Set_Str_To_Name_Buffer (Str_List (Ind).all);
                                  Value := Name_Find;
                                  Shared.String_Elements.Table (Last) :=
                                    (Value         => Value,

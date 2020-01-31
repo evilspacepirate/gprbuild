@@ -411,22 +411,19 @@ package body GPR.Util is
 
    function Create_Name (Name : String) return File_Name_Type is
    begin
-      Name_Len := 0;
-      Add_Str_To_Name_Buffer (Name);
+      Set_Str_To_Name_Buffer (Name);
       return Name_Find;
    end Create_Name;
 
    function Create_Name (Name : String) return Name_Id is
    begin
-      Name_Len := 0;
-      Add_Str_To_Name_Buffer (Name);
+      Set_Str_To_Name_Buffer (Name);
       return Name_Find;
    end Create_Name;
 
    function Create_Name (Name : String) return Path_Name_Type is
    begin
-      Name_Len := 0;
-      Add_Str_To_Name_Buffer (Name);
+      Set_Str_To_Name_Buffer (Name);
       return Name_Find;
    end Create_Name;
 
@@ -913,8 +910,7 @@ package body GPR.Util is
 
       begin
          if Ada.Directories.Exists (Filename) then
-            Name_Len := 0;
-            Add_Str_To_Name_Buffer (Filename);
+            Set_Str_To_Name_Buffer (Filename);
             Lib_File := Name_Find;
             Text := Osint.Read_Library_Info (Lib_File);
             Result :=
@@ -1806,8 +1802,7 @@ package body GPR.Util is
                end if;
 
                if Truncated then
-                  Name_Len := 0;
-                  Add_Str_To_Name_Buffer (Name (1 .. Last));
+                  Set_Str_To_Name_Buffer (Name (1 .. Last));
 
                   Value := GPR.Util.Value_Of
                     (Name                    => Name_Find,
@@ -1823,9 +1818,7 @@ package body GPR.Util is
                      Last := Last - 1;
                   end loop;
 
-                  Name_Len := 0;
-                  Add_Str_To_Name_Buffer (Name (1 .. Last));
-                  Add_Str_To_Name_Buffer ("ali");
+                  Set_Str_To_Name_Buffer (Name (1 .. Last) & "ali");
 
                   Value := GPR.Util.Value_Of
                     (Name                    => Name_Find,
@@ -2726,8 +2719,7 @@ package body GPR.Util is
       procedure Add_String (S : String) is
       begin
          if S'Length > 0 then
-            Name_Len := 0;
-            Add_Str_To_Name_Buffer (S);
+            Set_Str_To_Name_Buffer (S);
             List.Append (Name_Find);
          end if;
       end Add_String;
@@ -4220,22 +4212,16 @@ package body GPR.Util is
       --  Cleanup local variables
 
       function Check_Time_Stamps
-        (Path  : String;
-         Stamp : Time_Stamp_Type)
-         return Boolean;
+        (Path : String; Stamp : Time_Stamp_Type) return Boolean;
 
       -----------------------
       -- Check_Time_Stamps --
       -----------------------
 
       function Check_Time_Stamps
-        (Path  : String;
-         Stamp : Time_Stamp_Type)
-         return Boolean
-      is
+        (Path : String; Stamp : Time_Stamp_Type) return Boolean is
       begin
-         Name_Len := 0;
-         Add_Str_To_Name_Buffer (Path);
+         Set_Str_To_Name_Buffer (Path);
 
          declare
             TS   : constant Time_Stamp_Type :=
@@ -4573,8 +4559,7 @@ package body GPR.Util is
                               --  Get the time stamp of the source, which is
                               --  not necessarily a source of any project.
 
-                              Name_Len := 0;
-                              Add_Str_To_Name_Buffer (Src_Name);
+                              Set_Str_To_Name_Buffer (Src_Name);
                               Src_TS := File_Stamp
                                            (Path_Name_Type'(Name_Find));
 
@@ -4839,8 +4824,7 @@ package body GPR.Util is
 
                         procedure Get_Path (Dir : String) is
                         begin
-                           Name_Len := 0;
-                           Add_Str_To_Name_Buffer (Dir);
+                           Set_Str_To_Name_Buffer (Dir);
                            Add_Char_To_Name_Buffer (Directory_Separator);
                            Add_Str_To_Name_Buffer (File);
                            Path := Name_Find;
@@ -6117,8 +6101,7 @@ begin
    declare
       Ext : String_Access := GNAT.OS_Lib.Get_Target_Executable_Suffix;
    begin
-      Name_Len := 0;
-      Add_Str_To_Name_Buffer (Ext.all);
+      Set_Str_To_Name_Buffer (Ext.all);
       Executable_Extension_On_Target := Name_Enter;
       Free (Ext);
    end;

@@ -2,7 +2,7 @@
 --                                                                          --
 --                             GPR TECHNOLOGY                               --
 --                                                                          --
---                     Copyright (C) 2011-2019, AdaCore                     --
+--                     Copyright (C) 2011-2020, AdaCore                     --
 --                                                                          --
 -- This is  free  software;  you can redistribute it and/or modify it under --
 -- terms of the  GNU  General Public License as published by the Free Soft- --
@@ -1786,11 +1786,9 @@ package body Gprbuild.Compile is
                            Src_TS     : Time_Stamp_Type;
 
                         begin
-                           Name_Len := 0;
-                           Add_Str_To_Name_Buffer (Src_Name);
+                           Set_Str_To_Name_Buffer (Src_Name);
                            Src_Name_Id := Name_Find;
-                           Name_Len := 0;
-                           Add_Str_To_Name_Buffer (Unescaped);
+                           Set_Str_To_Name_Buffer (Unescaped);
                            Unescaped_Id := Name_Find;
 
                            Source_2 := Source_Paths_Htable.Get
@@ -3244,8 +3242,7 @@ package body Gprbuild.Compile is
                      "include switches");
 
                   for Index in 1 .. Directories.Last loop
-                     Name_Len := 0;
-                     Add_Str_To_Name_Buffer (Switch.all);
+                     Set_Str_To_Name_Buffer (Switch.all);
                      Add_Str_To_Name_Buffer
                        (Escape_Path
                           (Get_Name_String (Directories.Table (Index))));
@@ -3293,8 +3290,7 @@ package body Gprbuild.Compile is
                         "disk full when writing include switches spec file");
                   end if;
 
-                  Name_Len := 0;
-                  Add_Str_To_Name_Buffer ("+ @");
+                  Set_Str_To_Name_Buffer ("+ @");
                   Add_Str_To_Name_Buffer
                     (Escape_Path (Get_Name_String (Switches_File_Name)));
                   Name_Len := Name_Len + 1;

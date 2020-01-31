@@ -2,7 +2,7 @@
 --                                                                          --
 --                             GPR TECHNOLOGY                               --
 --                                                                          --
---                     Copyright (C) 2006-2018, AdaCore                     --
+--                     Copyright (C) 2006-2020, AdaCore                     --
 --                                                                          --
 -- This is  free  software;  you can redistribute it and/or modify it under --
 -- terms of the  GNU  General Public License as published by the Free Soft- --
@@ -69,9 +69,7 @@ procedure Build_Shared_Lib is
       begin
          if not Opt.Quiet_Output then
             if Opt.Verbose_Mode then
-               Name_Len := 0;
-
-               Add_Str_To_Name_Buffer (Driver.all);
+               Set_Str_To_Name_Buffer (Driver.all);
 
                for Arg of Arguments loop
                   Add_Str_To_Name_Buffer (" ");
@@ -213,8 +211,7 @@ procedure Build_Shared_Lib is
                   PL_Options,
                   Success);
 
-               Name_Len := 0;
-               Add_Str_To_Name_Buffer
+               Set_Str_To_Name_Buffer
                  (Ada.Directories.Current_Directory &
                   '/' & Partial);
                Record_Temp_File

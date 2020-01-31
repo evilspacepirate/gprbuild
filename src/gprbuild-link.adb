@@ -2,7 +2,7 @@
 --                                                                          --
 --                             GPR TECHNOLOGY                               --
 --                                                                          --
---                     Copyright (C) 2011-2019, AdaCore                     --
+--                     Copyright (C) 2011-2020, AdaCore                     --
 --                                                                          --
 -- This is  free  software;  you can redistribute it and/or modify it under --
 -- terms of the  GNU  General Public License as published by the Free Soft- --
@@ -1441,8 +1441,7 @@ package body Gprbuild.Link is
       end if;
 
       if Output_File_Name /= null then
-         Name_Len := 0;
-         Add_Str_To_Name_Buffer (Output_File_Name.all);
+         Set_Str_To_Name_Buffer (Output_File_Name.all);
 
          --  If an executable name was specified without an extension and
          --  there is a non empty executable suffix, add the suffix to the
@@ -2206,8 +2205,7 @@ package body Gprbuild.Link is
                            Open (File, Options_File);
 
                            --  Record the linker options file as temporary.
-                           Name_Len := 0;
-                           Add_Str_To_Name_Buffer
+                           Set_Str_To_Name_Buffer
                              (Ada.Directories.Current_Directory
                               & Dir_Separator & Options_File);
                            Options_File_Path_Name := Name_Find;
@@ -2526,8 +2524,7 @@ package body Gprbuild.Link is
                        (Ada_Lang_Data_Ptr.Config.Toolchain_Version);
                   begin
                      if GNAT_Version'Length >= 7 then
-                        Name_Len := 0;
-                        Add_Str_To_Name_Buffer (GNAT_Version (6 .. 7));
+                        Set_Str_To_Name_Buffer (GNAT_Version (6 .. 7));
                         GNAT_Version_Part := Name_Find;
                      end if;
                   end;
@@ -2586,8 +2583,7 @@ package body Gprbuild.Link is
                                  Prev_Dir_First : Positive;
                                  Nmb            : Natural;
                               begin
-                                 Name_Len := 0;
-                                 Add_Str_To_Name_Buffer (Line (3 .. Last));
+                                 Set_Str_To_Name_Buffer (Line (3 .. Last));
 
                                  while Name_Buffer (Name_Len) =
                                    Directory_Separator
@@ -3265,8 +3261,7 @@ package body Gprbuild.Link is
                                  Arg2 : constant String :=
                                    Arguments (Arg_Index + 1).Name;
                               begin
-                                 Name_Len := 0;
-                                 Add_Str_To_Name_Buffer (Arg1 & Arg2);
+                                 Set_Str_To_Name_Buffer (Arg1 & Arg2);
                                  Arg_Name_Id := Name_Find;
                                  if Args.Get (Arg_Name_Id) then
                                     Arguments.Delete (Arg_Index, 2);
@@ -3284,8 +3279,7 @@ package body Gprbuild.Link is
 
                         --  Case of "-T<file>" (from SAL linker options)
                         else
-                           Name_Len := 0;
-                           Add_Str_To_Name_Buffer
+                           Set_Str_To_Name_Buffer
                              (Arg1);
                            Arg_Name_Id := Name_Find;
                            if Args.Get (Arg_Name_Id) then
@@ -3311,8 +3305,7 @@ package body Gprbuild.Link is
                      Arg_Name_Id : Name_Id;
                   begin
                      if Last >= 8 and then Arg (1 .. 8) = "--specs=" then
-                        Name_Len := 0;
-                        Add_Str_To_Name_Buffer (Arg);
+                        Set_Str_To_Name_Buffer (Arg);
                         Arg_Name_Id := Name_Find;
                         if Args.Get (Arg_Name_Id) then
                            Arguments.Delete (Index);

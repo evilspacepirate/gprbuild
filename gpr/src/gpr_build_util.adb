@@ -2,7 +2,7 @@
 --                                                                          --
 --                             GPR TECHNOLOGY                               --
 --                                                                          --
---          Copyright (C) 2004-2019, Free Software Foundation, Inc.         --
+--          Copyright (C) 2004-2020, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -158,8 +158,7 @@ package body Gpr_Build_Util is
       Result : File_Name_Type;
 
    begin
-      Name_Len := 0;
-      Add_Str_To_Name_Buffer (Base_Name (Main));
+      Set_Str_To_Name_Buffer (Base_Name (Main));
 
       --  Remove the extension, if any, that is the last part of the base name
       --  starting with a dot and following some characters.
@@ -871,8 +870,7 @@ package body Gpr_Build_Util is
          Canonical_Name : File_Name_Type;
 
       begin
-         Name_Len := 0;
-         Add_Str_To_Name_Buffer (Name);
+         Set_Str_To_Name_Buffer (Name);
          Canonical_Case_File_Name (Name_Buffer (1 .. Name_Len));
          Canonical_Name := Name_Find;
 
@@ -896,8 +894,7 @@ package body Gpr_Build_Util is
                           & Boolean'Image (Tree /= null));
          end if;
 
-         Name_Len := 0;
-         Add_Str_To_Name_Buffer (Name);
+         Set_Str_To_Name_Buffer (Name);
          Canonical_Case_File_Name (Name_Buffer (1 .. Name_Len));
 
          Names.Append ((Name_Find, Index, Location, No_Source,

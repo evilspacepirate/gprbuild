@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2001-2019, Free Software Foundation, Inc.         --
+--          Copyright (C) 2001-2020, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -116,8 +116,7 @@ package body GPR is
       N : String (1 .. Name'Length) := Name;
    begin
       To_Lower (N);
-      Name_Len := 0;
-      Add_Str_To_Name_Buffer (N);
+      Set_Str_To_Name_Buffer (N);
       Restricted_Languages :=
         new Restricted_Lang'(Name => Name_Find, Next => Restricted_Languages);
    end Add_Restricted_Language;
@@ -272,8 +271,7 @@ package body GPR is
    is
       Path_Name : Path_Name_Type;
    begin
-      Name_Len := 0;
-      Add_Str_To_Name_Buffer (Path);
+      Set_Str_To_Name_Buffer (Path);
       Path_Name := Name_Find;
       Delete_Temporary_File (Shared, Path_Name);
    end Delete_Temporary_File;
@@ -2232,8 +2230,7 @@ package body GPR is
       P : Project_List;
 
    begin
-      Name_Len := 0;
-      Add_Str_To_Name_Buffer ("Tree [");
+      Set_Str_To_Name_Buffer ("Tree [");
 
       P := Tree.Projects;
       while P /= null loop

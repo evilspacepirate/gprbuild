@@ -2,7 +2,7 @@
 --                                                                          --
 --                             GPR TECHNOLOGY                               --
 --                                                                          --
---                     Copyright (C) 2006-2019, AdaCore                     --
+--                     Copyright (C) 2006-2020, AdaCore                     --
 --                                                                          --
 -- This is  free  software;  you can redistribute it and/or modify it under --
 -- terms of the  GNU  General Public License as published by the Free Soft- --
@@ -601,8 +601,7 @@ begin
       then
          Dash_O_Specified := True;
          Dash_O_File_Specified := True;
-         Name_Len := 0;
-         Add_Str_To_Name_Buffer (Option (4 .. Option'Last));
+         Set_Str_To_Name_Buffer (Option (4 .. Option'Last));
          Objects_Path := Name_Find;
       end if;
    end loop;
@@ -900,13 +899,12 @@ begin
 
    if Main_ALI /= null or else not ALI_Files_Table.Is_Empty then
       Initialize_ALI;
-      Name_Len := 0;
 
       if Main_ALI /= null then
-         Add_Str_To_Name_Buffer (Main_ALI.all);
+         Set_Str_To_Name_Buffer (Main_ALI.all);
 
       else
-         Add_Str_To_Name_Buffer (ALI_Files_Table.First_Element);
+         Set_Str_To_Name_Buffer (ALI_Files_Table.First_Element);
       end if;
 
       declare
@@ -969,9 +967,7 @@ begin
       Compiler_Options.Append (Compiler_Trailing_Options);
 
       if Verbose_Low_Mode then
-         Name_Len := 0;
-
-         Add_Str_To_Name_Buffer (Ada_Compiler_Path.all);
+         Set_Str_To_Name_Buffer (Ada_Compiler_Path.all);
 
          --  Remove the executable suffix, if present
 
@@ -1195,8 +1191,7 @@ begin
                         Prev_Dir_First : Positive;
                         Nmb            : Natural;
                      begin
-                        Name_Len := 0;
-                        Add_Str_To_Name_Buffer (Line (3 .. Last));
+                        Set_Str_To_Name_Buffer (Line (3 .. Last));
 
                         while Name_Buffer (Name_Len) = Directory_Separator
                           or else Name_Buffer (Name_Len) = '/'

@@ -2,7 +2,7 @@
 --                                                                          --
 --                             GPR TECHNOLOGY                               --
 --                                                                          --
---                    Copyright (C) 2015-2018, AdaCore                      --
+--                    Copyright (C) 2015-2020, AdaCore                      --
 --                                                                          --
 -- This is  free  software;  you can redistribute it and/or modify it under --
 -- terms of the  GNU  General Public License as published by the Free Soft- --
@@ -1015,8 +1015,7 @@ package body Gprls is
 
                begin
                   while Path /= null loop
-                     Name_Len := 0;
-                     Add_Str_To_Name_Buffer (Path.Path.all);
+                     Set_Str_To_Name_Buffer (Path.Path.all);
                      Add_Char_To_Name_Buffer (Directory_Separator);
                      Add_Str_To_Name_Buffer (Fname);
 

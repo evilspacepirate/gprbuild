@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2000-2019, Free Software Foundation, Inc.         --
+--          Copyright (C) 2000-2020, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -2883,16 +2883,13 @@ package body GPR.Nmsc is
                               while not End_Of_File (File) loop
                                  Get_Line (File, Line, Last);
                                  if Last > 0 then
-                                    Name_Len := 0;
-
                                     if Is_Absolute_Path (Line (1 .. Last)) then
-                                       Add_Str_To_Name_Buffer
+                                       Set_Str_To_Name_Buffer
                                          (Line (1 .. Last));
                                     else
-                                       Add_Str_To_Name_Buffer
-                                         (Runtime_Dir &
-                                            Directory_Separator &
-                                            Line (1 .. Last));
+                                       Set_Str_To_Name_Buffer
+                                         (Runtime_Dir & Directory_Separator
+                                          & Line (1 .. Last));
                                     end if;
 
                                     Name_List_Table.Append
@@ -2918,8 +2915,7 @@ package body GPR.Nmsc is
                               Close (File);
 
                            else
-                              Name_Len := 0;
-                              Add_Str_To_Name_Buffer
+                              Set_Str_To_Name_Buffer
                                 (Runtime_Dir &
                                    Directory_Separator &
                                    Directory);
@@ -2990,8 +2986,7 @@ package body GPR.Nmsc is
                                             Index (Line (1 .. Last), " v");
 
                                           if Start /= 0 then
-                                             Name_Len := 0;
-                                             Add_Str_To_Name_Buffer
+                                             Set_Str_To_Name_Buffer
                                                (GNAT_And_Space);
                                              Add_Str_To_Name_Buffer
                                                (Line (Start + 2 .. Last - 1));
@@ -5779,8 +5774,7 @@ package body GPR.Nmsc is
 
             else
                if not Is_Absolute_Path (Name_Buffer (1 .. Name_Len)) then
-                  Name_Len := 0;
-                  Add_Str_To_Name_Buffer
+                  Set_Str_To_Name_Buffer
                     (Get_Name_String (Project.Directory.Display_Name));
                   Add_Str_To_Name_Buffer
                     (Get_Name_String (Lib_Symbol_File.Value));
@@ -5832,8 +5826,7 @@ package body GPR.Nmsc is
 
       function Is_Reserved (S : String) return Boolean is
       begin
-         Name_Len := 0;
-         Add_Str_To_Name_Buffer (S);
+         Set_Str_To_Name_Buffer (S);
          return Is_Reserved (Name_Find);
       end Is_Reserved;
 
@@ -6929,8 +6922,7 @@ package body GPR.Nmsc is
         and then Create /= ""
         and then not Is_Absolute_Path (Get_Name_String (Name))
       then
-         Name_Len := 0;
-         Add_Str_To_Name_Buffer (Build_Tree_Dir.all);
+         Set_Str_To_Name_Buffer (Build_Tree_Dir.all);
 
          if The_Parent_Last - The_Parent'First  + 1 < Root_Dir'Length then
             Error_Msg_File_1 := Name;
@@ -7001,8 +6993,7 @@ package body GPR.Nmsc is
          Full_Name := The_Name;
 
       else
-         Name_Len := 0;
-         Add_Str_To_Name_Buffer
+         Set_Str_To_Name_Buffer
            (The_Parent (The_Parent'First .. The_Parent_Last));
          Add_Str_To_Name_Buffer (Get_Name_String (The_Name));
          Full_Name := Name_Find;
@@ -7025,8 +7016,7 @@ package body GPR.Nmsc is
                      Get_Name_String (Name);
 
                   else
-                     Name_Len := 0;
-                     Add_Str_To_Name_Buffer
+                     Set_Str_To_Name_Buffer
                        (The_Parent (The_Parent'First .. The_Parent_Last));
                      Add_Str_To_Name_Buffer (Get_Name_String (Name));
                   end if;
@@ -8216,8 +8206,7 @@ package body GPR.Nmsc is
                      end if;
 
                      if OK then
-                        Name_Len := 0;
-                        Add_Str_To_Name_Buffer (Path_Name);
+                        Set_Str_To_Name_Buffer (Path_Name);
                         Path2.Display_Name := Name_Find;
 
                         Canonical_Case_File_Name (Name_Buffer (1 .. Name_Len));
@@ -8978,8 +8967,7 @@ package body GPR.Nmsc is
               (Display_Name => Path_Name_Type (Src.Display_Path_Name),
                Name         => Path_Name_Type (Src.Path_Name));
 
-            Name_Len := 0;
-            Add_Str_To_Name_Buffer
+            Set_Str_To_Name_Buffer
               (Directories.Simple_Name (Get_Name_String (Src.Path_Name)));
             Id.File := Name_Find;
 
@@ -8987,8 +8975,7 @@ package body GPR.Nmsc is
               Source_Files_Htable.Get (Data.Tree.Source_Files_HT, Id.File);
             Source_Files_Htable.Set (Data.Tree.Source_Files_HT, Id.File, Id);
 
-            Name_Len := 0;
-            Add_Str_To_Name_Buffer
+            Set_Str_To_Name_Buffer
               (Directories.Simple_Name
                  (Get_Name_String (Src.Display_Path_Name)));
             Id.Display_File := Name_Find;

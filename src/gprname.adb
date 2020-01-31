@@ -650,8 +650,7 @@ package body GPRName is
             Current_Source_Dir := Expression;
             Set_First_Term (Expression, Tree, To => Term);
             Set_Current_Term (Term, Tree, To => Value);
-            Name_Len := 0;
-            Add_Str_To_Name_Buffer (Source_Dir);
+            Set_Str_To_Name_Buffer (Source_Dir);
             Set_String_Value_Of (Value, Tree, To => Name_Find);
          end;
       end loop;
@@ -1788,8 +1787,7 @@ package body GPRName is
 
                         --  Add foreign source file name
 
-                        Name_Len := 0;
-                        Add_Str_To_Name_Buffer (Canon (1 .. Last));
+                        Set_Str_To_Name_Buffer (Canon (1 .. Last));
                         Foreign_Sources.Append
                           ((File_Name => Name_Find,
                             Position  => Get_Source_Position (File_Name_Id),
