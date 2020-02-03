@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 1992-2015, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2020, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -256,9 +256,7 @@ package GPR.Sinput is
       Source_Text       : Source_Buffer_Ptr;
       Source_First      : Source_Ptr;
       Source_Last       : Source_Ptr;
-      Source_Checksum   : Word;
       Last_Source_Line  : Line_Number;
-      Time_Stamp        : Time_Stamp_Type;
 
       --  The following fields are for internal use only (i.e. only in the
       --  body of Sinput or its children, with no direct access by clients).
@@ -268,13 +266,6 @@ package GPR.Sinput is
       --  lines are accessed using the Skip_Line_Terminators procedure.
       --  Note: the lines table for an instantiation entry refers to the
       --  original line numbers of the template see Sinput-L for details.
-
-      Lines_Table_Max : Line_Number;
-      --  Maximum subscript values for currently allocated Lines_Table
-      --  and (if present) the allocated Logical_Lines_Table. The value
-      --  Max_Source_Line gives the maximum used value, this gives the
-      --  maximum allocated value.
-
    end record;
 
    procedure Add_Line_Tables_Entry
