@@ -1015,7 +1015,7 @@ package body Gprls is
 
                begin
                   while Path /= null loop
-                     Set_Str_To_Name_Buffer (Path.Path.all);
+                     Set_Name_Buffer (Path.Path.all);
                      Add_Char_To_Name_Buffer (Directory_Separator);
                      Add_Str_To_Name_Buffer (Fname);
 

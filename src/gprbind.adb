@@ -601,7 +601,7 @@ begin
       then
          Dash_O_Specified := True;
          Dash_O_File_Specified := True;
-         Set_Str_To_Name_Buffer (Option (4 .. Option'Last));
+         Set_Name_Buffer (Option (4 .. Option'Last));
          Objects_Path := Name_Find;
       end if;
    end loop;
@@ -901,10 +901,10 @@ begin
       Initialize_ALI;
 
       if Main_ALI /= null then
-         Set_Str_To_Name_Buffer (Main_ALI.all);
+         Set_Name_Buffer (Main_ALI.all);
 
       else
-         Set_Str_To_Name_Buffer (ALI_Files_Table.First_Element);
+         Set_Name_Buffer (ALI_Files_Table.First_Element);
       end if;
 
       declare
@@ -967,7 +967,7 @@ begin
       Compiler_Options.Append (Compiler_Trailing_Options);
 
       if Verbose_Low_Mode then
-         Set_Str_To_Name_Buffer (Ada_Compiler_Path.all);
+         Set_Name_Buffer (Ada_Compiler_Path.all);
 
          --  Remove the executable suffix, if present
 
@@ -1191,7 +1191,7 @@ begin
                         Prev_Dir_First : Positive;
                         Nmb            : Natural;
                      begin
-                        Set_Str_To_Name_Buffer (Line (3 .. Last));
+                        Set_Name_Buffer (Line (3 .. Last));
 
                         while Name_Buffer (Name_Len) = Directory_Separator
                           or else Name_Buffer (Name_Len) = '/'

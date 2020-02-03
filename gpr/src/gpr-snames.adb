@@ -36,7 +36,7 @@ package body GPR.Snames is
       Dummy : Name_Id;
       pragma Warnings (Off, Dummy);
    begin
-      Set_Str_To_Name_Buffer (S);
+      Set_Name_Buffer (S);
       Dummy := Name_Find;
    end Add_Name;
 

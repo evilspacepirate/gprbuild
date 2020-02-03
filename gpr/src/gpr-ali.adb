@@ -750,7 +750,7 @@ package body GPR.ALI is
             Start := Index (Name_Buffer (1 .. Last), " v");
 
             if Start /= 0 then
-               Set_Str_To_Name_Buffer (GNAT_And_Space);
+               Set_Name_Buffer (GNAT_And_Space);
                Add_Str_To_Name_Buffer
                  (Raw (Start + 2 .. Last));
                ALIs.Table (Id).GNAT_Version := Name_Find;

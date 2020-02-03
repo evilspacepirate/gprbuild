@@ -168,7 +168,7 @@ package body GPR.Names is
 
       pragma Assert (Is_Valid_Name (Id));
 
-      Set_Str_To_Name_Buffer (Name_Entries (Id).Value);
+      Set_Name_Buffer (Name_Entries (Id).Value);
 
       if Debug.Debug_Flag_A then
          Put_Line (" Found: '" & Name_Buffer (1 .. Name_Len) & "' >>>>");
@@ -524,14 +524,14 @@ package body GPR.Names is
    end Set_Name_Table_Int;
 
    ----------------------------
-   -- Set_Str_To_Name_Buffer --
+   -- Set_Name_Buffer --
    ----------------------------
 
-   procedure Set_Str_To_Name_Buffer (S : String) is
+   procedure Set_Name_Buffer (S : String) is
    begin
       Name_Len := S'Length;
       Name_Buffer (1 .. Name_Len) := S;
-   end Set_Str_To_Name_Buffer;
+   end Set_Name_Buffer;
 
    -----------------------------
    -- Store_Encoded_Character --

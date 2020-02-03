@@ -69,7 +69,7 @@ procedure Build_Shared_Lib is
       begin
          if not Opt.Quiet_Output then
             if Opt.Verbose_Mode then
-               Set_Str_To_Name_Buffer (Driver.all);
+               Set_Name_Buffer (Driver.all);
 
                for Arg of Arguments loop
                   Add_Str_To_Name_Buffer (" ");
@@ -211,7 +211,7 @@ procedure Build_Shared_Lib is
                   PL_Options,
                   Success);
 
-               Set_Str_To_Name_Buffer
+               Set_Name_Buffer
                  (Ada.Directories.Current_Directory &
                   '/' & Partial);
                Record_Temp_File

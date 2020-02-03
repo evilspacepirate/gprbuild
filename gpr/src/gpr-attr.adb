@@ -808,7 +808,7 @@ package body GPR.Attr is
 
    function Name_Id_Of (Name : String) return Name_Id is
    begin
-      Set_Str_To_Name_Buffer (Name);
+      Set_Name_Buffer (Name);
       To_Lower (Name_Buffer (1 .. Name_Len));
       return Name_Find;
    end Name_Id_Of;

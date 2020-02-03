@@ -4263,7 +4263,7 @@ package body Gprbuild.Post_Compile is
                          Source_Identity.Project.Library_ALI_Dir /=
                            No_Path_Information
                      then
-                        Set_Str_To_Name_Buffer
+                        Set_Name_Buffer
                           (Get_Name_String
                              (Source_Identity.Project
                               .Library_ALI_Dir.Display_Name));
@@ -4935,7 +4935,7 @@ package body Gprbuild.Post_Compile is
 
                if not Opt.Quiet_Output then
                   if Opt.Verbose_Mode then
-                     Set_Str_To_Name_Buffer (B_Data.Binder_Driver_Path.all);
+                     Set_Name_Buffer (B_Data.Binder_Driver_Path.all);
                      Add_Str_To_Name_Buffer (" ");
                      Add_Str_To_Name_Buffer (Bind_Exchange.all);
                      Put_Line (Name_Buffer (1 .. Name_Len));

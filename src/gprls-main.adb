@@ -499,7 +499,7 @@ procedure Gprls.Main is
                      Dep_Path : File_Name_Type;
 
                   begin
-                     Set_Str_To_Name_Buffer (Dep_Path_Name);
+                     Set_Name_Buffer (Dep_Path_Name);
                      Dep_Path := Name_Find;
                      Text := Osint.Read_Library_Info (Dep_Path);
                   end;

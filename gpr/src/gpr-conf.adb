@@ -2366,7 +2366,7 @@ package body GPR.Conf is
                      Get_Name_String (Obj_Dir.Value);
 
                   else
-                     Set_Str_To_Name_Buffer
+                     Set_Name_Buffer
                        (Get_Name_String (Main_Project.Directory.Display_Name));
                      Add_Str_To_Name_Buffer (Get_Name_String (Obj_Dir.Value));
                   end if;

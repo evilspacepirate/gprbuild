@@ -158,7 +158,7 @@ package body Gpr_Build_Util is
       Result : File_Name_Type;
 
    begin
-      Set_Str_To_Name_Buffer (Base_Name (Main));
+      Set_Name_Buffer (Base_Name (Main));
 
       --  Remove the extension, if any, that is the last part of the base name
       --  starting with a dot and following some characters.
@@ -870,7 +870,7 @@ package body Gpr_Build_Util is
          Canonical_Name : File_Name_Type;
 
       begin
-         Set_Str_To_Name_Buffer (Name);
+         Set_Name_Buffer (Name);
          Canonical_Case_File_Name (Name_Buffer (1 .. Name_Len));
          Canonical_Name := Name_Find;
 
@@ -894,7 +894,7 @@ package body Gpr_Build_Util is
                           & Boolean'Image (Tree /= null));
          end if;
 
-         Set_Str_To_Name_Buffer (Name);
+         Set_Name_Buffer (Name);
          Canonical_Case_File_Name (Name_Buffer (1 .. Name_Len));
 
          Names.Append ((Name_Find, Index, Location, No_Source,

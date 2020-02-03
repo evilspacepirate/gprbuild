@@ -78,9 +78,9 @@ package GPR.Names is
    --  Add characters of string S to the end of the string currently stored in
    --  the Name_Buffer, incrementing Name_Len by the length of the string.
 
-   procedure Set_Str_To_Name_Buffer (S : String) with Inline;
-   --  Set string S to the Name_Buffer, Set Name_Len to the length of the
-   --  string.
+   procedure Set_Name_Buffer (S : String) with Inline;
+   --  Put string S to start of the the Name_Buffer, Put S'Length to the
+   --  Name_Len.
 
    function Get_Name_Table_Int (Id : Name_Id) return Int;
    function Get_Name_Table_Int (Id : Unit_Name_Type) return Int;

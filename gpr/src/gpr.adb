@@ -116,7 +116,7 @@ package body GPR is
       N : String (1 .. Name'Length) := Name;
    begin
       To_Lower (N);
-      Set_Str_To_Name_Buffer (N);
+      Set_Name_Buffer (N);
       Restricted_Languages :=
         new Restricted_Lang'(Name => Name_Find, Next => Restricted_Languages);
    end Add_Restricted_Language;
@@ -271,7 +271,7 @@ package body GPR is
    is
       Path_Name : Path_Name_Type;
    begin
-      Set_Str_To_Name_Buffer (Path);
+      Set_Name_Buffer (Path);
       Path_Name := Name_Find;
       Delete_Temporary_File (Shared, Path_Name);
    end Delete_Temporary_File;
@@ -2230,7 +2230,7 @@ package body GPR is
       P : Project_List;
 
    begin
-      Set_Str_To_Name_Buffer ("Tree [");
+      Set_Name_Buffer ("Tree [");
 
       P := Tree.Projects;
       while P /= null loop
