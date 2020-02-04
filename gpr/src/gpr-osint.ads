@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2001-2020, Free Software Foundation, Inc.         --
+--          Copyright (C) 2001-2019, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -94,7 +94,7 @@ package GPR.Osint is
    --  this type, but we don't give a storage size clause of zero, since we
    --  may end up doing deallocations of instances allocated manually.
 
-   function Is_Directory_Separator (C : Character) return Boolean with Inline;
+   function Is_Directory_Separator (C : Character) return Boolean;
    --  Return True iff C is a directory separator inj a path
 
    function Get_Directory (Name : File_Name_Type) return File_Name_Type;

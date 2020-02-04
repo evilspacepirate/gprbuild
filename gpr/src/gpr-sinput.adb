@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 1992-2020, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2019, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -22,7 +22,6 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Ada.Containers.Hashed_Maps;
 with Ada.Unchecked_Deallocation;
 with Ada.Unchecked_Conversion;
 
@@ -51,17 +50,6 @@ package body GPR.Sinput is
    --  Main_Source_File.
    --  The flag is reset to False at the first call to Load_Project_File.
    --  Calling Reset_First sets it back to True.
-
-   function Hash (Name : File_Name_Type) return Ada.Containers.Hash_Type is
-     (Ada.Containers.Hash_Type (Name));
-
-   package Source_Id_Maps is new Ada.Containers.Hashed_Maps
-     (Key_Type        => File_Name_Type,
-      Element_Type    => Source_File_Index,
-      Hash            => Hash,
-      Equivalent_Keys => "=");
-
-   Sources_Map : Source_Id_Maps.Map;
 
    procedure Free is new Ada.Unchecked_Deallocation
      (Lines_Table_Type, Lines_Table_Ptr);
@@ -187,8 +175,6 @@ package body GPR.Sinput is
             Free (S.Lines_Table);
          end;
       end loop;
-
-      Sources_Map.Clear;
 
       Source_File.Free;
       Sinput.Initialize;
@@ -400,31 +386,12 @@ package body GPR.Sinput is
 
       Actual_Len : Integer;
 
-      Position : Source_Id_Maps.Cursor;
-      Inserted : Boolean;
-      Path_Id  : File_Name_Type;
-      File_Id  : File_Name_Type;
+      Path_Id : File_Name_Type;
+      File_Id : File_Name_Type;
 
    begin
       if Path = "" then
          return No_Source_File;
-      end if;
-
-      Set_Name_Buffer (Path);
-      Path_Id := Name_Find;
-
-      Sources_Map.Insert
-        (Path_Id, Source_File.Last + 1, Position, Inserted);
-
-      if not Inserted then
-         return Result : constant Source_File_Index :=
-           Source_Id_Maps.Element (Position)
-         do
-            pragma Assert
-              (Source_File.Table (Result).Full_Debug_Name = Path_Id
-               and then Source_File.Table (Result).Full_File_Name = Path_Id
-               and then Source_File.Table (Result).Full_Ref_Name = Path_Id);
-         end return;
       end if;
 
       Source_File.Increment_Last;
@@ -437,6 +404,9 @@ package body GPR.Sinput is
                   Source_Align) * Source_Align;
       end if;
 
+      Name_Len := Path'Length;
+      Name_Buffer (1 .. Name_Len) := Path;
+      Path_Id := Name_Find;
       Name_Buffer (Name_Len + 1) := ASCII.NUL;
 
       --  Open the source FD, note that we open in binary mode, because as
@@ -520,7 +490,8 @@ package body GPR.Sinput is
 
       begin
          while Index > Path'First loop
-            exit when Is_Directory_Separator (Path (Index - 1));
+            exit when Path (Index - 1) = '/';
+            exit when Path (Index - 1) = Directory_Separator;
             Index := Index - 1;
          end loop;
 
@@ -533,18 +504,23 @@ package body GPR.Sinput is
          S : Source_File_Record renames Source_File.Table (X);
 
       begin
-         S := (File_Name         => File_Id,
-               Reference_Name    => File_Id,
-               Debug_Source_Name => File_Id,
-               Full_Debug_Name   => Path_Id,
-               Full_File_Name    => Path_Id,
-               Full_Ref_Name     => Path_Id,
-               Source_Text       => Src,
-               Source_First      => Lo,
-               Source_Last       => Hi,
-               Last_Source_Line  => 1,
-               Lines_Table       => new Lines_Table_Type (1 .. Lines_Initial));
+         S := (File_Name           => File_Id,
+               Reference_Name      => File_Id,
+               Debug_Source_Name   => File_Id,
+               Full_Debug_Name     => Path_Id,
+               Full_File_Name      => Path_Id,
+               Full_Ref_Name       => Path_Id,
+               Source_Text         => Src,
+               Source_First        => Lo,
+               Source_Last         => Hi,
+               Source_Checksum     => 0,
+               Last_Source_Line    => 1,
+               Time_Stamp          => Empty_Time_Stamp,
+               Lines_Table         => null,
+               Lines_Table_Max     => 1);
 
+         S.Lines_Table_Max := Lines_Initial;
+         S.Lines_Table := new Lines_Table_Type (1 .. Lines_Initial);
          S.Lines_Table (1) := Lo;
       end;
 
