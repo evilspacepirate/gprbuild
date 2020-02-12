@@ -429,9 +429,15 @@ package body GPR.Sinput is
            Source_Id_Maps.Element (Position)
          do
             pragma Assert
-              (Source_File.Table (Result).Full_Debug_Name = Path_Id
-               and then Source_File.Table (Result).Full_File_Name = Path_Id
-               and then Source_File.Table (Result).Full_Ref_Name = Path_Id);
+              (Source_File.Table (Result).Full_Debug_Name = Path_Id,
+               Get_Name_String (Source_File.Table (Result).Full_Debug_Name)
+               & ' ' & Get_Name_String (Path_Id));
+            pragma Assert
+              (Source_File.Table (Result).Full_File_Name = Path_Id,
+               Source_File.Table (Result).Full_File_Name'Img & Path_Id'Img);
+            pragma Assert
+              (Source_File.Table (Result).Full_Ref_Name = Path_Id,
+               Source_File.Table (Result).Full_Ref_Name'Img & Path_Id'Img);
          end return;
       end if;
 
@@ -456,6 +462,7 @@ package body GPR.Sinput is
 
       if Source_File_FD = Invalid_FD then
          Source_File.Decrement_Last;
+         Sources_Map.Delete (Position);
          return No_Source_File;
 
       end if;
