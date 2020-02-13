@@ -21,7 +21,6 @@
 --  through the same text file.
 
 with Ada.Command_Line;  use Ada.Command_Line;
-with Ada.Directories;
 with Ada.Text_IO;       use Ada.Text_IO;
 
 with GNAT.Case_Util;            use GNAT.Case_Util;
@@ -1553,12 +1552,8 @@ procedure Gprlib is
                   PL_Options,
                   Success);
 
-               Set_Name_Buffer
-                 (Ada.Directories.Current_Directory &
-                  Dir_Separator & Partial);
-               Record_Temp_File
-                 (Shared => null,
-                  Path   => Name_Find);
+               Set_Name_Buffer (Get_Current_Dir & Partial);
+               Record_Temp_File (Shared => null, Path => Name_Find);
 
                if not Success then
                   Fail_Program
@@ -1711,9 +1706,7 @@ procedure Gprlib is
             end if;
 
             --  Same code as for recording the p__<lib>_N.o files.
-            Set_Name_Buffer
-              (Ada.Directories.Current_Directory &
-                 Dir_Separator & Options_File);
+            Set_Name_Buffer (Get_Current_Dir & Options_File);
             Record_Temp_File (Shared => null, Path => Name_Find);
          end;
       end if;

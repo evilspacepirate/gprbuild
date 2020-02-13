@@ -211,9 +211,7 @@ procedure Build_Shared_Lib is
                   PL_Options,
                   Success);
 
-               Set_Name_Buffer
-                 (Ada.Directories.Current_Directory &
-                  '/' & Partial);
+               Set_Name_Buffer (Get_Current_Dir & Partial);
                Record_Temp_File
                  (Shared => null,
                   Path   => Name_Find);

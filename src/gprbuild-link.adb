@@ -17,7 +17,6 @@
 ------------------------------------------------------------------------------
 
 with Ada.Containers.Vectors;
-with Ada.Directories;
 with Ada.Strings.Fixed;          use Ada.Strings.Fixed;
 with Ada.Text_IO;                use Ada.Text_IO;
 with Ada.Unchecked_Deallocation; use Ada;
@@ -2205,9 +2204,7 @@ package body Gprbuild.Link is
                            Open (File, Options_File);
 
                            --  Record the linker options file as temporary.
-                           Set_Name_Buffer
-                             (Ada.Directories.Current_Directory
-                              & Dir_Separator & Options_File);
+                           Set_Name_Buffer (Get_Current_Dir & Options_File);
                            Options_File_Path_Name := Name_Find;
                            Record_Temp_File
                              (Shared => Main_File.Tree.Shared,

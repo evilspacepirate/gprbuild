@@ -24,7 +24,8 @@
 
 with Ada.Directories; use Ada.Directories;
 
-with GNAT.Case_Util; use GNAT.Case_Util;
+with GNAT.Directory_Operations; use GNAT.Directory_Operations;
+with GNAT.Case_Util;            use GNAT.Case_Util;
 with GNAT.Table;
 
 with GPR.Env;
@@ -985,7 +986,7 @@ package body GPR.Conf is
 
             if Conf_File_Name'Length = 0 then
                declare
-                  Current_Dir : constant String := Current_Directory;
+                  Current_Dir : constant String := Get_Current_Dir;
                   Path_FD     : File_Descriptor;
                   Path_Name   : Path_Name_Type;
 
@@ -1584,7 +1585,7 @@ package body GPR.Conf is
             Project_File_Name => Config_File_Path.all,
             Errout_Handling   => Part.Finalize_If_Error,
             Packages_To_Check => Packages_To_Check,
-            Current_Directory => Current_Directory,
+            Current_Directory => Get_Current_Dir,
             Is_Config_File    => True,
             Env               => Env);
       else
@@ -1792,7 +1793,7 @@ package body GPR.Conf is
          Project_File_Name => Project_File_Name,
          Errout_Handling   => Finalization,
          Packages_To_Check => Packages_To_Check,
-         Current_Directory => Current_Directory,
+         Current_Directory => Get_Current_Dir,
          Is_Config_File    => False,
          Env               => Env,
          Implicit_Project  => Implicit_Project);

@@ -1230,8 +1230,7 @@ package body GPR is
 
                else
                   Add_To_Path
-                    (Current_Directory &
-                     Directory_Separator &
+                    (Get_Current_Dir &
                      Containing_Directory (Program_Name),
                     Append => True);
                end if;

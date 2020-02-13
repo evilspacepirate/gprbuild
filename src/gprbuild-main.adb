@@ -904,8 +904,7 @@ procedure Gprbuild.Main is
 
                else
                   Build_Script_Name :=
-                    new String'
-                      (Ada.Directories.Current_Directory & '/' & Script_Name);
+                    new String'(Get_Current_Dir & Script_Name);
                end if;
             end;
 
