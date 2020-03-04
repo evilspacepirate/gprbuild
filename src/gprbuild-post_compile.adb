@@ -4338,7 +4338,7 @@ package body Gprbuild.Post_Compile is
                            Put ("      -> ");
                            Put (Get_Name_String (Dep_Path));
                            Put_Line
-                             (" is more recent that the binder "
+                             (" is more recent than the binder "
                               & "exchange file");
                         end if;
 
