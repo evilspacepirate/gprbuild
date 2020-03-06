@@ -16,13 +16,15 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
+with Ada.Containers.Hashed_Maps;
 with Ada.Containers.Ordered_Sets;
 with Ada.Directories;
 with Ada.Strings.Fixed;
-with Ada.Text_IO;                 use Ada, Ada.Text_IO;
+with Ada.Text_IO;               use Ada, Ada.Text_IO;
 
 with GNAT.Case_Util;            use GNAT.Case_Util;
 with GNAT.Directory_Operations; use GNAT.Directory_Operations;
+with GNAT.MD5;                  use GNAT.MD5;
 with GNAT.OS_Lib;               use GNAT.OS_Lib;
 
 with Gpr_Build_Util; use Gpr_Build_Util;
@@ -3761,8 +3763,9 @@ package body Gprbuild.Post_Compile is
       Bind_Object_TS                   : Time_Stamp_Type;
       Binder_Driver_Needs_To_Be_Called : Boolean := False;
 
-      Project_Path    : Name_Id;
-      Project_File_TS : Time_Stamp_Type;
+      function Get_Project_Checksum
+        (Project : Project_Id) return Message_Digest;
+      --  Calculate checksum of the Project variables and attributes
 
       There_Are_Stand_Alone_Libraries : Boolean := False;
       --  Set to True if there are SALS in the project tree
@@ -3894,13 +3897,37 @@ package body Gprbuild.Post_Compile is
          Main_Id              : File_Name_Type;
          B_Data               : Binding_Data)
       is
-         package Project_File_Paths is new GNAT.HTable.Simple_HTable
-           (Header_Num => GPR.Header_Num,
-            Element    => Boolean,
-            No_Element => False,
-            Key        => Name_Id,
-            Hash       => Hash,
-            Equal      => "=");
+         subtype Project_Check_String is String
+           (1 .. Time_Stamp_Type'Length + 1 + Message_Digest'Length);
+         --  Project timestamp and checksum of the project variables with a
+         --  space in between.
+
+         Empty_Check_String : constant Project_Check_String :=
+                                (others => ASCII.NUL);
+
+         type Project_Check_Line is record
+            Project : Project_Id;
+            Line    : Project_Check_String := Empty_Check_String;
+         end record;
+
+         function Hash (Item : Path_Name_Type) return Ada.Containers.Hash_Type
+         is (Ada.Containers.Hash_Type'Mod (Item));
+
+         package Project_File_Paths is new Ada.Containers.Hashed_Maps
+           (Key_Type        => Path_Name_Type,
+            Element_Type    => Project_Check_Line,
+            Hash            => Hash,
+            Equivalent_Keys => "=");
+
+         function Get_Project_Checkline
+           (Project : Project_Id) return Project_Check_String;
+         --  Returns project check line either from Projects container or
+         --  calculate it if absent.
+
+         Projects     : Project_File_Paths.Map;
+         Project_Path : Path_Name_Type;
+         Position     : Project_File_Paths.Cursor;
+         Counter      : Natural := 0;
 
          Main_Source : constant Source_Id := Main_File.Source;
 
@@ -3910,6 +3937,23 @@ package body Gprbuild.Post_Compile is
          Dep_Files                        : Boolean;
          Lang_Index                       : Language_Ptr;
          Object_File_Suffix_Label_Written : Boolean;
+
+         ---------------------------
+         -- Get_Project_Checkline --
+         ---------------------------
+
+         function Get_Project_Checkline
+           (Project : Project_Id) return Project_Check_String is
+         begin
+            Position := Projects.Find (Project.Path.Display_Name);
+
+            if Project_File_Paths.Has_Element (Position) then
+               return Project_File_Paths.Element (Position).Line;
+            end if;
+
+            return String (File_Stamp (Project.Path.Display_Name)) & ' '
+              & Get_Project_Checksum (Project);
+         end Get_Project_Checkline;
 
       begin
          Binder_Driver_Needs_To_Be_Called := Opt.Force_Compilations;
@@ -4045,17 +4089,16 @@ package body Gprbuild.Post_Compile is
                --  the paths of all project files in the closure
                --  of the main project.
 
-               Project_File_Paths.Reset;
-
-               Project_File_Paths.Set
-                 (Name_Id (Main_Proj.Path.Display_Name), True);
+               Projects.Insert
+                 (Main_Proj.Path.Display_Name,
+                  Project_Check_Line'(Main_Proj, Line => <>));
 
                Proj_List := Main_Proj.All_Imported_Projects;
 
                while Proj_List /= null loop
-                  Project_File_Paths.Set
-                    (Name_Id (Proj_List.Project.Path.Display_Name),
-                     True);
+                  Projects.Insert
+                    (Proj_List.Project.Path.Display_Name,
+                     (Proj_List.Project, Line => <>));
                   Proj_List := Proj_List.Next;
                end loop;
 
@@ -4080,15 +4123,20 @@ package body Gprbuild.Post_Compile is
                   end if;
 
                   Project_Path := Name_Find;
+                  Position     := Projects.Find (Project_Path);
 
-                  if Project_File_Paths.Get (Project_Path) then
-                     Project_File_Paths.Remove (Project_Path);
+                  if Project_File_Paths.Has_Element (Position) then
+                     Counter := Counter + 1;
+                     pragma Assert
+                       (Projects (Position).Line = Empty_Check_String);
+
+                     Projects (Position).Line :=
+                       String (File_Stamp (Project_Path))
+                       & ' ' & Get_Project_Checksum
+                                 (Projects (Position).Project);
                      Get_Line (Exchange_File, Line, Last);
 
-                     Project_File_TS :=
-                       File_Stamp (Path_Name_Type (Project_Path));
-
-                     if String (Project_File_TS) /= Line (1 .. Last) then
+                     if Projects (Position).Line /= Line (1 .. Last) then
                         Binder_Driver_Needs_To_Be_Called := True;
 
                         if Opt.Verbosity_Level > Opt.Low then
@@ -4118,7 +4166,7 @@ package body Gprbuild.Post_Compile is
                --  the hash table.
 
                if not Binder_Driver_Needs_To_Be_Called
-                 and then Project_File_Paths.Get_First
+                 and then Counter < Natural (Projects.Length)
                then
                   Binder_Driver_Needs_To_Be_Called := True;
 
@@ -4778,7 +4826,7 @@ package body Gprbuild.Post_Compile is
                --  gprbind may know the main project dir.
 
                & Get_Name_String (Main_Proj.Path.Display_Name) & ASCII.LF
-               & String (File_Stamp (Main_Proj.Path.Display_Name)));
+               & Get_Project_Checkline (Main_Proj));
 
             Proj_List := Main_Proj.All_Imported_Projects;
 
@@ -4790,8 +4838,7 @@ package body Gprbuild.Post_Compile is
                     (Exchange_File,
                      Get_Name_String
                        (Proj_List.Project.Path.Display_Name) & ASCII.LF
-                     & String
-                         (File_Stamp (Proj_List.Project.Path.Display_Name)));
+                     & Get_Project_Checkline (Proj_List.Project));
                end if;
 
                Proj_List := Proj_List.Next;
@@ -4968,6 +5015,63 @@ package body Gprbuild.Post_Compile is
             end if;
          end if;
       end Bind_Language;
+
+      --------------------------
+      -- Get_Project_Checksum --
+      --------------------------
+
+      function Get_Project_Checksum
+        (Project : Project_Id) return Message_Digest
+      is
+         procedure Update_Vars (Items : Variable_Id);
+
+         Chk  : Context;
+
+         -----------------
+         -- Update_Vars --
+         -----------------
+
+         procedure Update_Vars (Items : Variable_Id) is
+            Vars : Variable_Id := Items;
+            Strs : String_List_Id;
+            Var  : Variable;
+            Str  : String_Element;
+         begin
+            while Vars /= No_Variable loop
+               Var := Project_Tree.Shared.Variable_Elements.Table (Vars);
+               Update (Chk, Get_Name_String (Var.Name));
+               case Var.Value.Kind is
+                  when Single =>
+                     Update (Chk, Get_Name_String (Var.Value.Value));
+
+                     if Var.Value.Index /= 0 then
+                        Update (Chk, Var.Value.Index'Img);
+                     end if;
+
+                  when List =>
+                     Strs := Var.Value.Values;
+                     while Strs /= Nil_String loop
+                        Str := Project_Tree.Shared.String_Elements.Table
+                                 (Strs);
+                        Update (Chk, Get_Name_String (Str.Value));
+                        if Str.Index /= 0 then
+                           Update (Chk, Str.Index'Img);
+                        end if;
+
+                        Strs := Str.Next;
+                     end loop;
+                  when Undefined => null;
+               end case;
+               Vars := Var.Next;
+            end loop;
+         end Update_Vars;
+
+      begin
+         Update_Vars (Project.Decl.Variables);
+         Update_Vars (Project.Decl.Attributes);
+
+         return Digest (Chk);
+      end Get_Project_Checksum;
 
    --  Start of processing for Post_Compilation_Phase
 
