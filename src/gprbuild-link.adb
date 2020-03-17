@@ -1251,11 +1251,15 @@ package body Gprbuild.Link is
 
       Linker_Needs_To_Be_Called : Boolean;
 
-      Executable_TS      : Time_Stamp_Type;
-      Main_Object_TS     : Time_Stamp_Type;
-      Binder_Exchange_TS : Time_Stamp_Type;
-      Binder_Object_TS   : Time_Stamp_Type := Dummy_Time_Stamp;
-      Global_Archive_TS  : Time_Stamp_Type;
+      Executable_TS      : OS_Time;
+      Main_Object_TS     : OS_Time;
+      Binder_Exchange_TS : OS_Time;
+      Binder_Object_TS   : OS_Time := To_Ada (0);
+      Global_Archive_TS  : OS_Time;
+
+      function File_Stamp (File : Path_Name_Type) return OS_Time is
+        (File_Time_Stamp (Get_Name_String (File)));
+      --  Returns file modification time
 
       Global_Archive_Has_Been_Built : Boolean;
       Global_Archive_Exists         : Boolean;
@@ -1497,7 +1501,7 @@ package body Gprbuild.Link is
       Executable_TS := File_Stamp (Exec_Path_Name);
 
       if not Linker_Needs_To_Be_Called
-        and then Executable_TS = Empty_Time_Stamp
+        and then Executable_TS = Invalid_Time
       then
          Linker_Needs_To_Be_Called := True;
 
@@ -1528,17 +1532,17 @@ package body Gprbuild.Link is
 
       Initialize_Source_Record (Main_Source);
 
-      Main_Object_TS := File_Stamp (File_Name_Type (Main_Source.Object_Path));
+      Main_Object_TS := File_Stamp (Main_Source.Object_Path);
 
       if not Linker_Needs_To_Be_Called then
-         if Main_Object_TS = Empty_Time_Stamp then
+         if Main_Object_TS = Invalid_Time then
             if Opt.Verbosity_Level > Opt.Low then
                Put_Line ("      -> main object does not exist");
             end if;
 
             Linker_Needs_To_Be_Called := True;
 
-         elsif String (Main_Object_TS) > String (Executable_TS) then
+         elsif Main_Object_TS > Executable_TS then
             if Opt.Verbosity_Level > Opt.Low then
                Put_Line
                  ("      -> main object more recent than executable");
@@ -1548,7 +1552,7 @@ package body Gprbuild.Link is
          end if;
       end if;
 
-      if Main_Object_TS = Empty_Time_Stamp then
+      if Main_Object_TS = Invalid_Time then
          Put ("main object for ");
          Put (Get_Name_String (Main_Source.File));
          Put_Line (" does not exist");
@@ -1567,8 +1571,7 @@ package body Gprbuild.Link is
       --  Add the Leading_Switches if there are any in package Linker
 
       declare
-         The_Packages   : constant Package_Id :=
-                            Main_Proj.Decl.Packages;
+         The_Packages   : constant Package_Id := Main_Proj.Decl.Packages;
          Linker_Package : constant GPR.Package_Id :=
                             GPR.Util.Value_Of
                               (Name        => Name_Linker,
@@ -1680,8 +1683,7 @@ package body Gprbuild.Link is
                   end if;
 
                   if not Linker_Needs_To_Be_Called
-                    and then
-                      String (Binder_Exchange_TS) > String (Executable_TS)
+                    and then Binder_Exchange_TS > Executable_TS
                   then
                      Linker_Needs_To_Be_Called := True;
 
@@ -1756,7 +1758,7 @@ package body Gprbuild.Link is
 
                   Close (Exchange_File);
 
-                  if Binder_Object_TS = Empty_Time_Stamp then
+                  if Binder_Object_TS = Invalid_Time then
                      if not Linker_Needs_To_Be_Called
                        and then Opt.Verbosity_Level > Opt.Low
                      then
@@ -1770,8 +1772,7 @@ package body Gprbuild.Link is
                      return;
 
                   elsif not Linker_Needs_To_Be_Called
-                    and then
-                      String (Binder_Object_TS) > String (Executable_TS)
+                    and then Binder_Object_TS > Executable_TS
                   then
                      Linker_Needs_To_Be_Called := True;
 
@@ -1804,7 +1805,7 @@ package body Gprbuild.Link is
              (Path_Name_Type'
                   (Create_Name (Global_Archive_Name (Main_Proj))));
 
-         if Global_Archive_TS = Empty_Time_Stamp then
+         if Global_Archive_TS = Invalid_Time then
             if not Linker_Needs_To_Be_Called
               and then Opt.Verbosity_Level > Opt.Low
             then
@@ -1829,7 +1830,7 @@ package body Gprbuild.Link is
 
       if not Linker_Needs_To_Be_Called
         and then Global_Archive_Exists
-        and then String (Global_Archive_TS) > String (Executable_TS)
+        and then Global_Archive_TS > Executable_TS
       then
          Linker_Needs_To_Be_Called := True;
 
@@ -1897,11 +1898,9 @@ package body Gprbuild.Link is
                --  recent than the executable.
 
                declare
-                  Lib_TS : constant Time_Stamp_Type :=
-                             File_Stamp (File_Name_Type'(Name_Find));
-
+                  Lib_TS : constant OS_Time := File_Stamp (Name_Find);
                begin
-                  if Lib_TS = Empty_Time_Stamp then
+                  if Lib_TS = Invalid_Time then
                      Linker_Needs_To_Be_Called := True;
 
                      if Opt.Verbosity_Level > Opt.Low then
@@ -1912,7 +1911,7 @@ package body Gprbuild.Link is
 
                      exit;
 
-                  elsif String (Lib_TS) > String (Executable_TS) then
+                  elsif Lib_TS > Executable_TS then
                      Linker_Needs_To_Be_Called := True;
 
                      if Opt.Verbosity_Level > Opt.Low then
