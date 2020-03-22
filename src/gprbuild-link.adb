@@ -1254,7 +1254,7 @@ package body Gprbuild.Link is
       Executable_TS      : OS_Time;
       Main_Object_TS     : OS_Time;
       Binder_Exchange_TS : OS_Time;
-      Binder_Object_TS   : OS_Time := To_Ada (0);
+      Binder_Object_TS   : OS_Time := GM_Time_Of (2000, 1, 1, 0, 0, 0);
       Global_Archive_TS  : OS_Time;
 
       function File_Stamp (File : Path_Name_Type) return OS_Time is
