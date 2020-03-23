@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2001-2019, Free Software Foundation, Inc.         --
+--          Copyright (C) 2001-2020, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -350,8 +350,11 @@ package body GPR.Osint is
    function OS_Time_To_GNAT_Time (T : OS_Time) return Time_Stamp_Type is
       use System.OS_Constants;
 
-      function To_C is new Ada.Unchecked_Conversion (OS_Time, Long_Integer);
-      function To_Ada is new Ada.Unchecked_Conversion (Long_Integer, OS_Time);
+      type Int_Time is range -(2 ** (size_t'Size - Integer'(1)))
+                          .. +(2 ** (size_t'Size - Integer'(1)) - 1);
+
+      function To_C is new Ada.Unchecked_Conversion (OS_Time, Int_Time);
+      function To_Ada is new Ada.Unchecked_Conversion (Int_Time, OS_Time);
       --  We need these routines to stay compatible with GNAT Community which
       --  doesn't yet have GNAT.OS_Lib.To_C/To_Ada routines.
 
@@ -375,7 +378,7 @@ package body GPR.Osint is
       ------------
 
       function Even_T return OS_Time is
-         TI : constant Long_Integer := To_C (T);
+         TI : constant Int_Time := To_C (T);
       begin
          return To_Ada (if TI mod 2 > 0 then TI + 1 else TI);
       end Even_T;
