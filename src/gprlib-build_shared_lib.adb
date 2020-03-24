@@ -259,6 +259,8 @@ procedure Build_Shared_Lib is
 
       Arguments.Append (Library_Switches_Table);
 
+      Arguments.Append (Ada_Runtime_Switches);
+
       Arguments.Append (Library_Options_Table);
 
       --  Check if a response file is needed

@@ -126,6 +126,9 @@ procedure Gprlib is
    Additional_Switches           : String_Vectors.Vector;
    --  A table to store switches coming from the binder generated file
 
+   Ada_Runtime_Switches          : String_Vectors.Vector;
+   --  A table to store switches for ada runtime libraries
+
    Options_Table                 : String_Vectors.Vector;
    --  A table to store the options from the exchange file
 
@@ -928,10 +931,10 @@ procedure Gprlib is
             end loop;
 
             if Libgnarl_Needed then
-               Options_Table.Append (Libgnarl.all);
+               Ada_Runtime_Switches.Append (Libgnarl.all);
             end if;
 
-            Options_Table.Append (Libgnat.all);
+            Ada_Runtime_Switches.Append (Libgnat.all);
          end if;
       end if;
 
