@@ -3436,6 +3436,23 @@ package body GPR.Util is
       end if;
    end Ensure_Directory;
 
+   ----------------------
+   -- Ensure_Extension --
+   ----------------------
+
+   function Ensure_Extension (Filename : String; Ext : String) return String is
+   begin
+      for Char of reverse Filename loop
+         if Char = '.' then
+            return Filename;
+         elsif Is_Directory_Separator (Char) then
+            exit;
+         end if;
+      end loop;
+
+      return Filename & Ext;
+   end Ensure_Extension;
+
    -------------------
    -- Ensure_Suffix --
    -------------------

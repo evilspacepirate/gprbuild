@@ -1527,22 +1527,24 @@ package body GPR.Conf is
       if Config_File_Name = No_Configuration_File then
          Config_File_Path := null;
 
-      else
-         if Conf_File_Name'Length > 0 then
-            Config_File_Path := Locate_Config_File (Conf_File_Name.all);
-         else
-            Config_File_Path := Locate_Config_File (Default_File_Name);
-         end if;
+      elsif Conf_File_Name'Length > 0 then
+         declare
+            CFN : constant String :=
+                    Ensure_Extension
+                      (Conf_File_Name.all, Config_Project_File_Extension);
+         begin
+            Config_File_Path := Locate_Config_File (CFN);
 
-         if Config_File_Path = null then
-            if not Allow_Automatic_Generation
-              and then Conf_File_Name'Length > 0
+            if Config_File_Path = null
+              and then not Allow_Automatic_Generation
             then
                Raise_Invalid_Config
-                 ("could not locate main configuration project "
-                  & Conf_File_Name.all);
+                 ("could not locate main configuration project " & CFN);
             end if;
-         end if;
+         end;
+
+      else
+         Config_File_Path := Locate_Config_File (Default_File_Name);
       end if;
 
       Automatically_Generated :=

@@ -2283,37 +2283,15 @@ package body GPR.Env is
       Path               : out Path_Name_Type)
 
    is
-      function Has_Dot return Boolean;
+      File : constant String :=
+               Ensure_Extension (Project_File_Name, Project_File_Extension);
       --  Check if File contains an extension (a dot before a directory
       --  separator). If it is the case we do not try project file with an
       --  added extension as it is not possible to have multiple dots on a
       --  project file name.
 
-      -------------
-      -- Has_Dot --
-      -------------
-
-      function Has_Dot return Boolean is
-      begin
-         for Char of reverse Project_File_Name loop
-            if Char = '.' then
-               return True;
-            elsif Is_Directory_Separator (Char) then
-               return False;
-            end if;
-         end loop;
-
-         return False;
-      end Has_Dot;
-
-      File : constant String :=
-               Project_File_Name
-               & (if Has_Dot then "" else Project_File_Extension);
-      --  Have to do a copy for extensoon, and for the case the parameter is
-      --  Name_Buffer, which we modify below.
-
-      Result      : String_Access;
-      --  This should be commented rather than making us guess from the name???
+      Result : String_Access;
+      --  Keep temporary search results here before final conversion into Path
 
       function Is_Regular_File_Cached (Name : String) return Boolean;
       --  Calls GNAT.OS_Lib.Is_Regular_File is Name not found in Self.Cache

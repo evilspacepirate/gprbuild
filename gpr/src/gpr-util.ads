@@ -769,6 +769,10 @@ package GPR.Util is
    function Ensure_Suffix (Item : String; Suffix : String) return String;
    --  Returns Item if it ends with Suffix otherwise returns Item & Suffix
 
+   function Ensure_Extension (Filename : String; Ext : String) return String;
+   --  If Filename has any extension returns it as is, otherwise returns it
+   --  appended with Ext.
+
    function Ensure_Directory (Path : String) return String;
    --  Returns Path with an ending directory separator
 
