@@ -1238,16 +1238,25 @@ package body Gprbuild.Link is
       procedure Add_Run_Path_Options;
       --  Add the run path option switch. if there is one
 
-      Linker_Name        : String_Access := null;
-      Linker_Path        : String_Access;
-      Min_Linker_Opts    : Name_List_Index;
-      Exchange_File      : Text_IO.File_Type;
-      Line               : String (1 .. 1_000);
-      Last               : Natural;
+      procedure Remove_Duplicated_Specs (Arguments : in out Options_Data);
+      --  Remove duplicated --specs=... options from Arguments,
+      --  keep right-most.
 
-      --  Success            : Boolean := False;
+      procedure Remove_Duplicated_T (Arguments : in out Options_Data);
+      --  Remove duplicated -T[ ]<linker script> options from Arguments,
+      --  keep left-most.
 
-      Section            : Binding_Section := No_Binding_Section;
+      Were_Options : String_Sets.Set;
+      --  Keep options already included
+
+      Linker_Name     : String_Access := null;
+      Linker_Path     : String_Access;
+      Min_Linker_Opts : Name_List_Index;
+      Exchange_File   : Text_IO.File_Type;
+      Line            : String (1 .. 1_000);
+      Last            : Natural;
+
+      Section : Binding_Section := No_Binding_Section;
 
       Linker_Needs_To_Be_Called : Boolean;
 
@@ -1395,6 +1404,87 @@ package body Gprbuild.Link is
            Get_Name_String (For_Project.Name) &
            Archive_Suffix (For_Project);
       end Global_Archive_Name;
+
+      -----------------------------
+      -- Remove_Duplicated_Specs --
+      -----------------------------
+
+      procedure Remove_Duplicated_Specs (Arguments : in out Options_Data) is
+         Position : String_Sets.Cursor;
+         Inserted : Boolean;
+      begin
+         for Index in reverse 1 .. Arguments.Last_Index loop
+            declare
+               Arg  : constant String := Arguments (Index).Name;
+            begin
+               if Arg'Length >= 8 and then Arg (1 .. 8) = "--specs=" then
+                  Were_Options.Insert (Arg, Position, Inserted);
+
+                  if not Inserted then
+                     Arguments.Delete (Index);
+                  end if;
+               end if;
+            end;
+         end loop;
+      end Remove_Duplicated_Specs;
+
+      -------------------------
+      -- Remove_Duplicated_T --
+      -------------------------
+
+      procedure Remove_Duplicated_T (Arguments : in out Options_Data) is
+         Position  : String_Sets.Cursor;
+         Inserted  : Boolean;
+         Arg_Index : Positive := Arguments.First_Index;
+      begin
+         while Arg_Index <= Arguments.Last_Index loop
+            declare
+               Arg1 : constant String := Arguments (Arg_Index).Name;
+            begin
+               if Arg1'Length >= 2 and then Arg1 (1 .. 2) = "-T" then
+                  --  Case of -T and <file> as separate arguments
+                  --  (from .cgpr file)
+
+                  if Arg1'Length = 2 then
+                     if Arg_Index < Arguments.Last_Index then
+                        declare
+                           Arg2 : constant String :=
+                                    Arguments (Arg_Index + 1).Name;
+                        begin
+                           Were_Options.Insert
+                             (Arg1 & Arg2, Position, Inserted);
+
+                           if Inserted then
+                              Arg_Index := Arg_Index + 2;
+                           else
+                              Arguments.Delete (Arg_Index, 2);
+                           end if;
+                        end;
+
+                     else
+                        --  We get here if the link command somehow ends
+                        --  with "-T" which would indicate a bug.
+                        --  Just ignore it now and let the linker fail.
+                        Arg_Index := Arg_Index + 1;
+                     end if;
+
+                  --  Case of "-T<file>" (from SAL linker options)
+                  else
+                     Were_Options.Insert (Arg1, Position, Inserted);
+
+                     if Inserted then
+                        Arg_Index := Arg_Index + 1;
+                     else
+                        Arguments.Delete (Arg_Index);
+                     end if;
+                  end if;
+
+               else
+                  Arg_Index := Arg_Index + 1;
+               end if;
+            end;
+         end loop;
+      end Remove_Duplicated_T;
 
    begin
       --  Make sure that the table Rpaths is emptied after each main, so
@@ -3077,6 +3167,17 @@ package body Gprbuild.Link is
             end if;
          end;
 
+         if Linking_With_Static_SALs then
+            --  Filter out duplicate linker options from static SALs:
+            --     -T[ ]<linker script> (keep left-most)
+            --     --specs=... (keep right-most)
+
+            Remove_Duplicated_T (Arguments);
+            Remove_Duplicated_T (Other_Arguments);
+            Remove_Duplicated_Specs (Other_Arguments);
+            Remove_Duplicated_Specs (Arguments);
+         end if;
+
          --  If response files are supported, check the length of the
          --  command line and the number of object files, then create
          --  a response file if needed.
@@ -3217,102 +3318,6 @@ package body Gprbuild.Link is
 
          Objects.Clear;
          Other_Arguments.Clear;
-
-         --  Filter out duplicate linker options from static SALs:
-         --     -T[ ]<linker script> (keep left-most)
-         --     --specs=... (keep right-most)
-
-         if Linking_With_Static_SALs then
-            declare
-               package Args is new GNAT.HTable.Simple_HTable
-                 (Header_Num => GPR.Header_Num,
-                  Element    => Boolean,
-                  No_Element => False,
-                  Key        => Name_Id,
-                  Hash       => Hash,
-                  Equal      => "=");
-               Arg_Index : Positive := Arguments.First_Index;
-            begin
-
-               --  ??? We should use Argument_String_To_List here, for more
-               --  flexibility with user-set flags...
-               --  (this could even be an upstream strategy? so we wouldn't
-               --  have to bother with such issues here)
-
-               --  -T
-
-               while Arg_Index <= Arguments.Last_Index loop
-                  declare
-                     Arg1 : constant String := Arguments (Arg_Index).Name;
-                     Last1 : constant Natural := Arg1'Length;
-                     Arg_Name_Id : Name_Id;
-                  begin
-                     if Last1 >= 2 and then Arg1 (1 .. 2) = "-T" then
-
-                        --  Case of -T and <file> as separate arguments
-                        --  (from .cgpr file)
-                        if Last1 = 2 then
-                           if Arg_Index < Arguments.Last_Index then
-                              declare
-                                 Arg2 : constant String :=
-                                   Arguments (Arg_Index + 1).Name;
-                              begin
-                                 Set_Name_Buffer (Arg1 & Arg2);
-                                 Arg_Name_Id := Name_Find;
-                                 if Args.Get (Arg_Name_Id) then
-                                    Arguments.Delete (Arg_Index, 2);
-                                 else
-                                    Args.Set (Arg_Name_Id, True);
-                                    Arg_Index := Arg_Index + 2;
-                                 end if;
-                              end;
-                           else
-                              --  We get here if the link command somehow ends
-                              --  with "-T" which would indicate a bug.
-                              --  Just ignore it now and let the linker fail.
-                              Arg_Index := Arg_Index + 1;
-                           end if;
-
-                        --  Case of "-T<file>" (from SAL linker options)
-                        else
-                           Set_Name_Buffer
-                             (Arg1);
-                           Arg_Name_Id := Name_Find;
-                           if Args.Get (Arg_Name_Id) then
-                              Arguments.Delete (Arg_Index);
-                           else
-                              Args.Set (Arg_Name_Id, True);
-                              Arg_Index := Arg_Index + 1;
-                           end if;
-                        end if;
-
-                     else
-                        Arg_Index := Arg_Index + 1;
-                     end if;
-                  end;
-               end loop;
-
-               --  --specs
-
-               for Index in reverse 1 .. Arguments.Last_Index loop
-                  declare
-                     Arg : constant String := Arguments (Index).Name;
-                     Last : constant Natural := Arg'Length;
-                     Arg_Name_Id : Name_Id;
-                  begin
-                     if Last >= 8 and then Arg (1 .. 8) = "--specs=" then
-                        Set_Name_Buffer (Arg);
-                        Arg_Name_Id := Name_Find;
-                        if Args.Get (Arg_Name_Id) then
-                           Arguments.Delete (Index);
-                        else
-                           Args.Set (Arg_Name_Id, True);
-                        end if;
-                     end if;
-                  end;
-               end loop;
-            end;
-         end if;
 
          --  Delete an eventual executable, in case it is a symbolic
          --  link as we don't want to modify the target of the link.

@@ -27,7 +27,6 @@ with Ada.Characters.Handling;   use Ada.Characters.Handling;
 with Ada.Command_Line;          use Ada.Command_Line;
 with Ada.Containers;            use Ada.Containers;
 with Ada.Strings.Hash;
-with Ada.Containers.Indefinite_Ordered_Sets;
 with Ada.Directories;           use Ada.Directories;
 with Ada.Environment_Variables; use Ada.Environment_Variables;
 with Ada.Exceptions;            use Ada.Exceptions;
@@ -64,9 +63,6 @@ package body GPR.Knowledge is
 
    package String_Maps is new Ada.Containers.Indefinite_Hashed_Maps
      (String, Unbounded_String, Ada.Strings.Hash_Case_Insensitive, "=");
-
-   package String_Sets is new Ada.Containers.Indefinite_Ordered_Sets
-     (String);
 
    procedure Unchecked_Free is new Ada.Unchecked_Deallocation
      (Pattern_Matcher, Pattern_Matcher_Access);

@@ -28,6 +28,7 @@
 --  Children of this package implement various services on these data types
 
 with Ada.Containers.Hashed_Maps;
+with Ada.Containers.Indefinite_Ordered_Sets;
 with Ada.Containers.Ordered_Sets;
 
 with GNAT.Dynamic_HTables; use GNAT.Dynamic_HTables;
@@ -259,6 +260,8 @@ package GPR is
    Error_Unit_Name : constant Unit_Name_Type := Unit_Name_Type (Error_Name);
    --  The special Unit_Name_Type value Error_Unit_Name is used to indicate
    --  a unit name where some previous processing has found an error.
+
+   package String_Sets is new Ada.Containers.Indefinite_Ordered_Sets (String);
 
    ------------------------------
    -- File and Path Name Types --
