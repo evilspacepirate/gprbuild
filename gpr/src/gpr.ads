@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2001-2018, Free Software Foundation, Inc.         --
+--          Copyright (C) 2001-2020, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -26,6 +26,8 @@
 --  These data types may be used by GNAT Project-aware tools.
 
 --  Children of this package implement various services on these data types
+
+with Ada.Containers.Indefinite_Ordered_Sets;
 
 with GNAT.Dynamic_HTables; use GNAT.Dynamic_HTables;
 with GNAT.Dynamic_Tables;
@@ -273,6 +275,8 @@ package GPR is
       Name : Name_Id;
       Next : Added_Ptr;
    end record;
+
+   package String_Sets is new Ada.Containers.Indefinite_Ordered_Sets (String);
 
    ------------------------------
    -- File and Path Name Types --
