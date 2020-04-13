@@ -195,7 +195,7 @@ procedure Build_Shared_Lib is
 
                if not Quiet_Output then
                   if Verbose_Mode then
-                     Add_Str_To_Name_Buffer (Partial_Linker_Path.all);
+                     Set_Name_Buffer (Partial_Linker_Path.all);
 
                      for Option of PL_Options loop
                         Add_Str_To_Name_Buffer (" ");
