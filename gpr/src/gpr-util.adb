@@ -3702,8 +3702,11 @@ package body GPR.Util is
 
             declare
                Compiler_Name : constant String :=
-                 (if CodePeer_Mode then "codepeer-gcc"
-                  else Get_Name_String (Compiler));
+                                 (if CodePeer_Mode then "codepeer-gcc"
+                                  elsif GnatProve_Mode
+                                    and then Lang.Name = Name_Ada
+                                  then "gnat2why"
+                                  else Get_Name_String (Compiler));
             begin
                if Compiler_Name = "" then
                   return null;
