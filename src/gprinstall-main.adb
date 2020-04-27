@@ -766,8 +766,8 @@ procedure Gprinstall.Main is
 
          Put ("  --relocate-build-tree[=dir]");
          New_Line;
-         Put ("           Root obj/lib/exec dirs are current-directory" &
-                    " or dir");
+         Put ("           Root obj/lib/exec dirs are current-directory"
+              & " or dir");
          New_Line;
 
          --  Line for --root-dir=
