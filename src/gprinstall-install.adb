@@ -2,7 +2,7 @@
 --                                                                          --
 --                             GPR TECHNOLOGY                               --
 --                                                                          --
---                     Copyright (C) 2012-2019, AdaCore                     --
+--                     Copyright (C) 2012-2020, AdaCore                     --
 --                                                                          --
 -- This is  free  software;  you can redistribute it and/or modify it under --
 -- terms of the  GNU  General Public License as published by the Free Soft- --
@@ -1020,11 +1020,16 @@ package body Gprinstall.Install is
 
                --  Add file to manifest
 
-               Add_To_Manifest (From);
+               if Install_Manifest then
+                  Add_To_Manifest (From);
+               end if;
 
                if From_Ver /= "" then
                   Create_Sym_Link (From_Ver, To & File);
-                  Add_To_Manifest (From_Ver);
+
+                  if Install_Manifest then
+                     Add_To_Manifest (From_Ver);
+                  end if;
                end if;
 
             else
@@ -1086,7 +1091,9 @@ package body Gprinstall.Install is
 
                            if Success then
                               --  Record the debug file in the manifest
-                              Add_To_Manifest (Dest_Debug);
+                              if Install_Manifest then
+                                 Add_To_Manifest (Dest_Debug);
+                              end if;
 
                               --  2. strip original executable
 
@@ -1132,7 +1139,9 @@ package body Gprinstall.Install is
 
                --  Add file to manifest
 
-               Add_To_Manifest (Dest_Filename);
+               if Install_Manifest then
+                  Add_To_Manifest (Dest_Filename);
+               end if;
             end if;
          end if;
       end Copy_File;
@@ -2939,7 +2948,7 @@ package body Gprinstall.Install is
 
          Write_Project;
 
-         if not Dry_Run then
+         if not Dry_Run and then Install_Manifest then
             --  Add project file to manifest
 
             Add_To_Manifest (Filename);
@@ -3146,6 +3155,7 @@ package body Gprinstall.Install is
 
          if Project = Main_Project
            and then Main_Project.Qualifier = Aggregate
+           and then Install_Manifest
          then
             Open_Check_Manifest (Agg_Manifest, Line_Agg_Manifest);
          end if;
