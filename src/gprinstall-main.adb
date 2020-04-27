@@ -65,6 +65,7 @@ procedure Gprinstall.Main is
    Sources_Only_Option    : constant String := "--sources-only";
    Side_Debug_Option      : constant String := "--side-debug";
    No_Project_Option      : constant String := "--no-project";
+   No_Manifest_Option     : constant String := "--no-manifest";
 
    Opt_A_Set : Boolean := False; -- to detect if -a and -m are used together
    Opt_M_Set : Boolean := False; -- likewise
@@ -424,6 +425,9 @@ procedure Gprinstall.Main is
 
             elsif Has_Prefix (No_Project_Option) then
                Global_Install_Project := False;
+
+            elsif Has_Prefix (No_Manifest_Option) then
+               Install_Manifest := False;
 
             elsif Has_Prefix (No_Lib_Link_Option) then
                Add_Lib_Link := False;
@@ -801,6 +805,11 @@ procedure Gprinstall.Main is
 
          Put_Line ("  --build-var=<name>");
          Put_Line ("           Name of the variable which identify a build");
+
+         --  Line for --no-manifest
+
+         Put_Line ("  --no-manifest");
+         Put_Line ("           Do not generate the manifest File");
 
          --  Line for --no-build-var
 
