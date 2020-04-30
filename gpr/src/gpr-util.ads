@@ -662,8 +662,8 @@ package GPR.Util is
    --  This also performs the check for aggregated project trees.
 
    function Get_Compiler_Driver_Path
-     (Project_Tree : Project_Tree_Ref;
-      Lang         : Language_Ptr) return String_Access;
+     (Project : Project_Id;
+      Lang    : Language_Ptr) return String_Access;
    --  Get, from the config, the path of the compiler driver. This is first
    --  looked for on the PATH if needed.
    --  Returns "null" if no compiler driver was specified for the language, and

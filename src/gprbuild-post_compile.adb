@@ -1327,7 +1327,7 @@ package body Gprbuild.Post_Compile is
                if not Lang_Seen.Contains (Lang.Name) then
                   Lang_Seen.Insert (Lang.Name);
 
-                  Compiler := Get_Compiler_Driver_Path (Project_Tree, Lang);
+                  Compiler := Get_Compiler_Driver_Path (Project, Lang);
                   if Compiler /= null then
                      Put_Line
                        (Exchange_File,
@@ -4558,7 +4558,7 @@ package body Gprbuild.Post_Compile is
                  (Exchange_File,
                   Binding_Label (Gprexch.Compiler_Path) & ASCII.LF
                   & Get_Compiler_Driver_Path
-                      (Project_Tree, B_Data.Language).all);
+                    (Main_Proj, B_Data.Language).all);
 
                --  Leading required switches, if any
 

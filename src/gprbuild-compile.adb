@@ -3505,7 +3505,7 @@ package body Gprbuild.Compile is
                Add_Multi_Unit_Switches (Id);
                Add_Object_Path_Switches (Id);
                Compiler :=
-                 Get_Compiler_Driver_Path (Project_Tree, Id.Language);
+                 Get_Compiler_Driver_Path (Source_Project, Id.Language);
 
                if Compiler /= null then
                   Spawn_Compiler_And_Register

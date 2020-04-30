@@ -395,7 +395,7 @@ procedure GPRName.Main is
               Get_Language_From_Name (Main_Project, "ada");
          begin
             if Ada_Lang /= No_Language_Index then
-               Gcc_Path := Get_Compiler_Driver_Path (Project_Tree, Ada_Lang);
+               Gcc_Path := Get_Compiler_Driver_Path (Main_Project, Ada_Lang);
             end if;
          end;
       end if;
