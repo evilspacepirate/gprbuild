@@ -1926,7 +1926,7 @@ procedure Gprbuild.Main is
          Put ("gprbuild [-P<proj>] [<proj>.gpr] [opts] [name]");
          New_Line;
          Put ("    {[-cargs opts] [-cargs:lang opts] [-largs opts]" &
-                    " [-gargs opts]}");
+                    " [-kargs opts] [-gargs opts]}");
          New_Line;
          New_Line;
          Put ("  name is zero or more file names");
@@ -2360,6 +2360,11 @@ procedure Gprbuild.Main is
          --  Line for -largs
 
          Put ("  -largs opts    opts are passed to the linker");
+         New_Line;
+
+         --  Line for -kargs
+
+         Put ("  -kargs opts    opts are passed to gprconfig");
          New_Line;
 
          --  Line for -gargs
