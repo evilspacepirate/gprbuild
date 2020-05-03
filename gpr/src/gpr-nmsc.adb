@@ -6005,9 +6005,7 @@ package body GPR.Nmsc is
 
       --  Check the object directory
 
-      if Object_Dir /= Nil_Variable_Value
-        and then Object_Dir.Value /= Empty_String
-      then
+      if Object_Dir.Value not in No_Name | Empty_String then
          Get_Name_String (Object_Dir.Value);
 
          if Name_Len = 0 then

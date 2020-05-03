@@ -203,7 +203,7 @@ package body GPR.Names is
                 " (function Get_Name_String)");
       end if;
 
-      pragma Assert (Is_Valid_Name (Id));
+      pragma Assert (Is_Valid_Name (Id), "Invalid Id" & Id'Img);
 
       return R : constant String := Name_Entries (Id).Value do
          if Debug.Debug_Flag_A then
