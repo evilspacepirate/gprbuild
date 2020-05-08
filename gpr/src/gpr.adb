@@ -674,9 +674,9 @@ package body GPR is
       end if;
    end Next;
 
-   --------------------------------
-   -- For_Every_Project_Imported --
-   --------------------------------
+   ----------------------------------------
+   -- For_Every_Project_Imported_Context --
+   ----------------------------------------
 
    procedure For_Every_Project_Imported_Context
      (By                 : Project_Id;
@@ -907,6 +907,10 @@ package body GPR is
          In_Aggregate_Lib      => False,
          From_Encapsulated_Lib => False);
    end For_Every_Project_Imported_Context;
+
+   --------------------------------
+   -- For_Every_Project_Imported --
+   --------------------------------
 
    procedure For_Every_Project_Imported
      (By                 : Project_Id;

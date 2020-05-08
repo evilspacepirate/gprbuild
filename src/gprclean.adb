@@ -2,7 +2,7 @@
 --                                                                          --
 --                             GPR TECHNOLOGY                               --
 --                                                                          --
---                     Copyright (C) 2006-2019, AdaCore                     --
+--                     Copyright (C) 2006-2020, AdaCore                     --
 --                                                                          --
 -- This is  free  software;  you can redistribute it and/or modify it under --
 -- terms of the  GNU  General Public License as published by the Free Soft- --
@@ -754,7 +754,7 @@ package body Gprclean is
                   loop
                      declare
                         Partial : constant String :=
-                          Partial_Name
+                                    Partial_Name
                                       (Get_Name_String (Project.Library_Name),
                                        Partial_Number,
                                        Object_Suffix);
