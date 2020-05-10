@@ -957,18 +957,6 @@ begin
 
    Compute_Clean_Switches;
 
-   --  Update info on all sources
-
-   declare
-      Iter : Source_Iterator;
-   begin
-      Iter := For_Each_Source (Project_Tree);
-      while GPR.Element (Iter) /= No_Source loop
-         Initialize_Source_Record (GPR.Element (Iter));
-         Next (Iter);
-      end loop;
-   end;
-
    --  Even if the config project file has not been automatically
    --  generated, gprclean will delete it if it was specified using
    --  --autoconf=.
@@ -1014,15 +1002,27 @@ begin
 
    declare
       procedure Do_Clean (Prj : Project_Id; Tree : Project_Tree_Ref);
+      --  Update sources info and cleanup project tree
 
       --------------
       -- Do_Clean --
       --------------
 
       procedure Do_Clean (Prj : Project_Id; Tree : Project_Tree_Ref) is
+         Iter : Source_Iterator :=
+                  For_Each_Source
+                    (Tree, (if All_Projects then No_Project else Prj));
       begin
+         --  Update info on all sources in Tree
+
+         while GPR.Element (Iter) /= No_Source loop
+            Initialize_Source_Record (GPR.Element (Iter));
+            Next (Iter);
+         end loop;
+
          --  For the main project and all aggregated projects, remove the
          --  binder and linker generated files.
+
          Clean_Project
            (Prj, Tree, Main => True, Remove_Executables => not Compile_Only);
 
