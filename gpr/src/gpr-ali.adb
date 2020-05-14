@@ -678,7 +678,6 @@ package body GPR.ALI is
          Compile_Errors               => False,
          First_Sdep                   => No_Sdep_Id,
          First_Unit                   => No_Unit_Id,
-         GNATprove_Mode               => False,
          Last_Sdep                    => No_Sdep_Id,
          Last_Unit                    => No_Unit_Id,
          Locking_Policy               => ' ',

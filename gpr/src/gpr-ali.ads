@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 1992-2018, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2020, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -171,11 +171,6 @@ package GPR.ALI is
       Compile_Errors : Boolean;
       --  Set to True if compile errors for unit. Note that No_Object will
       --  always be set as well in this case. Not set if 'P' appears in
-      --  Ignore_Lines.
-
-      GNATprove_Mode : Boolean;
-      --  Set to True if ALI and object file produced in GNATprove_Mode as
-      --  signalled by GP appearing on the P line. Not set if 'P' appears in
       --  Ignore_Lines.
 
       No_Object : Boolean;
