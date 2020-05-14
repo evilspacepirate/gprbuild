@@ -792,7 +792,11 @@ package body GPR.PP is
 
                when N_External_Value =>
                   pragma Debug (Indicate_Tested (N_External_Value));
-                  Write_String ("external (", Indent);
+                  if Expression_Kind_Of (Node, In_Tree) = List then
+                     Write_String ("external_as_list (", Indent);
+                  else
+                     Write_String ("external (", Indent);
+                  end if;
                   Print (External_Reference_Of (Node, In_Tree), Indent);
 
                   if Present (External_Default_Of (Node, In_Tree)) then
