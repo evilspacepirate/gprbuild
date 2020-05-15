@@ -3519,11 +3519,11 @@ package body Gprbuild.Compile is
             else
                Print_Compilation_Outputs (Source.Id);
 
-               if Source.Closure or else
-                 (Builder_Data (Source.Tree).Closure_Needed
-                  and then
-                   (Id.Language.Config.Dependency_Kind = ALI_File
-                    or else Id.Language.Config.Dependency_Kind = ALI_Closure))
+               if Source.Closure
+                 or else
+                   (Builder_Data (Source.Tree).Closure_Needed
+                    and then
+                    Id.Language.Config.Dependency_Kind in ALI_Dependency)
                then
                   Record_ALI_For (Source, The_ALI);
 
@@ -3614,7 +3614,7 @@ package body Gprbuild.Compile is
                   when None     => null;
                   when Makefile =>
                      Compilation_OK := Phase_2_Makefile (Source_Identity);
-                  when ALI_File | ALI_Closure =>
+                  when ALI_Dependency =>
                      Compilation_OK := Phase_2_ALI (Source_Identity);
                end case;
 

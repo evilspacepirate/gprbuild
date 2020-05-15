@@ -4820,8 +4820,8 @@ package body GPR.Util is
                     (Tree.Source_Files_HT, Sfile);
                   Found := False;
 
-                  if Dep_Src = No_Source and then
-                    ALI.Sdep.Table (D).Checksum = 0
+                  if Dep_Src = No_Source
+                    and then ALI.Sdep.Table (D).Checksum = 0
                   then
                      --  Probably preprocessing dependencies. Look for the file
                      --  in the directory of the source, then the other source
@@ -4924,8 +4924,8 @@ package body GPR.Util is
                      end;
 
                   else
-                     if Dep_Src = No_Source and then
-                       not Is_Ada_Predefined_File_Name (Sfile)
+                     if Dep_Src = No_Source
+                       and then not Is_Ada_Predefined_File_Name (Sfile)
                      then
                         if Opt.Verbosity_Level > Opt.Low then
                            Put ("  -> """);
@@ -4947,7 +4947,7 @@ package body GPR.Util is
                            if (Opt.Minimal_Recompilation
                                and then ALI.Sdep.Table (D).Stamp /=
                                  Dep_Src.Source_TS) or else
-                             ((ALI.Sdep.Table (D).Stamp = Dep_Src.Source_TS)
+                             (ALI.Sdep.Table (D).Stamp = Dep_Src.Source_TS
                               and then Opt.Checksum_Recompilation)
                            then
                               --  If minimal recompilation is in action,
@@ -5750,11 +5750,8 @@ package body GPR.Util is
          --  to recompile.
 
          if Object_Check
-           and then
-             (Source.Language.Config.Dependency_Kind = ALI_File
-              or else Source.Language.Config.Dependency_Kind = ALI_Closure)
-           and then
-             Source.Object_TS < Stamp
+           and then Source.Language.Config.Dependency_Kind in ALI_Dependency
+           and then Source.Object_TS < Stamp
          then
             if Opt.Verbosity_Level > Opt.Low then
                Put  ("      -> ALI file ");

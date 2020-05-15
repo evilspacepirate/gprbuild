@@ -631,6 +631,9 @@ package GPR is
       --  if the object or ALI file is more recent than any source in the full
       --  closure.
 
+   subtype ALI_Dependency is
+     Dependency_File_Kind range ALI_File .. ALI_Closure;
+
    Makefile_Dependency_Suffix : constant String := ".d";
    ALI_Dependency_Suffix      : constant String := ".ali";
    Switches_Dependency_Suffix : constant String := ".cswi";
