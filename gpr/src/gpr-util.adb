@@ -150,6 +150,45 @@ package body GPR.Util is
       end if;
    end C_String_Length;
 
+   ------------------------
+   -- Calculate_Checksum --
+   ------------------------
+
+   function Calculate_Checksum (Source : Source_Id) return Boolean is
+      Source_Index : Source_File_Index;
+   begin
+      if Source.Checksum > 0 then
+         --  Checksum already calculated
+         return True;
+      end if;
+
+      Source_Index :=
+        Sinput.Load_File (Get_Name_String (Source.Path.Display_Name));
+
+      if Source_Index /= No_Source_File then
+         Err.Scanner.Initialize_Scanner (Source_Index, Err.Scanner.Ada);
+
+         --  Scan the complete file to compute its
+         --  checksum.
+
+         loop
+            Err.Scanner.Scan;
+            exit when Token = Tok_EOF;
+         end loop;
+
+         Source.Checksum := Scans.Checksum;
+
+         --  To avoid using too much memory, free the
+         --  memory allocated.
+
+         Sinput.Clear_Source_File_Table;
+
+         return True;
+      end if;
+
+      return False;
+   end Calculate_Checksum;
+
    ----------------------------
    -- Clear_Time_Stamp_Cache --
    ----------------------------
@@ -4954,66 +4993,39 @@ package body GPR.Util is
                               --  replace the stamp of the source file in
                               --  the table if checksums match.
 
-                              declare
-                                 Source_Index : Source_File_Index;
-
-                              begin
-                                 Source_Index :=
-                                   Sinput.Load_File
-                                     (Get_Name_String
-                                        (Dep_Src.Path.Display_Name));
-
-                                 if Source_Index /= No_Source_File then
-
-                                    Err.Scanner.Initialize_Scanner
-                                      (Source_Index, Err.Scanner.Ada);
-
-                                    --  Scan the complete file to compute its
-                                    --  checksum.
-
-                                    loop
-                                       Err.Scanner.Scan;
-                                       exit when Token = Tok_EOF;
-                                    end loop;
-
-                                    if Scans.Checksum =
-                                      ALI.Sdep.Table (D).Checksum
-                                    then
-                                       if Opt.Verbosity_Level > Opt.Low then
-                                          Put ("   ");
-                                          Put
-                                            (Get_Name_String
-                                               (ALI.Sdep.Table (D).Sfile));
-                                          Put (": up to date, " &
-                                                 "different timestamps " &
-                                                 "but same checksum");
-                                          New_Line;
-                                       end if;
-
-                                       ALI.Sdep.Table (D).Stamp :=
-                                         Dep_Src.Source_TS;
-
-                                    elsif Opt.Checksum_Recompilation then
-                                       if Opt.Verbosity_Level > Opt.Low then
-                                          Put ("   ");
-                                          Put
-                                            (Get_Name_String
-                                               (ALI.Sdep.Table (D).Sfile));
-                                          Put (": changed, " &
-                                                 "same timestamp " &
-                                                 "but different checksums");
-                                          New_Line;
-                                       end if;
-
-                                       return True;
+                              if Calculate_Checksum (Dep_Src) then
+                                 if Dep_Src.Checksum
+                                    = ALI.Sdep.Table (D).Checksum
+                                 then
+                                    if Opt.Verbosity_Level > Opt.Low then
+                                       Put ("   ");
+                                       Put
+                                         (Get_Name_String
+                                            (ALI.Sdep.Table (D).Sfile));
+                                       Put (": up to date, " &
+                                              "different timestamps " &
+                                              "but same checksum");
+                                       New_Line;
                                     end if;
+
+                                    ALI.Sdep.Table (D).Stamp :=
+                                      Dep_Src.Source_TS;
+
+                                 elsif Opt.Checksum_Recompilation then
+                                    if Opt.Verbosity_Level > Opt.Low then
+                                       Put ("   ");
+                                       Put
+                                         (Get_Name_String
+                                            (ALI.Sdep.Table (D).Sfile));
+                                       Put (": changed, " &
+                                              "same timestamp " &
+                                              "but different checksums");
+                                       New_Line;
+                                    end if;
+
+                                    return True;
                                  end if;
-
-                                 --  To avoid using too much memory, free the
-                                 --  memory allocated.
-
-                                 Sinput.Clear_Source_File_Table;
-                              end;
+                              end if;
                            end if;
 
                            if ALI.Sdep.Table (D).Stamp /= Dep_Src.Source_TS
@@ -5267,60 +5279,26 @@ package body GPR.Util is
                      then
                         Found := True;
 
+                        --  If minimal recompilation is in action, replace
+                        --  the stamp of the source file in the table if
+                        --  checksums match.
+
                         if Opt.Minimal_Recompilation
-                          and then ALI.Sdep.Table (D).Stamp /=
-                          Dep_Src.Source_TS
+                          and then
+                            ALI.Sdep.Table (D).Stamp /= Dep_Src.Source_TS
+                          and then Calculate_Checksum (Dep_Src)
+                          and then
+                            Dep_Src.Checksum = ALI.Sdep.Table (D).Checksum
                         then
-                           --  If minimal recompilation is in action, replace
-                           --  the stamp of the source file in the table if
-                           --  checksums match.
+                           if Opt.Verbosity_Level > Opt.Low then
+                              Put ("   ");
+                              Put (Get_Name_String (ALI.Sdep.Table (D).Sfile));
+                              Put_Line
+                                (": up to date, different timestamps "
+                                 & "but same checksum");
+                           end if;
 
-                           declare
-                              Source_Index : Source_File_Index;
-
-                           begin
-                              Source_Index :=
-                                Sinput.Load_File
-                                  (Get_Name_String
-                                      (Dep_Src.Path.Display_Name));
-
-                              if Source_Index /= No_Source_File then
-
-                                 Err.Scanner.Initialize_Scanner
-                                   (Source_Index, Err.Scanner.Ada);
-
-                                 --  Scan the complete file to compute its
-                                 --  checksum.
-
-                                 loop
-                                    Err.Scanner.Scan;
-                                    exit when Token = Tok_EOF;
-                                 end loop;
-
-                                 if Scans.Checksum =
-                                   ALI.Sdep.Table (D).Checksum
-                                 then
-                                    if Opt.Verbosity_Level > Opt.Low then
-                                       Put ("   ");
-                                       Put
-                                         (Get_Name_String
-                                            (ALI.Sdep.Table (D).Sfile));
-                                       Put (": up to date, " &
-                                            "different timestamps " &
-                                            "but same checksum");
-                                       New_Line;
-                                    end if;
-
-                                    ALI.Sdep.Table (D).Stamp :=
-                                      Dep_Src.Source_TS;
-                                 end if;
-                              end if;
-
-                              --  To avoid using too much memory, free the
-                              --  memory allocated.
-
-                              Sinput.Clear_Source_File_Table;
-                           end;
+                           ALI.Sdep.Table (D).Stamp := Dep_Src.Source_TS;
                         end if;
 
                         if ALI.Sdep.Table (D).Stamp /= Dep_Src.Source_TS then
@@ -5483,56 +5461,24 @@ package body GPR.Util is
                         then
                            Found := True;
 
+                           --  If minimal recompilation is in action,
+                           --  replace the stamp of the source file in
+                           --  the table if checksums match.
+
                            if Opt.Minimal_Recompilation
-                             and then ALI.Sdep.Table (D).Stamp /=
-                             Dep_Src.Source_TS
+                             and then ALI.Sdep.Table (D).Stamp
+                                      /= Dep_Src.Source_TS
+                             and then Calculate_Checksum (Dep_Src)
+                             and then
+                               Dep_Src.Checksum = ALI.Sdep.Table (D).Checksum
                            then
-                              --  If minimal recompilation is in action,
-                              --  replace the stamp of the source file in
-                              --  the table if checksums match.
-
-                              declare
-                                 Source_Index : Source_File_Index;
-
-                              begin
-                                 Source_Index :=
-                                   Sinput.Load_File
-                                     (Get_Name_String
-                                        (Dep_Src.Path.Display_Name));
-
-                                 if Source_Index /= No_Source_File then
-
-                                    Err.Scanner.Initialize_Scanner
-                                      (Source_Index, Err.Scanner.Ada);
-
-                                    --  Scan the complete file to compute its
-                                    --  checksum.
-
-                                    loop
-                                       Err.Scanner.Scan;
-                                       exit when Token = Tok_EOF;
-                                    end loop;
-
-                                    if Scans.Checksum =
-                                      ALI.Sdep.Table (D).Checksum
-                                    then
-                                       ALI.Sdep.Table (D).Stamp :=
-                                         Dep_Src.Source_TS;
-                                    end if;
-                                 end if;
-
-                                 --  To avoid using too much memory, free the
-                                 --  memory allocated.
-
-                                 Sinput.Clear_Source_File_Table;
-                              end;
+                              ALI.Sdep.Table (D).Stamp := Dep_Src.Source_TS;
                            end if;
 
                            if ALI.Sdep.Table (D).Stamp /= Dep_Src.Source_TS
                            then
                               if Opt.Verbosity_Level > Opt.Low then
-                                 Put
-                                   ("   -> different time stamp for ");
+                                 Put ("   -> different time stamp for ");
                                  Put_Line (Get_Name_String (Sfile));
 
                                  if Debug.Debug_Flag_T then

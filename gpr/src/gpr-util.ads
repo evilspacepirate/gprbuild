@@ -641,6 +641,9 @@ package GPR.Util is
       Version_String : String);
    --  Display version of a tool when switch --version is used
 
+   function Calculate_Checksum (Source : Source_Id) return Boolean;
+   --  Calculate Source checksum from source file, returns True on success
+
    generic
       with procedure Usage;
       --  Print tool-specific part of --help message

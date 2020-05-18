@@ -1178,6 +1178,9 @@ package GPR is
       Source_TS : Time_Stamp_Type := Empty_Time_Stamp;
       --  Time stamp of the source file
 
+      Checksum  : Word := 0;
+      --  Checksum calculated from source file
+
       Object_Project : Project_Id := No_Project;
       --  Project where the object file is. This might be different from
       --  Project when using extending project files.
@@ -1254,6 +1257,7 @@ package GPR is
                        Display_File           => No_File,
                        Path                   => No_Path_Information,
                        Source_TS              => Empty_Time_Stamp,
+                       Checksum               => 0,
                        Object_Project         => No_Project,
                        Object                 => No_File,
                        Current_Object_Path    => No_Path,
