@@ -1318,6 +1318,15 @@ package GPR is
    --  Similar to 'Value (but avoid use of this attribute in compiler)
    --  Raises Constraint_Error if not a Casing_Type image.
 
+   function Hex_Image (Item : Word; Length : Positive := 8) return String;
+   --  Returns hexadecimal Item representation.
+   --  Result string would be with size Length.
+   --  If Length is not enough for representation, raise Constrant_Error.
+
+   procedure Hex_Image (Item : Word; Result : out String);
+   --  Write Item hexadecimal representation into Result. Raise
+   --  Constraint_Error if Result length is not enough.
+
    --  The following record contains data for a naming scheme
 
    function Get_Object_Directory

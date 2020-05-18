@@ -1166,6 +1166,33 @@ package body GPR is
       end if;
    end Hash;
 
+   ---------------
+   -- Hex_Image --
+   ---------------
+
+   function Hex_Image (Item : Word; Length : Positive := 8) return String is
+      Result : String (1 .. Length);
+   begin
+      Hex_Image (Item, Result);
+
+      return Result;
+   end Hex_Image;
+
+   procedure Hex_Image (Item : Word; Result : out String) is
+      Chr : constant array (Word range 0 .. 15) of Character :=
+              "0123456789abcdef";
+      Tmp : Word := Item;
+   begin
+      for C of reverse Result loop
+         C := Chr (Tmp rem 16);
+         Tmp := Tmp / 16;
+      end loop;
+
+      if Tmp > 0 then
+         raise Constraint_Error;
+      end if;
+   end Hex_Image;
+
    -----------
    -- Image --
    -----------

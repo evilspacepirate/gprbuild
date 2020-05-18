@@ -538,26 +538,6 @@ package body GPR.Names is
    -----------------------------
 
    procedure Store_Encoded_Character (C : Char_Code) is
-
-      procedure Set_Hex_Chars (C : Char_Code);
-      --  Stores given value, which is in the range 0 .. 255, as two hex
-      --  digits (using lower case a-f) in Name_Buffer, incrementing Name_Len.
-
-      -------------------
-      -- Set_Hex_Chars --
-      -------------------
-
-      procedure Set_Hex_Chars (C : Char_Code) is
-         Hexd : constant String := "0123456789abcdef";
-         N    : constant Natural := Natural (C);
-      begin
-         Name_Buffer (Name_Len + 1) := Hexd (N / 16 + 1);
-         Name_Buffer (Name_Len + 2) := Hexd (N mod 16 + 1);
-         Name_Len := Name_Len + 2;
-      end Set_Hex_Chars;
-
-   --  Start of processing for Store_Encoded_Character
-
    begin
       Name_Len := Name_Len + 1;
 
@@ -569,23 +549,21 @@ package body GPR.Names is
                Name_Buffer (Name_Len) := CC;
             else
                Name_Buffer (Name_Len) := 'U';
-               Set_Hex_Chars (C);
+               Name_Len := Name_Len + 2;
+               Hex_Image (Word (C), Name_Buffer (Name_Len - 1 .. Name_Len));
             end if;
          end;
 
       elsif In_Wide_Character_Range (C) then
          Name_Buffer (Name_Len) := 'W';
-         Set_Hex_Chars (C / 256);
-         Set_Hex_Chars (C mod 256);
-
+         Name_Len := Name_Len + 4;
+         Hex_Image (Word (C), Name_Buffer (Name_Len - 3 .. Name_Len));
       else
          Name_Buffer (Name_Len) := 'W';
          Name_Len := Name_Len + 1;
          Name_Buffer (Name_Len) := 'W';
-         Set_Hex_Chars (C / 2 ** 24);
-         Set_Hex_Chars ((C / 2 ** 16) mod 256);
-         Set_Hex_Chars ((C / 256) mod 256);
-         Set_Hex_Chars (C mod 256);
+         Name_Len := Name_Len + 8;
+         Hex_Image (Word (C), Name_Buffer (Name_Len - 7 .. Name_Len));
       end if;
    end Store_Encoded_Character;
 
