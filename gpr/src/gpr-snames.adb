@@ -28,19 +28,21 @@ package body GPR.Snames is
 
    procedure Add_Name (S : String);
 
+   Sequence : Name_Id := First_Name_Id;
+
    --------------
    -- Add_Name --
    --------------
 
    procedure Add_Name (S : String) is
-      Dummy : Name_Id;
-      pragma Warnings (Off, Dummy);
    begin
       Set_Name_Buffer (S);
-      Dummy := Name_Find;
+      Sequence := Sequence + 1;
+      if Name_Find /= Sequence then
+         raise Program_Error with
+           "Wrong string constant """ & S & """ initialization" & Sequence'Img;
+      end if;
    end Add_Name;
-
-   Initialized : Boolean := False;
 
    ----------------
    -- Initialize --
@@ -48,7 +50,7 @@ package body GPR.Snames is
 
    procedure Initialize is
    begin
-      if Initialized then
+      if Sequence > First_Name_Id then
          return;
       end if;
 
@@ -346,8 +348,6 @@ package body GPR.Snames is
       Add_Name ("include_switches_via_spec");
       Add_Name ("required_toolchain_version");
       Add_Name ("toolchain_name");
-
-      Initialized := True;
    end Initialize;
 
 end GPR.Snames;
