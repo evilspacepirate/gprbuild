@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # bootstrap.sh - a simple bootstrap for building gprbuild with xmlada
 
 progname=bootstrap
