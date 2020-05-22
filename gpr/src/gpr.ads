@@ -1181,6 +1181,12 @@ package GPR is
       Checksum  : Word := 0;
       --  Checksum calculated from source file
 
+      Checksum_Src : File_Name_Type := No_File;
+      --  Source of checksum.
+      --  No_File        - No checksum
+      --  First_Name_Id  - Calculated from source file
+      --  Other values   - From dependency file of source simple name
+
       Object_Project : Project_Id := No_Project;
       --  Project where the object file is. This might be different from
       --  Project when using extending project files.
@@ -1258,6 +1264,7 @@ package GPR is
                        Path                   => No_Path_Information,
                        Source_TS              => Empty_Time_Stamp,
                        Checksum               => 0,
+                       Checksum_Src           => No_File,
                        Object_Project         => No_Project,
                        Object                 => No_File,
                        Current_Object_Path    => No_Path,

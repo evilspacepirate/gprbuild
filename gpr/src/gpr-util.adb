@@ -114,6 +114,10 @@ package body GPR.Util is
       Hash       => GPR.Hash,
       Equal      => "=");
 
+   True_Checksum : constant File_Name_Type := File_Name_Type (First_Name_Id);
+   --  Special constant to declare that checksum in Source record is calculated
+   --  from source file content.
+
    function To_Path_String_Access
      (Path_Addr : Address;
       Path_Len  : Integer) return String_Access;
@@ -157,7 +161,7 @@ package body GPR.Util is
    function Calculate_Checksum (Source : Source_Id) return Boolean is
       Source_Index : Source_File_Index;
    begin
-      if Source.Checksum > 0 then
+      if Source.Checksum_Src = True_Checksum then
          --  Checksum already calculated
          return True;
       end if;
@@ -176,7 +180,8 @@ package body GPR.Util is
             exit when Token = Tok_EOF;
          end loop;
 
-         Source.Checksum := Scans.Checksum;
+         Source.Checksum     := Scans.Checksum;
+         Source.Checksum_Src := True_Checksum;
 
          --  To avoid using too much memory, free the
          --  memory allocated.
@@ -4983,9 +4988,95 @@ package body GPR.Util is
                         then
                            Found := True;
 
+                           if Dep_Src.Checksum /= ALI.Sdep.Table (D).Checksum
+                           then
+                              --  Checksum saved in source file differ from
+                              --  ALI D line checksum.
+
+                              case Dep_Src.Checksum_Src is
+                                 when No_File =>
+                                    --  Checksum was not saved. Save it.
+
+                                    Dep_Src.Checksum_Src := Source.File;
+                                    Dep_Src.Checksum :=
+                                      ALI.Sdep.Table (D).Checksum;
+
+                                 when True_Checksum =>
+                                    --  Checksum calculated from file and D
+                                    --  record from ALI does not fit it. We
+                                    --  have to rebuild source.
+
+                                    return True;
+
+                                 when others =>
+                                    if Dep_Src.File = Dep_Src.Checksum_Src then
+                                       --  The checksum saved from the D record
+                                       --  of the source itself. It is more
+                                       --  reliable than the D line of the
+                                       --  other sources. Rebuild the source.
+
+                                       return True;
+                                    end if;
+
+                                    --  If we have 2 different sources with D
+                                    --  lines referenced to the Dep_Src with
+                                    --  different checksum, we should calculate
+                                    --  checksum from source file.
+
+                                    declare
+                                       Prev_Src : constant File_Name_Type :=
+                                                    Dep_Src.Checksum_Src;
+                                       Prev_Chs : constant Word :=
+                                                    Dep_Src.Checksum;
+                                       Prev_Sid : Source_Id;
+                                    begin
+                                       if Calculate_Checksum (Dep_Src) then
+                                          if Dep_Src.Checksum /= Prev_Chs then
+                                             --  Saved D line checksum from
+                                             --  previos source was wrond. We
+                                             --  have to rebuild previous
+                                             --  source file.
+
+                                             Prev_Sid :=
+                                               Source_Files_Htable.Get
+                                                 (Tree.Source_Files_HT,
+                                                  Prev_Src);
+
+                                             --  Delete obsolete ALI file.
+
+                                             Delete_File
+                                               (Get_Name_String
+                                                  (Prev_Sid.Dep_Path));
+
+                                             --  Insert the source into the
+                                             --  queue again.
+
+                                             Queue.Insert
+                                               (Source =>
+                                                  (Tree, Prev_Sid,
+                                                   Closure => True),
+                                                With_Roots => True,
+                                                Repeat     => True);
+                                          end if;
+
+                                          if Dep_Src.Checksum
+                                            /= ALI.Sdep.Table (D).Checksum
+                                          then
+                                             --  If calculated checksum differ
+                                             --  from D line checksum, we have
+                                             --  to compile this Source.
+
+                                             return True;
+                                          end if;
+                                       end if;
+                                    end;
+                              end case;
+                           end if;
+
                            if (Opt.Minimal_Recompilation
-                               and then ALI.Sdep.Table (D).Stamp /=
-                                 Dep_Src.Source_TS) or else
+                               and then ALI.Sdep.Table (D).Stamp
+                                        /= Dep_Src.Source_TS)
+                             or else
                              (ALI.Sdep.Table (D).Stamp = Dep_Src.Source_TS
                               and then Opt.Checksum_Recompilation)
                            then

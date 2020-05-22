@@ -1546,21 +1546,10 @@ package body Gpr_Build_Util is
       procedure Debug_Display (S : Source_Info);
       --  A debug display for S
 
-      function Was_Processed (S : Source_Info) return Boolean;
-      --  Whether S has already been processed. This marks the source as
-      --  processed, if it hasn't already been processed.
-
-      function Insert_No_Roots (Source  : Source_Info) return Boolean;
-      --  Insert Source, but do not look for its roots (see doc for Insert)
-
-      -------------------
-      -- Was_Processed --
-      -------------------
-
-      function Was_Processed (S : Source_Info) return Boolean is
-      begin
-         return S.Id.In_The_Queue;
-      end Was_Processed;
+      function Insert_No_Roots
+        (Source  : Source_Info; Repeat : Boolean := False) return Boolean;
+      --  Insert Source, but do not look for its roots (see doc for Insert).
+      --  If Repeat is True the source inserted even if it was
 
       -----------------------
       -- Available_Obj_Dir --
@@ -1681,21 +1670,22 @@ package body Gpr_Build_Util is
       -- Insert_No_Roots --
       ---------------------
 
-      function Insert_No_Roots (Source  : Source_Info) return Boolean is
+      function Insert_No_Roots
+        (Source  : Source_Info; Repeat : Boolean := False) return Boolean is
       begin
          pragma Assert (Source.Id /= No_Source);
 
          --  Only insert in the Q if it is not already done, to avoid
          --  simultaneous compilations if -jnnn is used.
 
-         if Was_Processed (Source) then
+         if not Repeat and then Source.Id.In_The_Queue then
             return False;
          end if;
 
          --  Check if a source has already been inserted in the queue from the
          --  same project in a different project tree.
 
-         for J in 1 .. Q.Last loop
+         for J in (if Repeat then Q_First + 1 else 1) .. Q.Last loop
             if Source.Id.Path.Name = Q.Table (J).Info.Id.Path.Name
               and then Source.Id.Index = Q.Table (J).Info.Id.Index
               and then
@@ -1744,7 +1734,8 @@ package body Gpr_Build_Util is
 
       function Insert
         (Source     : Source_Info;
-         With_Roots : Boolean := False) return Boolean
+         With_Roots : Boolean := False;
+         Repeat     : Boolean := False) return Boolean
       is
          Root_Arr     : Array_Element_Id;
          Roots        : Variable_Value;
@@ -1761,7 +1752,7 @@ package body Gpr_Build_Util is
          Dummy : Boolean;
 
       begin
-         if not Insert_No_Roots (Source) then
+         if not Insert_No_Roots (Source, Repeat) then
 
             --  Was already in the queue
 
@@ -1953,11 +1944,12 @@ package body Gpr_Build_Util is
 
       procedure Insert
         (Source     : Source_Info;
-         With_Roots : Boolean := False)
+         With_Roots : Boolean := False;
+         Repeat     : Boolean := False)
       is
          Discard : Boolean;
       begin
-         Discard := Insert (Source, With_Roots);
+         Discard := Insert (Source, With_Roots, Repeat);
       end Insert;
 
       --------------
