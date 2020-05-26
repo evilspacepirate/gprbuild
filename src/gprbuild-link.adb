@@ -16,6 +16,7 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
+with Ada.Calendar;               use Ada.Calendar;
 with Ada.Containers.Vectors;
 with Ada.Strings.Fixed;          use Ada.Strings.Fixed;
 with Ada.Text_IO;                use Ada.Text_IO;
@@ -1260,13 +1261,13 @@ package body Gprbuild.Link is
 
       Linker_Needs_To_Be_Called : Boolean;
 
-      Executable_TS      : OS_Time;
-      Main_Object_TS     : OS_Time;
-      Binder_Exchange_TS : OS_Time;
-      Binder_Object_TS   : OS_Time := GM_Time_Of (2000, 1, 1, 0, 0, 0);
-      Global_Archive_TS  : OS_Time;
+      Executable_TS      : Time;
+      Main_Object_TS     : Time;
+      Binder_Exchange_TS : Time;
+      Binder_Object_TS   : Time := Time_Of (2000, 1, 1);
+      Global_Archive_TS  : Time;
 
-      function File_Stamp (File : Path_Name_Type) return OS_Time is
+      function File_Stamp (File : Path_Name_Type) return Time is
         (File_Time_Stamp (Get_Name_String (File)));
       --  Returns file modification time
 
@@ -1591,7 +1592,7 @@ package body Gprbuild.Link is
       Executable_TS := File_Stamp (Exec_Path_Name);
 
       if not Linker_Needs_To_Be_Called
-        and then Executable_TS = Invalid_Time
+        and then Executable_TS = Osint.Invalid_Time
       then
          Linker_Needs_To_Be_Called := True;
 
@@ -1625,7 +1626,7 @@ package body Gprbuild.Link is
       Main_Object_TS := File_Stamp (Main_Source.Object_Path);
 
       if not Linker_Needs_To_Be_Called then
-         if Main_Object_TS = Invalid_Time then
+         if Main_Object_TS = Osint.Invalid_Time then
             if Opt.Verbosity_Level > Opt.Low then
                Put_Line ("      -> main object does not exist");
             end if;
@@ -1642,7 +1643,7 @@ package body Gprbuild.Link is
          end if;
       end if;
 
-      if Main_Object_TS = Invalid_Time then
+      if Main_Object_TS = Osint.Invalid_Time then
          Put ("main object for ");
          Put (Get_Name_String (Main_Source.File));
          Put_Line (" does not exist");
@@ -1848,7 +1849,7 @@ package body Gprbuild.Link is
 
                   Close (Exchange_File);
 
-                  if Binder_Object_TS = Invalid_Time then
+                  if Binder_Object_TS = Osint.Invalid_Time then
                      if not Linker_Needs_To_Be_Called
                        and then Opt.Verbosity_Level > Opt.Low
                      then
@@ -1895,7 +1896,7 @@ package body Gprbuild.Link is
              (Path_Name_Type'
                   (Create_Name (Global_Archive_Name (Main_Proj))));
 
-         if Global_Archive_TS = Invalid_Time then
+         if Global_Archive_TS = Osint.Invalid_Time then
             if not Linker_Needs_To_Be_Called
               and then Opt.Verbosity_Level > Opt.Low
             then
@@ -1988,9 +1989,9 @@ package body Gprbuild.Link is
                --  recent than the executable.
 
                declare
-                  Lib_TS : constant OS_Time := File_Stamp (Name_Find);
+                  Lib_TS : constant Time := File_Stamp (Name_Find);
                begin
-                  if Lib_TS = Invalid_Time then
+                  if Lib_TS = Osint.Invalid_Time then
                      Linker_Needs_To_Be_Called := True;
 
                      if Opt.Verbosity_Level > Opt.Low then

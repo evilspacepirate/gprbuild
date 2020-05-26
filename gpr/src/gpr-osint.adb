@@ -277,6 +277,16 @@ package body GPR.Osint is
                (File_Time_Stamp (Name_Buffer'Address, Attr));
    end File_Time_Stamp;
 
+   ---------------------
+   -- File_Time_Stamp --
+   ---------------------
+
+   function File_Time_Stamp (Name : String) return Ada.Calendar.Time is
+      FN : aliased constant String := Name & ASCII.NUL;
+   begin
+      return File_Time_Stamp (FN'Address);
+   end File_Time_Stamp;
+
    ---------------
    -- Find_File --
    ---------------
@@ -386,7 +396,7 @@ package body GPR.Osint is
    --  Start of processing for OS_Time_To_GNAT_Time
 
    begin
-      if T = Invalid_Time then
+      if T = GNAT.OS_Lib.Invalid_Time then
          return Empty_Time_Stamp;
       end if;
 
