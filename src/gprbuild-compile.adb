@@ -1818,8 +1818,7 @@ package body Gprbuild.Compile is
                                        --  imported project. Record its
                                        --  project, for later processing.
 
-                                       Imports.Set
-                                         (Source_2.Project, True);
+                                       Imports.Set (Source_2.Project, True);
 
                                     else
                                        --  It is a source of a project that
@@ -1830,7 +1829,9 @@ package body Gprbuild.Compile is
                                     end if;
                                  end if;
 
-                                 if not Source_2.In_Interfaces then
+                                 if not Source_2.In_Interfaces
+                                   and then not Source_2.Locally_Removed
+                                 then
                                     --  It is not a source in the interfaces
                                     --  of its project. Report an error and
                                     --  invalidate the compilation.
