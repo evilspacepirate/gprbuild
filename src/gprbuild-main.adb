@@ -2305,7 +2305,7 @@ procedure Gprbuild.Main is
 
          --  Line for -ws
 
-         Put ("  -ws      Suppress all warnings");
+         Put ("  -ws      Suppress all gprbuild-specific warnings");
          New_Line;
 
          --  Line for -x
