@@ -4094,9 +4094,11 @@ package body GPR.Knowledge is
          return False;
       end Foreach_Nth_Compiler;
 
-      C          : Compiler_Lists.Cursor;
-      Extra_Dirs : constant String := Extra_Dirs_From_Filters (Filters);
-      Found_All  : Boolean := True;
+      C                  : Compiler_Lists.Cursor;
+      Extra_Dirs         : constant String :=
+        Extra_Dirs_From_Filters (Filters);
+      Found_All          : Boolean := True;
+      Found_All_Fallback : Boolean := True;
 
    begin
       Iter.Filters   := Filters;
@@ -4121,12 +4123,18 @@ package body GPR.Knowledge is
          C := First (Filters);
          for F in Iter.Found_One'Range loop
             if not Iter.Found_One (F) then
+               if Languages_Known.Contains
+                 (Compiler_Lists.Element (C).Language_LC)
+               then
+                  --  Fallback should not be triggered for unknown languages
+                  Found_All_Fallback := False;
+               end if;
                Found_All := False;
             end if;
             Next (C);
          end loop;
 
-         if not Found_All then
+         if not Found_All_Fallback then
             --  Looking for corresponding fallback set
             declare
                Fallback_List : constant String_Lists.List :=
@@ -4153,7 +4161,12 @@ package body GPR.Knowledge is
                      Found_All := True;
                      C := First (Filters);
                      for F in Local_Iter.Found_One'Range loop
-                        if not Local_Iter.Found_One (F) then
+                        if not Local_Iter.Found_One (F)
+                          and then Languages_Known.Contains
+                            (Compiler_Lists.Element (C).Language_LC)
+                        then
+                           --  Not finding a compiler for an unknown language
+                           --  should not invalidate fallback search.
                            Found_All := False;
                         end if;
                         Next (C);
