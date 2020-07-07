@@ -466,10 +466,11 @@ package GPR is
    --  processing the project tree (unknown package name).
 
    type Variable_Value (Kind : Variable_Kind := Undefined) is record
-      Project     : Project_Id := No_Project;
-      Location    : Source_Ptr := No_Location;
-      String_Type : Project_Node_Id := Empty_Project_Node;
-      Default     : Boolean    := False;
+      Project              : Project_Id := No_Project;
+      Location             : Source_Ptr := No_Location;
+      String_Type          : Project_Node_Id := Empty_Project_Node;
+      Default              : Boolean    := False;
+      From_Implicit_Target : Boolean := False;
       case Kind is
          when Undefined =>
             null;
@@ -485,6 +486,16 @@ package GPR is
    --  current value is the default one for the variable. String_Type is
    --  Empty_Project_Node, except for typed variables where it designates
    --  the string type node.
+   --
+   --  From_Implicit_Target is only changed to True when evaluating
+   --  an expression that depends on 'Target reference, and the target is not
+   --  explicitly declared in corresponding project. In such case the 'Target
+   --  is still evaluated to normalized hostname, however at configuration
+   --  phase it is not possible to distinguish this case from real explicit
+   --  native target specification. So if in root project we have
+   --     for Target use Imported_Project'Target;
+   --  and Imported_Project has no explicit target declaration it is otherwise
+   --  not possible to understand that target fallback if needed.
 
    Nil_Variable_Value : constant Variable_Value;
    --  Value of a non existing variable or array element
@@ -2881,11 +2892,12 @@ private
    Ignored : constant Variable_Kind := Single;
 
    Nil_Variable_Value : constant Variable_Value :=
-                          (Project     => No_Project,
-                           Kind        => Undefined,
-                           Location    => No_Location,
-                           Default     => False,
-                           String_Type => Empty_Project_Node);
+                          (Project              => No_Project,
+                           Kind                 => Undefined,
+                           Location             => No_Location,
+                           Default              => False,
+                           String_Type          => Empty_Project_Node,
+                           From_Implicit_Target => False);
 
    type Source_Iterator is record
       In_Tree : Project_Tree_Ref;

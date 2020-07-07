@@ -221,6 +221,30 @@ package body GPR.Conf is
                   User_Attr.Value := Conf_Attr.Value;
                   Shared.Variable_Elements.Table (User_Attr_Id) := User_Attr;
 
+               elsif User_Attr.Value.Kind = Single
+                 and then User_Attr.Name = Name_Target
+                 and then User_Attr.Value.From_Implicit_Target
+               then
+
+                  --  The Target attribute is declared in user project but
+                  --  its value derives from implicit evaluation of 'Target
+                  --  attribute, e.g.:
+                  --
+                  --  abstract project Config is
+                  --  end Config;
+                  --
+                  --  with "config.gpr";
+                  --  project P is
+                  --     for Target use Config'Target;
+                  --  end P;
+                  --
+                  --  In such case the effective target might change due to
+                  --  target fallback, so it needs to be overwritten by the
+                  --  value from configuration project.
+
+                  User_Attr.Value.Value := Conf_Attr.Value.Value;
+                  Shared.Variable_Elements.Table (User_Attr_Id) := User_Attr;
+
                elsif User_Attr.Value.Kind = List
                  and then Conf_Attr.Value.Values /= Nil_String
                  and then Conf_Attr.Value.Concat
@@ -1867,7 +1891,9 @@ package body GPR.Conf is
               and then not Variable.Default
             then
                if Get_Name_String (Variable.Value) = Opt.Target_Value.all then
-                  Native_Target := False;
+                  if not Variable.From_Implicit_Target then
+                     Native_Target := False;
+                  end if;
 
                elsif Target_Try_Again then
                   Opt.Target_Value :=

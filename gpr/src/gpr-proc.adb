@@ -233,13 +233,14 @@ package body GPR.Proc is
 
                   when Single =>
                      New_Attribute :=
-                       (Project     => Project,
-                        Kind        => Single,
-                        Location    => No_Location,
-                        Default     => True,
-                        String_Type => Empty_Project_Node,
-                        Value       => Empty_String,
-                        Index       => 0);
+                       (Project              => Project,
+                        Kind                 => Single,
+                        Location             => No_Location,
+                        Default              => True,
+                        String_Type          => Empty_Project_Node,
+                        Value                => Empty_String,
+                        Index                => 0,
+                        From_Implicit_Target => False);
 
                      --  Special cases of <project>'Name and
                      --  <project>'Project_Dir.
@@ -261,13 +262,15 @@ package body GPR.Proc is
 
                   when List =>
                      New_Attribute :=
-                       (Project     => Project,
-                        Kind        => List,
-                        Location    => No_Location,
-                        Default     => True,
-                        String_Type => Empty_Project_Node,
-                        Values      => Nil_String,
-                        Concat      => Is_Config_Concatenable (The_Attribute));
+                       (Project              => Project,
+                        Kind                 => List,
+                        Location             => No_Location,
+                        Default              => True,
+                        String_Type          => Empty_Project_Node,
+                        Values               => Nil_String,
+                        Concat               => Is_Config_Concatenable
+                          (The_Attribute),
+                        From_Implicit_Target => False);
 
                end case;
 
@@ -990,25 +993,27 @@ package body GPR.Proc is
                                                                        List
                            then
                               The_Variable :=
-                                (Project     => Project,
-                                 Kind        => List,
-                                 Location    => No_Location,
-                                 Default     => True,
-                                 String_Type => Empty_Project_Node,
-                                 Values      => Nil_String,
-                                 Concat      =>
+                                (Project              => Project,
+                                 Kind                 => List,
+                                 Location             => No_Location,
+                                 Default              => True,
+                                 String_Type          => Empty_Project_Node,
+                                 Values               => Nil_String,
+                                 Concat               =>
                                    Is_Config_Concatenable
                                      (The_Current_Term,
-                                      From_Project_Node_Tree));
+                                      From_Project_Node_Tree),
+                                 From_Implicit_Target => False);
                            else
                               The_Variable :=
-                                (Project     => Project,
-                                 Kind        => Single,
-                                 Location    => No_Location,
-                                 Default     => True,
-                                 String_Type => Empty_Project_Node,
-                                 Value       => Empty_String,
-                                 Index       => 0);
+                                (Project              => Project,
+                                 Kind                 => Single,
+                                 Location             => No_Location,
+                                 Default              => True,
+                                 String_Type          => Empty_Project_Node,
+                                 Value                => Empty_String,
+                                 Index                => 0,
+                                 From_Implicit_Target => False);
                            end if;
                         end if;
                      end;
@@ -1086,6 +1091,8 @@ package body GPR.Proc is
                                        Set_Name_Buffer
                                          (Opt.Target_Value.all);
                                        The_Variable.Value := Name_Find;
+                                       The_Variable.From_Implicit_Target :=
+                                         True;
                                     end if;
 
                                  when Canonical_Target_Value =>
@@ -1140,6 +1147,8 @@ package body GPR.Proc is
 
                            when Single =>
                               Add (Result.Value, The_Variable.Value);
+                              Result.From_Implicit_Target :=
+                                The_Variable.From_Implicit_Target;
 
                            when List =>
 
