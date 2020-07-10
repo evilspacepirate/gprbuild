@@ -116,6 +116,10 @@ procedure Gprls.Main is
    procedure Swap_File_Names (Left, Right : Positive);
    --  Swap 2 elements in File_Names vector
 
+   procedure Do_List (Project : Project_Id; Tree : Project_Tree_Ref);
+   --  Iterates over project or over aggregated projects to prepare the source
+   --  list to process.
+
    procedure Sort_File_Names is new Ada.Containers.Generic_Sort
      (Index_Type => Positive,
       Before     => Before,
@@ -918,6 +922,246 @@ procedure Gprls.Main is
       end if;
    end Initialize;
 
+   procedure Do_List
+     (Project : Project_Id; Tree : Project_Tree_Ref)
+   is
+      Iter : Source_Iterator := For_Each_Source (Tree);
+      Source : GPR.Source_Id;
+   begin
+      loop
+         Source := Element (Iter);
+         exit when Source = No_Source;
+         Initialize_Source_Record (Source);
+         Next (Iter);
+      end loop;
+
+      if Closure and then File_Names.Is_Empty then
+         --  Get the mains declared in the main project
+
+         declare
+            Mains : String_List_Id := Project.Mains;
+            Elem : String_Element;
+         begin
+            while Mains /= Nil_String loop
+               Elem := Tree.Shared.String_Elements.Table (Mains);
+               Add_File (Get_Name_String (Elem.Value));
+               Mains := Elem.Next;
+            end loop;
+         end;
+      end if;
+
+      if File_Names.Is_Empty and not Closure then
+         --  Get all the compilable sources of the project
+         declare
+            Unit    : GPR.Unit_Index;
+            Subunit : Boolean := False;
+         begin
+            Unit := Units_Htable.Get_First (Tree.Units_HT);
+            while Unit /= No_Unit_Index loop
+
+               --  We only need to put the library units, body or spec, but not
+               --  the subunits.
+
+               if Unit.File_Names (Impl) /= null
+                 and then not Unit.File_Names (Impl).Locally_Removed
+               then
+                  --  There is a body, check if it is for this project
+
+                  if All_Projects
+                    or else Unit.File_Names (Impl).Project = Project
+                  then
+                     Subunit := False;
+
+                     if Unit.File_Names (Spec) = null
+                       or else Unit.File_Names (Spec).Locally_Removed
+                     then
+                        --  We have a body with no spec: we need to check if
+                        --  this is a subunit, because gnatls will complain
+                        --  about subunits.
+
+                        Subunit := Is_Subunit (Unit.File_Names (Impl));
+                     end if;
+
+                     if not Subunit then
+                        Add_File
+                          (Get_Name_String (Unit.File_Names (Impl).Object),
+                           Source => Unit.File_Names (Impl));
+                     end if;
+                  end if;
+
+               elsif Unit.File_Names (Spec) /= null
+                 and then not Unit.File_Names (Spec).Locally_Removed
+                 and then
+               --  We have a spec with no body. Check if it is for this project
+                 (All_Projects
+                  or else Unit.File_Names (Spec).Project = Project)
+               then
+                  Add_File
+                    (Get_Name_String (Unit.File_Names (Spec).Object),
+                     Source => Unit.File_Names (Spec));
+               end if;
+
+               Unit := Units_Htable.Get_Next (Tree.Units_HT);
+            end loop;
+         end;
+
+         Sort_File_Names (File_Names.First_Index, File_Names.Last_Index);
+
+      else
+         --  Find the sources in the project files
+
+         for FN_Source of File_Names loop
+            declare
+               File_Name : String renames FN_Source.File_Name;
+               Unit      : GPR.Unit_Index;
+               Subunit   : Boolean := False;
+            begin
+               Canonical_Case_File_Name (File_Name);
+
+               Unit := Units_Htable.Get_First (Tree.Units_HT);
+
+               Unit_Loop :
+               while Unit /= No_Unit_Index loop
+
+                  --  We only need to put the library units, body or spec, but
+                  --  not the subunits.
+
+                  if Unit.File_Names (Impl) /= null
+                    and then not Unit.File_Names (Impl).Locally_Removed
+                  then
+                     --  There is a body, check if it is for this project
+
+                     if All_Projects
+                       or else
+                         Ultimate_Extending_Project_Of
+                           (Unit.File_Names (Impl).Project) = Project
+                     then
+                        Subunit := False;
+
+                        if Unit.File_Names (Spec) = null
+                          or else Unit.File_Names (Spec).Locally_Removed
+                        then
+                           --  We have a body with no spec: we need to check if
+                           --  this is a subunit, because gnatls will complain
+                           --  about subunits.
+
+                           Subunit := Is_Subunit (Unit.File_Names (Impl));
+                        end if;
+
+                        if not Subunit then
+                           declare
+                              Object_Name : String :=
+                                Get_Name_String
+                                  (Unit.File_Names (Impl).Object);
+                              Dep_Name : String :=
+                                Get_Name_String
+                                  (Unit.File_Names (Impl).Dep_Name);
+                           begin
+                              Canonical_Case_File_Name (Object_Name);
+                              Canonical_Case_File_Name (Dep_Name);
+
+                              if Dep_Name in File_Name | File_Name & ".ali"
+                                or else File_Name in Object_Name
+                                  | Get_Name_String
+                                    (Unit.File_Names (Impl).File)
+                                      | Get_Name_String
+                                        (Unit.File_Names (Impl)
+                                         .Display_File)
+                              then
+                                 FN_Source.Source := Unit.File_Names (Impl);
+                                 exit Unit_Loop;
+                              end if;
+                           end;
+                        end if;
+                     end if;
+
+                  elsif Unit.File_Names (Spec) /= null
+                    and then not Unit.File_Names (Spec).Locally_Removed
+                    and then
+                  --  We have a spec with no body. Check if it is for this
+                  --  project.
+                    (All_Projects
+                     or else Unit.File_Names (Spec).Project = Project)
+                  then
+                     declare
+                        Object_Name : String :=
+                          Get_Name_String (Unit.File_Names (Spec).Object);
+                        Dep_Name : String :=
+                          Get_Name_String (Unit.File_Names (Spec).Dep_Name);
+                     begin
+                        Canonical_Case_File_Name (Object_Name);
+                        Canonical_Case_File_Name (Dep_Name);
+
+                        if Dep_Name in File_Name | File_Name & ".ali"
+                          or else File_Name in Object_Name
+                            | Get_Name_String
+                              (Unit.File_Names (Spec).File)
+                                | Get_Name_String
+                                  (Unit.File_Names (Spec).Display_File)
+                        then
+                           FN_Source.Source := Unit.File_Names (Spec);
+                        end if;
+                     end;
+                  end if;
+
+                  Unit := Units_Htable.Get_Next (Tree.Units_HT);
+               end loop Unit_Loop;
+            end;
+         end loop;
+      end if;
+
+      --  Create mapping of ALI files to Source_Id
+
+      --  Get all the compilable sources of the projects
+      declare
+         Unit    : GPR.Unit_Index;
+         Subunit : Boolean := False;
+      begin
+         Unit := Units_Htable.Get_First (Tree.Units_HT);
+         while Unit /= No_Unit_Index loop
+
+            --  We only need to put the library units, body or spec, but not
+            --  the subunits.
+
+            if Unit.File_Names (Impl) /= null
+              and then not Unit.File_Names (Impl).Locally_Removed
+            then
+               Subunit := False;
+
+               if Unit.File_Names (Spec) = null
+                 or else Unit.File_Names (Spec).Locally_Removed
+               then
+                  --  We have a body with no spec: we need to check if this is
+                  --  a subunit.
+
+                  Subunit := Is_Subunit (Unit.File_Names (Impl));
+               end if;
+
+               if not Subunit then
+                  Add_ALI
+                    (Unit.File_Names (Impl).File,
+                     Spec   => False,
+                     Source => Unit.File_Names (Impl));
+               end if;
+            end if;
+
+            if Unit.File_Names (Spec) /= null
+              and then not Unit.File_Names (Spec).Locally_Removed
+            then
+               Add_ALI
+                 (Unit.File_Names (Spec).File,
+                  Spec   => True,
+                  Source => Unit.File_Names (Spec));
+            end if;
+
+            Unit := Units_Htable.Get_Next (Tree.Units_HT);
+         end loop;
+      end;
+   end Do_List;
+
+   procedure For_All_And_Aggregated is new For_Project_And_Aggregated
+     (Do_List);
+
 begin
    Initialize;
 
@@ -1100,249 +1344,7 @@ begin
 
    Set_Gprls_Mode;
 
-   declare
-      Iter : Source_Iterator := For_Each_Source (Project_Tree);
-      Source : GPR.Source_Id;
-   begin
-      loop
-         Source := Element (Iter);
-         exit when Source = No_Source;
-         Initialize_Source_Record (Source);
-         Next (Iter);
-      end loop;
-   end;
-
-   if Closure and then File_Names.Is_Empty then
-      --  Get the mains declared in the main project
-
-      declare
-         Mains : String_List_Id := Main_Project.Mains;
-         Elem : String_Element;
-      begin
-         while Mains /= Nil_String loop
-            Elem := Project_Tree.Shared.String_Elements.Table (Mains);
-            Add_File (Get_Name_String (Elem.Value));
-            Mains := Elem.Next;
-         end loop;
-      end;
-   end if;
-
-   if File_Names.Is_Empty and not Closure then
-      --  Get all the compilable sources of the project
-      declare
-         Unit    : GPR.Unit_Index;
-         Subunit : Boolean := False;
-      begin
-         Unit := Units_Htable.Get_First (Project_Tree.Units_HT);
-         while Unit /= No_Unit_Index loop
-
-            --  We only need to put the library units, body or spec, but not
-            --  the subunits.
-
-            if Unit.File_Names (Impl) /= null
-              and then not Unit.File_Names (Impl).Locally_Removed
-            then
-               --  There is a body, check if it is for this project
-
-               if All_Projects
-                 or else Unit.File_Names (Impl).Project = Main_Project
-               then
-                  Subunit := False;
-
-                  if Unit.File_Names (Spec) = null
-                    or else Unit.File_Names (Spec).Locally_Removed
-                  then
-                     --  We have a body with no spec: we need to check if
-                     --  this is a subunit, because gnatls will complain
-                     --  about subunits.
-
-                     Subunit := Is_Subunit (Unit.File_Names (Impl));
-                  end if;
-
-                  if not Subunit then
-                     Add_File
-                       (Get_Name_String (Unit.File_Names (Impl).Object),
-                        Source => Unit.File_Names (Impl));
-                  end if;
-               end if;
-
-            elsif Unit.File_Names (Spec) /= null
-              and then not Unit.File_Names (Spec).Locally_Removed
-            then
-               --  We have a spec with no body. Check if it is for this project
-
-               if All_Projects
-                 or else Unit.File_Names (Spec).Project = Main_Project
-               then
-                  Add_File
-                    (Get_Name_String (Unit.File_Names (Spec).Object),
-                     Source => Unit.File_Names (Spec));
-               end if;
-            end if;
-
-            Unit := Units_Htable.Get_Next (Project_Tree.Units_HT);
-         end loop;
-      end;
-
-      Sort_File_Names (File_Names.First_Index, File_Names.Last_Index);
-
-   else
-      --  Find the sources in the project files
-
-      for FN_Source of File_Names loop
-         declare
-            File_Name : String renames FN_Source.File_Name;
-            Unit      : GPR.Unit_Index;
-            Subunit   : Boolean := False;
-         begin
-            Canonical_Case_File_Name (File_Name);
-
-            Unit := Units_Htable.Get_First (Project_Tree.Units_HT);
-
-            Unit_Loop :
-            while Unit /= No_Unit_Index loop
-
-               --  We only need to put the library units, body or spec, but not
-               --  the subunits.
-
-               if Unit.File_Names (Impl) /= null
-                 and then not Unit.File_Names (Impl).Locally_Removed
-               then
-                  --  There is a body, check if it is for this project
-
-                  if All_Projects
-                    or else
-                      Ultimate_Extending_Project_Of
-                        (Unit.File_Names (Impl).Project) = Main_Project
-                  then
-                     Subunit := False;
-
-                     if Unit.File_Names (Spec) = null
-                       or else Unit.File_Names (Spec).Locally_Removed
-                     then
-                        --  We have a body with no spec: we need to check if
-                        --  this is a subunit, because gnatls will complain
-                        --  about subunits.
-
-                        Subunit := Is_Subunit (Unit.File_Names (Impl));
-                     end if;
-
-                     if not Subunit then
-                        declare
-                           Object_Name : String :=
-                             Get_Name_String (Unit.File_Names (Impl).Object);
-                           Dep_Name : String :=
-                             Get_Name_String (Unit.File_Names (Impl).Dep_Name);
-                        begin
-                           Canonical_Case_File_Name (Object_Name);
-                           Canonical_Case_File_Name (Dep_Name);
-
-                           if Object_Name = File_Name
-                             or else Dep_Name = File_Name
-                             or else Dep_Name = File_Name & ".ali"
-                             or else
-                               Get_Name_String (Unit.File_Names (Impl).File) =
-                                 File_Name
-                             or else
-                               Get_Name_String
-                                 (Unit.File_Names (Impl).Display_File) =
-                                 File_Name
-                           then
-                              FN_Source.Source := Unit.File_Names (Impl);
-                              exit Unit_Loop;
-                           end if;
-                        end;
-                     end if;
-                  end if;
-
-               elsif Unit.File_Names (Spec) /= null
-                 and then not Unit.File_Names (Spec).Locally_Removed
-               then
-                  --  We have a spec with no body. Check if it is for this
-                  --  project.
-
-                  if All_Projects
-                      or else Unit.File_Names (Spec).Project = Main_Project
-                  then
-                     declare
-                        Object_Name : String :=
-                          Get_Name_String (Unit.File_Names (Spec).Object);
-                        Dep_Name : String :=
-                          Get_Name_String (Unit.File_Names (Spec).Dep_Name);
-                     begin
-                        Canonical_Case_File_Name (Object_Name);
-                        Canonical_Case_File_Name (Dep_Name);
-
-                        if Object_Name = File_Name
-                          or else Dep_Name = File_Name
-                          or else Dep_Name = File_Name & ".ali"
-                          or else
-                            Get_Name_String (Unit.File_Names (Spec).File) =
-                              File_Name
-                          or else
-                            Get_Name_String
-                              (Unit.File_Names (Spec).Display_File) =
-                              File_Name
-                        then
-                           FN_Source.Source := Unit.File_Names (Spec);
-                        end if;
-                     end;
-                  end if;
-               end if;
-
-               Unit := Units_Htable.Get_Next (Project_Tree.Units_HT);
-            end loop Unit_Loop;
-         end;
-      end loop;
-   end if;
-
-   --  Create mapping of ALI files to Source_Id
-
-   --  Get all the compilable sources of the projects
-   declare
-      Unit    : GPR.Unit_Index;
-      Subunit : Boolean := False;
-   begin
-      Unit := Units_Htable.Get_First (Project_Tree.Units_HT);
-      while Unit /= No_Unit_Index loop
-
-         --  We only need to put the library units, body or spec, but not
-         --  the subunits.
-
-         if Unit.File_Names (Impl) /= null
-           and then not Unit.File_Names (Impl).Locally_Removed
-         then
-            Subunit := False;
-
-            if Unit.File_Names (Spec) = null
-              or else Unit.File_Names (Spec).Locally_Removed
-            then
-               --  We have a body with no spec: we need to check if this is
-               --  a subunit.
-
-               Subunit := Is_Subunit (Unit.File_Names (Impl));
-            end if;
-
-            if not Subunit then
-               Add_ALI
-                 (Unit.File_Names (Impl).File,
-                  Spec   => False,
-                  Source => Unit.File_Names (Impl));
-            end if;
-         end if;
-
-         if Unit.File_Names (Spec) /= null
-           and then not Unit.File_Names (Spec).Locally_Removed
-         then
-            Add_ALI
-              (Unit.File_Names (Spec).File,
-               Spec   => True,
-               Source => Unit.File_Names (Spec));
-         end if;
-
-         Unit := Units_Htable.Get_Next (Project_Tree.Units_HT);
-      end loop;
-   end;
+   For_All_And_Aggregated (Main_Project, Project_Tree);
 
    Look_For_Sources;
 
