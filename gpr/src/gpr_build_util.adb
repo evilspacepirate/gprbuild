@@ -1828,10 +1828,8 @@ package body Gpr_Build_Util is
                   Pat_Root := False;
 
                   for J in 1 .. Name_Len loop
-                     if Name_Buffer (J) not in 'a' .. 'z' and then
-                        Name_Buffer (J) not in '0' .. '9' and then
-                        Name_Buffer (J) /= '_'            and then
-                        Name_Buffer (J) /= '.'
+                     if Name_Buffer (J) not in 'a' .. 'z' | '0' .. '9'
+                                             | '_' | '.'
                      then
                         Pat_Root := True;
                         exit;
