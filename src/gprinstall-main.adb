@@ -334,6 +334,10 @@ procedure Gprinstall.Main is
                Opt_M_Set := True;
             end if;
 
+         elsif Arg = "-eL" then
+            Opt.Follow_Links_For_Files := True;
+            Opt.Follow_Links_For_Dirs  := True;
+
          elsif Arg = "-d" then
             Dry_Run := True;
 
@@ -469,7 +473,8 @@ procedure Gprinstall.Main is
                  new String'
                    (Normalize_Pathname
                       (Arg (Root_Dir_Option'Length + 2 .. Arg'Last),
-                       Get_Current_Dir)
+                       Get_Current_Dir,
+                      Resolve_Links => Opt.Follow_Links_For_Dirs)
                     & Dir_Separator);
 
             elsif Has_Prefix (Target_Project_Option) then
@@ -686,7 +691,9 @@ procedure Gprinstall.Main is
       if Build_Tree_Dir /= null and then Root_Dir = null then
          Root_Dir := new String'
            (Ada.Directories.Containing_Directory
-              (Normalize_Pathname (Project_File_Name.all))
+              (Normalize_Pathname
+                 (Project_File_Name.all,
+                  Resolve_Links => Opt.Follow_Links_For_Dirs))
             & Dir_Separator);
       end if;
    end Initialize;

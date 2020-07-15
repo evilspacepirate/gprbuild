@@ -559,7 +559,7 @@ procedure Gprclean.Main is
                       (Switch
                          (Root_Dir_Option'Length + 2 .. Switch'Last),
                        Get_Current_Dir,
-                       Resolve_Links => False)
+                       Resolve_Links => Opt.Follow_Links_For_Dirs)
                     & Dir_Separator);
 
             elsif
