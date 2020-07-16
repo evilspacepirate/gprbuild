@@ -60,15 +60,6 @@ package GPR.ALI is
    type Sdep_Id is range 0 .. 99_999_999;
    --  Id values used for Sdep table entries
 
-   type Source_Id is range 0 .. 99_999_999;
-   --  Id values used for Source table entries
-
-   type Interrupt_State_Id is range 0 .. 99_999_999;
-   --  Id values used for Interrupt_State table entries
-
-   type Priority_Specific_Dispatching_Id is range 0 .. 99_999_999;
-   --  Id values used for Priority_Specific_Dispatching table entries
-
    --------------------
    -- ALI File Table --
    --------------------
