@@ -942,7 +942,7 @@ package body GPR.Part is
 
                   Error_Msg_File_1 := File_Name_Type (Current_With.Path);
                   Error_Msg
-                    (Env.Flags, "unknown project file: {",
+                    (Env.Flags, "imported project file { not found",
                      Current_With.Location);
 
                   --  If this is not imported by the main project file, display
@@ -1821,7 +1821,9 @@ package body GPR.Part is
                      Error_Msg_Name_1 := Token_Name;
 
                      Error_Msg
-                       (Env.Flags, "unknown project file: %%", Token_Ptr);
+                       (Env.Flags,
+                        "extended project file %% not found",
+                        Token_Ptr);
 
                      --  If not in the main project file, display the import
                      --  path.
