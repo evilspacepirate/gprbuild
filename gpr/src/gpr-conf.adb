@@ -120,9 +120,6 @@ package body GPR.Conf is
    --  Search for Name in the config files directory. Return full path if
    --  found, or null otherwise.
 
-   procedure Raise_Invalid_Config (Msg : String) with Inline_Always, No_Return;
-   --  Raises exception Invalid_Config with given message
-
    procedure Apply_Config_File
      (Config_File  : Project_Id;
       Project_Tree : Project_Tree_Ref);
@@ -547,15 +544,11 @@ package body GPR.Conf is
             return False;
 
          else
-            if Tgt_Name /= No_Name then
-               Raise_Invalid_Config
-                 ("mismatched targets: """
-                  & Get_Name_String (Tgt_Name) & """ in configuration, """
-                  & Target & """ specified");
-            else
-               Raise_Invalid_Config
-                 ("no target specified in configuration file");
-            end if;
+            raise Invalid_Config with
+              (if Tgt_Name = No_Name
+               then "no target specified in configuration file"
+               else "mismatched targets: """ & Get_Name_String (Tgt_Name)
+                    & """ in configuration, """ & Target & """ specified");
          end if;
       end if;
 
@@ -906,8 +899,8 @@ package body GPR.Conf is
          --  If still not found, abort
 
          if Gprconfig_Path = null then
-            Raise_Invalid_Config
-              ("could not locate gprconfig for auto-configuration");
+            raise Invalid_Config with
+              "could not locate gprconfig for auto-configuration";
          end if;
 
          --  First, find the object directory of the Conf_Project
@@ -925,8 +918,8 @@ package body GPR.Conf is
                if Get_Name_String (Conf_Project.Directory.Display_Name)'Length
                                                          < Root_Dir'Length
                then
-                  Raise_Invalid_Config
-                    ("cannot relocate deeper than object directory");
+                  raise Invalid_Config with
+                    "cannot relocate deeper than object directory";
                end if;
 
                Add_Str_To_Name_Buffer
@@ -947,8 +940,8 @@ package body GPR.Conf is
                     (Conf_Project.Directory.Display_Name)'Length <
                                                           Root_Dir'Length
                   then
-                     Raise_Invalid_Config
-                       ("cannot relocate deeper than object directory");
+                     raise Invalid_Config with
+                       "cannot relocate deeper than object directory";
                   end if;
 
                   Add_Str_To_Name_Buffer (Build_Tree_Dir.all);
@@ -1018,7 +1011,7 @@ package body GPR.Conf is
                   if Is_Directory (GPR.Tempdir.Temporary_Directory_Path) then
                      Set_Directory (GPR.Tempdir.Temporary_Directory_Path);
                   else
-                     Raise_Invalid_Config ("No temp dir specified");
+                     raise Invalid_Config with "No temp dir specified";
                   end if;
 
                   GPR.Env.Create_Temp_File
@@ -1136,8 +1129,7 @@ package body GPR.Conf is
             Config_File_Path := Locate_Config_File (Args (3).all);
 
             if Config_File_Path = null then
-               Raise_Invalid_Config
-                 ("could not create " & Args (3).all);
+               raise Invalid_Config with "could not create " & Args (3).all;
             end if;
 
             for F in Args'Range loop
@@ -1239,9 +1231,9 @@ package body GPR.Conf is
                        and then Language_Htable (CL) /= Element.Value.Value
                      then
                         if Language_Htable (CL) /= No_Name then
-                           Raise_Invalid_Config
-                             ("Attributes Required_Toolchain_Version differ in"
-                              & " projects tree");
+                           raise Invalid_Config with
+                             "Attributes Required_Toolchain_Version differ in"
+                             & " projects tree";
                         end if;
 
                         Language_Htable (CL) := Element.Value.Value;
@@ -1536,8 +1528,8 @@ package body GPR.Conf is
                --  by gprconfig.
 
                elsif not Is_Base_Name (Runtime_Dir) then
-                  Raise_Invalid_Config
-                    ("invalid runtime directory " & RTS_Dir.all);
+                  raise Invalid_Config with
+                    "invalid runtime directory " & RTS_Dir.all;
                end if;
 
                Free (RTS_Dir);
@@ -1562,8 +1554,8 @@ package body GPR.Conf is
             if Config_File_Path = null
               and then not Allow_Automatic_Generation
             then
-               Raise_Invalid_Config
-                 ("could not locate main configuration project " & CFN);
+               raise Invalid_Config with
+                 "could not locate main configuration project " & CFN;
             end if;
          end;
 
@@ -1637,12 +1629,10 @@ package body GPR.Conf is
             On_New_Tree_Loaded     => null);
       end if;
 
-      if No (Config_Project_Node)
-         or else Config = No_Project
-      then
-         Raise_Invalid_Config
-           ("processing of configuration project """
-            & Config_File_Path.all & """ failed");
+      if No (Config_Project_Node) or else Config = No_Project then
+         raise Invalid_Config with
+           "processing of configuration project """ & Config_File_Path.all
+           & """ failed";
       end if;
 
       --  Check that the target of the configuration file is the one the user
@@ -1867,10 +1857,9 @@ package body GPR.Conf is
                   Setup_Projects :=
                     Boolean'Value (Name_Buffer (1 .. Name_Len));
                exception
-                  when others =>
-
-                     Raise_Invalid_Config
-                       ("inconsistent value of attribute Create_Missing_Dirs");
+                  when Constraint_Error =>
+                     raise Invalid_Config with
+                       "inconsistent value of attribute Create_Missing_Dirs";
                end;
             end if;
          end;
@@ -1911,8 +1900,8 @@ package body GPR.Conf is
                   goto Parse_Again;
 
                else
-                  Raise_Invalid_Config
-                    ("inconsistent value of attribute Target");
+                  raise Invalid_Config with
+                    "inconsistent value of attribute Target";
                end if;
             end if;
          end;
@@ -2422,7 +2411,7 @@ package body GPR.Conf is
       --  projects in the project tree.
 
       if Conf_Project = No_Project then
-         Raise_Invalid_Config ("there are no non-aggregate projects");
+         raise Invalid_Config with "there are no non-aggregate projects";
       end if;
 
       --  Find configuration file
@@ -2468,15 +2457,6 @@ package body GPR.Conf is
          Main_Project := No_Project;
       end if;
    end Process_Project_And_Apply_Config;
-
-   --------------------------
-   -- Raise_Invalid_Config --
-   --------------------------
-
-   procedure Raise_Invalid_Config (Msg : String) is
-   begin
-      raise Invalid_Config with Msg;
-   end Raise_Invalid_Config;
 
    ----------------------
    -- Runtime_Name_For --
