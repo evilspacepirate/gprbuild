@@ -478,6 +478,12 @@ procedure Gprls.Main is
               (Standard_Error,
                "Can't find source for " & FN_Source.File_Name);
 
+         elsif FN_Source.Source.Dep_Path = No_Path then
+            Put_Line
+              (Standard_Error,
+               "Can't find ALI file for "
+               & Get_Name_String (FN_Source.Source.Path.Display_Name));
+
          else
             declare
                Text   : Text_Buffer_Ptr;
@@ -511,14 +517,12 @@ procedure Gprls.Main is
 
                if Text /= null then
                   FN_Source.The_ALI := Scan_ALI
-                    (F          => File_Name_Type
-                       (FN_Source.Source.Dep_Path),
-                     T          => Text,
-                     Ignore_ED  => False,
-                     Err        => True,
-                     Read_Lines => "WD",
-                     Object_Path => File_Name_Type
-                       (FN_Source.Source.Object_Path));
+                    (F           => File_Name_Type (Source.Dep_Path),
+                     T           => Text,
+                     Ignore_ED   => False,
+                     Err         => True,
+                     Read_Lines  => "WD",
+                     Object_Path => File_Name_Type (Source.Object_Path));
                   Free (Text);
 
                else
@@ -533,9 +537,8 @@ procedure Gprls.Main is
                   else
                      Put_Line
                        (Standard_Error,
-                        "Can't find ALI file for " &
-                          Get_Name_String
-                          (FN_Source.Source.Path.Display_Name));
+                        "Can't find ALI file for "
+                        & Get_Name_String (Source.Path.Display_Name));
                   end if;
                end if;
             end;
