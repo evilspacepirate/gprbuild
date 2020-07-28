@@ -938,7 +938,7 @@ procedure Gprls.Main is
          Next (Iter);
       end loop;
 
-      if Closure and then File_Names.Is_Empty then
+      if Closure and then No_Files_In_Command_Line then
          --  Get the mains declared in the main project
 
          declare
@@ -953,7 +953,7 @@ procedure Gprls.Main is
          end;
       end if;
 
-      if File_Names.Is_Empty and not Closure then
+      if No_Files_In_Command_Line and not Closure then
          --  Get all the compilable sources of the project
          declare
             Unit    : GPR.Unit_Index;
@@ -1189,6 +1189,8 @@ begin
 
       Next_Arg := Next_Arg + 1;
    end loop Scan_Args;
+
+   No_Files_In_Command_Line := File_Names.Is_Empty;
 
    if Very_Verbose_Mode then
       Closure    := False;
