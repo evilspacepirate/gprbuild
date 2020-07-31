@@ -245,12 +245,12 @@ package body GPR.Dect is
          if Qualif = Aggregate then
             Error_Msg
               (Flags,
-               "package %% is forbidden in aggregate projects",
+               "package %% cannot be used in aggregate projects",
                Location_Of (Current_Package, In_Tree));
          else
             Error_Msg
            (Flags,
-            "package %% is forbidden in aggregate library projects",
+            "package %% cannot be used in aggregate library projects",
             Location_Of (Current_Package, In_Tree));
          end if;
       end if;
