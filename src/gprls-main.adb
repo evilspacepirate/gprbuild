@@ -108,8 +108,18 @@ procedure Gprls.Main is
    procedure Look_For_Sources;
    --  Get the source ids
 
+   subtype One_Range is Integer range -1 .. 1;
+
+   function Compare (Left, Right : String) return One_Range is
+      (if Left > Right then 1 elsif Left = Right then 0 else -1);
+
    function Before (Left, Right : Positive) return Boolean
-   is (File_Names (Left).File_Name < File_Names (Right).File_Name);
+   is (case Compare (File_Names (Left).File_Name, File_Names (Right).File_Name)
+       is
+          when 1 => False,
+          when 0 => File_Names (Left).Source.Path.Display_Name
+                  < File_Names (Right).Source.Path.Display_Name,
+          when -1 => True);
    --  Returns True if element of the File_Names in Left position have to be
    --  before the element in Right position.
 
@@ -1007,9 +1017,6 @@ procedure Gprls.Main is
                Unit := Units_Htable.Get_Next (Tree.Units_HT);
             end loop;
          end;
-
-         Sort_File_Names (File_Names.First_Index, File_Names.Last_Index);
-
       else
          --  Find the sources in the project files
 
@@ -1350,6 +1357,28 @@ begin
    Set_Gprls_Mode;
 
    For_All_And_Aggregated (Main_Project, Project_Tree);
+
+   if No_Files_In_Command_Line then
+      Sort_File_Names (File_Names.First_Index, File_Names.Last_Index);
+
+      --  Remove duplicates
+
+      declare
+         Idx : Natural := File_Names.First_Index + 1;
+         function Same_Path (Left, Right : GPR.Source_Id) return Boolean is
+           (No_Source not in Left | Right
+            and then (Left = Right or else Left.Path = Right.Path));
+      begin
+         while Idx <= File_Names.Last_Index loop
+            if Same_Path (File_Names (Idx - 1).Source, File_Names (Idx).Source)
+            then
+               File_Names.Delete (Idx);
+            else
+               Idx := Idx + 1;
+            end if;
+         end loop;
+      end;
+   end if;
 
    Look_For_Sources;
 
