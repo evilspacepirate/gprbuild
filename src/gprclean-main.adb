@@ -773,6 +773,11 @@ procedure Gprclean.Main is
 
          Display_Usage_Version_And_Help;
 
+         --  Line for --no-project
+
+         Put_Line ("  --no-project");
+         Put_Line ("           Do not use project file");
+
          Put_Line ("  --distributed=slave1[,slave2]");
          Put_Line ("           Activate the remote clean-up");
 

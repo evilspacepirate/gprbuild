@@ -1940,6 +1940,11 @@ procedure Gprbuild.Main is
 
          Display_Usage_Version_And_Help;
 
+         --  Line for --no-project
+
+         Put_Line ("  --no-project");
+         Put_Line ("           Do not use project file");
+
          --  Line for --distributed
 
          Put ("  --distributed=slave1[,slave2]");

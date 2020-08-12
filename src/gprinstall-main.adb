@@ -64,7 +64,6 @@ procedure Gprinstall.Main is
    Stat_Option            : constant String := "--stat";
    Sources_Only_Option    : constant String := "--sources-only";
    Side_Debug_Option      : constant String := "--side-debug";
-   No_Project_Option      : constant String := "--no-project";
    No_Manifest_Option     : constant String := "--no-manifest";
 
    Opt_A_Set : Boolean := False; -- to detect if -a and -m are used together
