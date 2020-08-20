@@ -2342,7 +2342,7 @@ package GPR is
       end case;
    end record;
 
-   function Empty_Project (Qualifier : Project_Qualifier) return  Project_Data;
+   function Empty_Project (Qualifier : Project_Qualifier) return Project_Data;
    --  Return the representation of an empty project
 
    function Is_Extending

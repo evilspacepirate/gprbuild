@@ -301,7 +301,7 @@ procedure Gprls.Main is
                                  (Sdep.Table (D).Sfile)
                            then
                               Put ("   ");
-                              Output_Source (D);
+                              Output_Source (FN_Source.Tree, D);
                            end if;
                         end loop;
                      end if;
@@ -715,7 +715,7 @@ procedure Gprls.Main is
                   --  Ignore empty lines
 
                   if Last > Index then
-                     Add_File (Buffer (Index .. Last - 1));
+                     Add_File (Buffer (Index .. Last - 1), No_Project_Tree);
                   end if;
 
                   --  Find the beginning of the next line
@@ -787,7 +787,7 @@ procedure Gprls.Main is
       --  If not a switch, it must be a file name
 
       else
-         Add_File (Argv);
+         Add_File (Argv, No_Project_Tree);
       end if;
 
       if not OK then
@@ -957,7 +957,7 @@ procedure Gprls.Main is
          begin
             while Mains /= Nil_String loop
                Elem := Tree.Shared.String_Elements.Table (Mains);
-               Add_File (Get_Name_String (Elem.Value));
+               Add_File (Get_Name_String (Elem.Value), Tree);
                Mains := Elem.Next;
             end loop;
          end;
@@ -998,6 +998,7 @@ procedure Gprls.Main is
                      if not Subunit then
                         Add_File
                           (Get_Name_String (Unit.File_Names (Impl).Object),
+                           Tree,
                            Source => Unit.File_Names (Impl));
                      end if;
                   end if;
@@ -1011,6 +1012,7 @@ procedure Gprls.Main is
                then
                   Add_File
                     (Get_Name_String (Unit.File_Names (Spec).Object),
+                     Tree,
                      Source => Unit.File_Names (Spec));
                end if;
 

@@ -85,8 +85,9 @@ package body Gprls is
    --------------
 
    procedure Add_File
-     (File_Name : String; Source : GPR.Source_Id := No_Source)
-   is
+     (File_Name : String;
+      Tree      : Project_Tree_Ref;
+      Source    : GPR.Source_Id := No_Source) is
    begin
       if Current_Verbosity = High then
          Put_Line ("adding file """ & File_Name & '"');
@@ -96,6 +97,7 @@ package body Gprls is
         (File_Name_Source'
            (Name_Len  => File_Name'Length,
             File_Name => File_Name,
+            Tree      => Tree,
             Source    => Source,
             The_ALI   => No_ALI_Id));
    end Add_File;
@@ -340,14 +342,51 @@ package body Gprls is
       end if;
    end Output_Source;
 
-   procedure Output_Source (Sdep_I : Sdep_Id) is
-      FS : File_Name_Type;
+   procedure Output_Source (Tree : Project_Tree_Ref; Sdep_I : Sdep_Id) is
+
+      function Get_Source
+        (Tree    : Project_Tree_Ref;
+         Project : Project_Id;
+         FS      : File_Name_Type) return GPR.Source_Id;
+
+      ----------------
+      -- Get_Source --
+      ----------------
+
+      function Get_Source
+        (Tree    : Project_Tree_Ref;
+         Project : Project_Id;
+         FS      : File_Name_Type) return GPR.Source_Id
+      is
+         Aggr : Aggregated_Project_List;
+         Got  : GPR.Source_Id;
+      begin
+         if Project.Qualifier = Aggregate then
+            Aggr := Project.Aggregated_Projects;
+
+            while Aggr /= null loop
+               Got := Get_Source (Aggr.Tree, Aggr.Project, FS);
+
+               if Got /= No_Source then
+                  return Got;
+               end if;
+
+               Aggr := Aggr.Next;
+            end loop;
+
+            return No_Source;
+
+         else
+            return Source_Files_Htable.Get (Tree.Source_Files_HT, FS);
+         end if;
+      end Get_Source;
+
    begin
       if Sdep_I /= No_Sdep_Id then
-         FS := Sdep.Table (Sdep_I).Sfile;
          Output_Source
-           (Source_Files_Htable.Get
-              (Project_Tree.Source_Files_HT, FS),
+           (Get_Source
+              ((if Tree = No_Project_Tree then Project_Tree else Tree),
+               Util.Main_Project, Sdep.Table (Sdep_I).Sfile),
             Sdep_I);
       end if;
    end Output_Source;
