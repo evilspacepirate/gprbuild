@@ -8188,16 +8188,19 @@ package body GPR.Nmsc is
                            while List /= Nil_String loop
                               Get_Name_String
                                 (Shared.String_Elements.Table (List).Value);
-                              Canonical_Case_File_Name
-                                (Name_Buffer (1 .. Name_Len));
+                              if Name_Len > 0 then
+                                 Canonical_Case_File_Name
+                                   (Name_Buffer (1 .. Name_Len));
 
-                              File_Pattern := Compile
-                                (Name_Buffer (1 .. Name_Len),
-                                 Glob           => True,
-                                 Case_Sensitive => File_Names_Case_Sensitive);
+                                 File_Pattern := Compile
+                                   (Name_Buffer (1 .. Name_Len),
+                                    Glob           => True,
+                                    Case_Sensitive => File_Names_Case_Sensitive
+                                   );
 
-                              OK := not Match (Dir_Name, File_Pattern);
-                              exit when not OK;
+                                 OK := not Match (Dir_Name, File_Pattern);
+                                 exit when not OK;
+                              end if;
                               List := Shared.String_Elements.Table (List).Next;
                            end loop;
                         end;
