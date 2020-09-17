@@ -3348,24 +3348,84 @@ package body GPR.Nmsc is
       Interface_ALIs   : String_List_Id := Nil_String;
       Other_Interfaces : String_List_Id := Nil_String;
 
-   begin
-      if not Interfaces.Default then
+      procedure Init_Interfaces;
+      --  Set In_Interfaces to False for all sources. It will be set to True
+      --  later for the sources in the [Library_]Interface list.
+      --  Set In_Interfaces to True for sources from --src-subdirs directory.
 
-         --  Set In_Interfaces to False for all sources. It will be set to True
-         --  later for the sources in the Interfaces list.
+      procedure Append_Interface_ALIs;
 
+      procedure Append_Interfaces
+        (List : in out String_List_Id; Value, Display_Value : File_Name_Type);
+
+      -----------------------
+      -- Append_Interfaces --
+      -----------------------
+
+      procedure Append_Interfaces
+        (List : in out String_List_Id; Value, Display_Value : File_Name_Type)
+      is
+      begin
+         String_Element_Table.Increment_Last (Shared.String_Elements);
+
+         Shared.String_Elements.Table
+           (String_Element_Table.Last (Shared.String_Elements)) :=
+             (Value         => Name_Id (Value),
+              Index         => 0,
+              Display_Value => Name_Id (Display_Value),
+              Location      => No_Location,
+              Next          => List);
+
+         List := String_Element_Table.Last (Shared.String_Elements);
+      end Append_Interfaces;
+
+      ---------------------------
+      -- Append_Interface_ALIs --
+      ---------------------------
+
+      procedure Append_Interface_ALIs is
+         Src : Source_Id;
+      begin
+         if Source.Kind = Spec then
+            Src := Other_Part (Source);
+         end if;
+
+         if Src = No_Source then
+            Src := Source;
+         end if;
+
+         Append_Interfaces (Interface_ALIs, Src.Dep_Name, Src.Dep_Name);
+      end Append_Interface_ALIs;
+
+      ---------------------
+      -- Init_Interfaces --
+      ---------------------
+
+      procedure Init_Interfaces is
+      begin
          Project_2 := Project;
          while Project_2 /= No_Project loop
             Iter := For_Each_Source (Data.Tree, Project_2);
             loop
                Source := GPR.Element (Iter);
                exit when Source = No_Source;
-               Source.In_Interfaces := False;
+
+               if Source.In_Src_Subdir then
+                  Append_Interface_ALIs;
+               else
+                  Source.In_Interfaces := False;
+               end if;
+
                Next (Iter);
             end loop;
 
             Project_2 := Project_2.Extends;
          end loop;
+      end Init_Interfaces;
+
+   begin
+      if not Interfaces.Default then
+         Init_Interfaces;
 
          List := Interfaces.Values;
          while List /= Nil_String loop
@@ -3404,46 +3464,14 @@ package body GPR.Nmsc is
                         --  Unit based case
 
                         if Source.Language.Config.Kind = Unit_Based then
-                           if Source.Kind = Spec
-                             and then Other_Part (Source) /= No_Source
-                           then
-                              Source := Other_Part (Source);
-                           end if;
-
-                           String_Element_Table.Increment_Last
-                             (Shared.String_Elements);
-
-                           Shared.String_Elements.Table
-                             (String_Element_Table.Last
-                                (Shared.String_Elements)) :=
-                             (Value         => Name_Id (Source.Dep_Name),
-                              Index         => 0,
-                              Display_Value => Name_Id (Source.Dep_Name),
-                              Location      => No_Location,
-                              Next          => Interface_ALIs);
-
-                           Interface_ALIs :=
-                             String_Element_Table.Last
-                               (Shared.String_Elements);
+                           Append_Interface_ALIs;
 
                         --  File based case
 
                         else
-                           String_Element_Table.Increment_Last
-                             (Shared.String_Elements);
-
-                           Shared.String_Elements.Table
-                             (String_Element_Table.Last
-                                (Shared.String_Elements)) :=
-                             (Value         => Name_Id (Source.File),
-                              Index         => 0,
-                              Display_Value => Name_Id (Source.Display_File),
-                              Location      => No_Location,
-                              Next          => Other_Interfaces);
-
-                           Other_Interfaces :=
-                             String_Element_Table.Last
-                               (Shared.String_Elements);
+                           Append_Interfaces
+                             (Other_Interfaces,
+                              Source.File, Source.Display_File);
                         end if;
 
                         Debug_Output
@@ -3478,22 +3506,7 @@ package body GPR.Nmsc is
          Project.Other_Interfaces   := Other_Interfaces;
 
       elsif Project.Library and then not Library_Interface.Default then
-
-         --  Set In_Interfaces to False for all sources. It will be set to True
-         --  later for the sources in the Library_Interface list.
-
-         Project_2 := Project;
-         while Project_2 /= No_Project loop
-            Iter := For_Each_Source (Data.Tree, Project_2);
-            loop
-               Source := GPR.Element (Iter);
-               exit when Source = No_Source;
-               Source.In_Interfaces := False;
-               Next (Iter);
-            end loop;
-
-            Project_2 := Project_2.Extends;
-         end loop;
+         Init_Interfaces;
 
          List := Library_Interface.Values;
          while List /= Nil_String loop
@@ -3538,26 +3551,7 @@ package body GPR.Nmsc is
                         Debug_Output
                           ("interface: ", Name_Id (Source.Path.Name));
 
-                        if Source.Kind = Spec
-                          and then Other_Part (Source) /= No_Source
-                        then
-                           Source := Other_Part (Source);
-                        end if;
-
-                        String_Element_Table.Increment_Last
-                          (Shared.String_Elements);
-
-                        Shared.String_Elements.Table
-                          (String_Element_Table.Last
-                             (Shared.String_Elements)) :=
-                          (Value         => Name_Id (Source.Dep_Name),
-                           Index         => 0,
-                           Display_Value => Name_Id (Source.Dep_Name),
-                           Location      => No_Location,
-                           Next          => Interface_ALIs);
-
-                        Interface_ALIs :=
-                          String_Element_Table.Last (Shared.String_Elements);
+                        Append_Interface_ALIs;
                      end if;
 
                      Unit_Found := True;
@@ -7872,7 +7866,10 @@ package body GPR.Nmsc is
       end if;
 
       if Name_Loc = No_Name_Location then
-         Check_Name := For_All_Sources;
+         --  Source_Dir_Rank = 0 mean that source file is from directory
+         --  defined in --src-subdir parameter.
+
+         Check_Name := For_All_Sources or else Source_Dir_Rank = 0;
 
       else
          if Name_Loc.Found then
@@ -7989,9 +7986,9 @@ package body GPR.Nmsc is
 
             --  A file name in a list must be a source of a language.
 
-            if  Data.Flags.Error_On_Unknown_Language
-                and then not Languages_Are_Restricted
-                and then Name_Loc.Found
+            if Data.Flags.Error_On_Unknown_Language
+              and then not Languages_Are_Restricted
+              and then Name_Loc.Found
             then
                Error_Msg_File_1 := File_Name;
                Error_Msg
@@ -8014,6 +8011,10 @@ package body GPR.Nmsc is
                Unit                => Unit,
                Locally_Removed     => Locally_Removed,
                Path                => (Path, Display_Path));
+
+            if Source /= null then
+               Source.In_Src_Subdir := Source_Dir_Rank = 0;
+            end if;
 
             --  If it is a source specified in a list, update the entry in
             --  the Source_Names table.

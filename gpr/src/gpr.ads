@@ -1138,6 +1138,9 @@ package GPR is
       --  False when the source is not included in interfaces, when attribute
       --  Interfaces is declared.
 
+      In_Src_Subdir : Boolean := False;
+      --  If source is in the --src-subdir direcory it should be In_Interfaces
+
       Declared_In_Interfaces : Boolean := False;
       --  True when source is declared in attribute Interfaces
 
@@ -1261,6 +1264,7 @@ package GPR is
                        Language               => No_Language_Index,
                        In_Interfaces          => True,
                        Declared_In_Interfaces => False,
+                       In_Src_Subdir          => False,
                        Alternate_Languages    => null,
                        Kind                   => Spec,
                        Unit                   => No_Unit_Index,
