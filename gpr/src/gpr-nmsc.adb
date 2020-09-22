@@ -6361,35 +6361,53 @@ package body GPR.Nmsc is
         and then Project.Qualifier /= Abstract_Project
       then
          declare
-            N         : String :=
-                          Get_Name_String (Project.Object_Directory.Name)
-                          & Src_Subdirs.all & Directory_Separator;
-            Display_N : constant String :=
-              Get_Name_String (Project.Object_Directory.Display_Name)
-              & Src_Subdirs.all & Directory_Separator;
+            function Try_Src_Subdir (Prefix : Name_Id) return Boolean;
+            --  Try to add source subdirectory in object directory Obj_Dir with
+            --  Prefix or not if Prefix is No_Name. Returns True on success.
 
-            Name         : Path_Name_Type;
-            Display_Name : Path_Name_Type;
+            function Get_Src_Subdir (Prefix : Name_Id) return String is
+              ((if Prefix = No_Name then ""
+                else Get_Name_String (Prefix) & '-')
+               & Src_Subdirs.all & Directory_Separator);
+            --  Returns --src-subdirs parameter either with project name prefix
+            --  or not if PRefix is No_Name.
+
+            --------------------
+            -- Try_Src_Subdir --
+            --------------------
+
+            function Try_Src_Subdir (Prefix : Name_Id) return Boolean is
+               Src_Subdir : constant String := Get_Src_Subdir (Prefix);
+               Name       : Path_Name_Type;
+               N          : String :=
+                 Get_Name_String (Project.Object_Directory.Name) & Src_Subdir;
+            begin
+               if Is_Directory (N) then
+                  Canonical_Case_File_Name (N);
+                  Set_Name_Buffer (N);
+                  Name := Name_Find;
+
+                  Set_Name_Buffer
+                    (Get_Name_String (Project.Object_Directory.Display_Name)
+                     & Src_Subdir);
+
+                  --  Set Rank to 0 so that duplicate units are silently
+                  --  accepted.
+
+                  Add_To_Or_Remove_From_Source_Dirs
+                    (Path => (Name => Name, Display_Name => Name_Find),
+                     Rank => 0);
+
+                  return True;
+               end if;
+
+               return False;
+            end Try_Src_Subdir;
 
          begin
-            if Is_Directory (N) then
-               Canonical_Case_File_Name (N);
-               Name_Len := N'Length;
-               Name_Buffer (1 .. Name_Len) := N;
-               Name := Name_Find;
-
-               Name_Len := Display_N'Length;
-               Name_Buffer (1 .. Name_Len) := Display_N;
-               Display_Name := Name_Find;
-
-               --  Set Rank to 0 so that duplicate units are silently accepted.
-
+            if Try_Src_Subdir (Project.Name) or else Try_Src_Subdir (No_Name)
+            then
                Remove_Source_Dirs := False;
-               Add_To_Or_Remove_From_Source_Dirs
-                 (Path =>
-                    (Name         => Name,
-                     Display_Name => Display_Name),
-                  Rank => 0);
             end if;
          end;
       end if;
