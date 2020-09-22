@@ -30,6 +30,7 @@ with Ada.Containers.Indefinite_Vectors;
 with GNAT.MD5; use GNAT.MD5;
 
 with GPR.ALI;
+with GPR.Names;
 with GPR.Osint; use GPR.Osint;
 with GPR.Scans; use GPR.Scans;
 
@@ -410,10 +411,17 @@ package GPR.Util is
    --  Returns the relative pathname which corresponds to Pathname when
    --  starting from directory to. Both Pathname and To must be absolute paths.
 
-   function Create_Name (Name : String) return File_Name_Type;
-   function Create_Name (Name : String) return Name_Id;
-   function Create_Name (Name : String) return Path_Name_Type;
-   --  Get an id for a name
+   function Create_Name (Name : String) return File_Name_Type
+                         renames Names.Get_File_Name_Id;
+   --  Get File_Name_Type for a name
+
+   function Create_Name (Name : String) return Name_Id
+                         renames Names.Get_Name_Id;
+   --  Get Name_Id for a name
+
+   function Create_Name (Name : String) return Path_Name_Type
+                         renames Names.Get_Path_Name_Id;
+   --  Get Path_Name_Type for a name
 
    function Is_Subunit (Source : Source_Id) return Boolean;
    --  Return True if source is a subunit

@@ -445,7 +445,8 @@ package body GPR.Attr is
    procedure Add_Package_Name (Name : String);
    --  Add a package name in the Package_Name list, extending it, if necessary
 
-   function Name_Id_Of (Name : String) return Name_Id;
+   function Name_Id_Of (Name : String) return Name_Id
+                        renames Get_Lower_Name_Id;
    --  Returns the Name_Id for Name in lower case
 
    ----------------------
@@ -801,17 +802,6 @@ package body GPR.Attr is
    begin
       return Attrs.Table (Attribute.Value).Read_Only;
    end Is_Read_Only;
-
-   ----------------
-   -- Name_Id_Of --
-   ----------------
-
-   function Name_Id_Of (Name : String) return Name_Id is
-   begin
-      Set_Name_Buffer (Name);
-      To_Lower (Name_Buffer (1 .. Name_Len));
-      return Name_Find;
-   end Name_Id_Of;
 
    --------------------
    -- Next_Attribute --

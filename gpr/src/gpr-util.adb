@@ -449,28 +449,6 @@ package body GPR.Util is
       end if;
    end Create;
 
-   -----------------
-   -- Create_Name --
-   -----------------
-
-   function Create_Name (Name : String) return File_Name_Type is
-   begin
-      Set_Name_Buffer (Name);
-      return Name_Find;
-   end Create_Name;
-
-   function Create_Name (Name : String) return Name_Id is
-   begin
-      Set_Name_Buffer (Name);
-      return Name_Find;
-   end Create_Name;
-
-   function Create_Name (Name : String) return Path_Name_Type is
-   begin
-      Set_Name_Buffer (Name);
-      return Name_Find;
-   end Create_Name;
-
    -------------------------------
    -- Common_Path_Prefix_Length --
    -------------------------------
@@ -954,8 +932,7 @@ package body GPR.Util is
 
       begin
          if Ada.Directories.Exists (Filename) then
-            Set_Name_Buffer (Filename);
-            Lib_File := Name_Find;
+            Lib_File := Get_File_Name_Id (Filename);
             Text := Osint.Read_Library_Info (Lib_File);
             Result :=
               ALI.Scan_ALI
@@ -1846,10 +1823,8 @@ package body GPR.Util is
                end if;
 
                if Truncated then
-                  Set_Name_Buffer (Name (1 .. Last));
-
                   Value := GPR.Util.Value_Of
-                    (Name                    => Name_Find,
+                    (Name                    => Get_Name_Id (Name (1 .. Last)),
                      Attribute_Or_Array_Name => Name_Switches,
                      In_Package              => Pkg,
                      Shared                  => Project_Tree.Shared,
@@ -1862,10 +1837,8 @@ package body GPR.Util is
                      Last := Last - 1;
                   end loop;
 
-                  Set_Name_Buffer (Name (1 .. Last) & "ali");
-
                   Value := GPR.Util.Value_Of
-                    (Name                    => Name_Find,
+                    (Get_Name_Id (Name (1 .. Last) & "ali"),
                      Attribute_Or_Array_Name => Name_Switches,
                      In_Package              => Pkg,
                      Shared                  => Project_Tree.Shared,
@@ -2763,8 +2736,7 @@ package body GPR.Util is
       procedure Add_String (S : String) is
       begin
          if S'Length > 0 then
-            Set_Name_Buffer (S);
-            List.Append (Name_Find);
+            List.Append (Get_Name_Id (S));
          end if;
       end Add_String;
 
@@ -4286,27 +4258,22 @@ package body GPR.Util is
       -----------------------
 
       function Check_Time_Stamps
-        (Path : String; Stamp : Time_Stamp_Type) return Boolean is
+        (Path : String; Stamp : Time_Stamp_Type) return Boolean
+      is
+         TS : constant Time_Stamp_Type := File_Stamp (Get_Path_Name_Id (Path));
       begin
-         Set_Name_Buffer (Path);
+         if TS /= Empty_Time_Stamp and then TS /= Stamp then
+            if Opt.Verbosity_Level > Opt.Low then
+               Put_Line ("   -> different time stamp for " & Path);
 
-         declare
-            TS   : constant Time_Stamp_Type :=
-              File_Stamp (Path_Name_Type'(Name_Find));
-         begin
-            if TS /= Empty_Time_Stamp and then TS /= Stamp then
-               if Opt.Verbosity_Level > Opt.Low then
-                  Put_Line ("   -> different time stamp for " & Path);
-
-                  if Debug.Debug_Flag_T then
-                     Put_Line ("   in ALI file: " & String (Stamp));
-                     Put_Line ("   actual file: " & String (TS));
-                  end if;
+               if Debug.Debug_Flag_T then
+                  Put_Line ("   in ALI file: " & String (Stamp));
+                  Put_Line ("   actual file: " & String (TS));
                end if;
-
-               return True;
             end if;
-         end;
+
+            return True;
+         end if;
 
          return False;
       end Check_Time_Stamps;
@@ -4626,9 +4593,8 @@ package body GPR.Util is
                               --  Get the time stamp of the source, which is
                               --  not necessarily a source of any project.
 
-                              Set_Name_Buffer (Src_Name);
                               Src_TS := File_Stamp
-                                           (Path_Name_Type'(Name_Find));
+                                (Get_Path_Name_Id (Src_Name));
 
                               --  If the source does not exist, we need to
                               --  recompile.

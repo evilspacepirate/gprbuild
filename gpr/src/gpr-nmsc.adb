@@ -2884,18 +2884,18 @@ package body GPR.Nmsc is
                                  Get_Line (File, Line, Last);
                                  if Last > 0 then
                                     if Is_Absolute_Path (Line (1 .. Last)) then
-                                       Set_Name_Buffer
-                                         (Line (1 .. Last));
+                                       Name_Len := 0;
                                     else
                                        Set_Name_Buffer
-                                         (Runtime_Dir & Directory_Separator
-                                          & Line (1 .. Last));
+                                         (Runtime_Dir & Directory_Separator);
                                     end if;
+
+                                    Add_Str_To_Name_Buffer (Line (1 .. Last));
 
                                     Name_List_Table.Append
                                       (Shared.Name_Lists,
-                                       New_Val =>
-                                         (Name_Find, No_Name_List));
+                                       New_Val => (Name_Find, No_Name_List));
+
                                     Last_Name :=
                                       Name_List_Table.Last (Shared.Name_Lists);
 
@@ -2915,14 +2915,13 @@ package body GPR.Nmsc is
                               Close (File);
 
                            else
-                              Set_Name_Buffer
-                                (Runtime_Dir &
-                                   Directory_Separator &
-                                   Directory);
                               Name_List_Table.Append
                                 (Shared.Name_Lists,
-                                 New_Val =>
-                                   (Name_Find, No_Name_List));
+                                 New_Val => (Get_Name_Id
+                                               (Runtime_Dir
+                                                & Directory_Separator
+                                                & Directory),
+                                             No_Name_List));
                               Runtime_Dirs :=
                                 Name_List_Table.Last (Shared.Name_Lists);
                            end if;
@@ -5820,8 +5819,7 @@ package body GPR.Nmsc is
 
       function Is_Reserved (S : String) return Boolean is
       begin
-         Set_Name_Buffer (S);
-         return Is_Reserved (Name_Find);
+         return Is_Reserved (Get_Name_Id (S));
       end Is_Reserved;
 
       -----------------
@@ -6384,18 +6382,17 @@ package body GPR.Nmsc is
             begin
                if Is_Directory (N) then
                   Canonical_Case_File_Name (N);
-                  Set_Name_Buffer (N);
-                  Name := Name_Find;
-
-                  Set_Name_Buffer
-                    (Get_Name_String (Project.Object_Directory.Display_Name)
-                     & Src_Subdir);
+                  Name := Get_Path_Name_Id (N);
 
                   --  Set Rank to 0 so that duplicate units are silently
                   --  accepted.
 
                   Add_To_Or_Remove_From_Source_Dirs
-                    (Path => (Name => Name, Display_Name => Name_Find),
+                    (Path => (Name => Name,
+                              Display_Name => Get_Path_Name_Id
+                                (Get_Name_String
+                                   (Project.Object_Directory.Display_Name)
+                                 & Src_Subdir)),
                      Rank => 0);
 
                   return True;
@@ -8226,8 +8223,7 @@ package body GPR.Nmsc is
                      end if;
 
                      if OK then
-                        Set_Name_Buffer (Path_Name);
-                        Path2.Display_Name := Name_Find;
+                        Path2.Display_Name := Get_Path_Name_Id (Path_Name);
 
                         Canonical_Case_File_Name (Name_Buffer (1 .. Name_Len));
                         Path2.Name := Name_Find;
@@ -8987,18 +8983,16 @@ package body GPR.Nmsc is
               (Display_Name => Path_Name_Type (Src.Display_Path_Name),
                Name         => Path_Name_Type (Src.Path_Name));
 
-            Set_Name_Buffer
+            Id.File := Get_File_Name_Id
               (Directories.Simple_Name (Get_Name_String (Src.Path_Name)));
-            Id.File := Name_Find;
 
             Id.Next_With_File_Name :=
               Source_Files_Htable.Get (Data.Tree.Source_Files_HT, Id.File);
             Source_Files_Htable.Set (Data.Tree.Source_Files_HT, Id.File, Id);
 
-            Set_Name_Buffer
+            Id.Display_File := Get_File_Name_Id
               (Directories.Simple_Name
                  (Get_Name_String (Src.Display_Path_Name)));
-            Id.Display_File := Name_Find;
 
             Id.Dep_Name         :=
               Dependency_Name (Id.File, Id.Language.Config.Dependency_Kind);

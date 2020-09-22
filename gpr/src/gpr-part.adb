@@ -865,10 +865,8 @@ package body GPR.Part is
          Current_With_Node :=
            Default_Project_Node (In_Tree, Of_Kind => N_With_Clause);
 
-         Set_Name_Buffer (Implicit_With.all);
-
          Current_With :=
-           (Path         => Name_Find,
+           (Path         => Get_Path_Name_Id (Implicit_With.all),
             Location     => Start_Token,
             Limited_With => True,
             Node         => Current_With_Node,
@@ -1378,12 +1376,11 @@ package body GPR.Part is
             Resolved_Path_Name := Resolved_Paths.Get (Canonical_Path_Name);
 
             if Resolved_Path_Name = No_Path then
-               Set_Name_Buffer
+               Resolved_Path_Name := Get_Path_Name_Id
                  (Normalize_Pathname
                     (Canonical_Path,
-                     Resolve_Links => True,
+                     Resolve_Links  => True,
                      Case_Sensitive => False));
-               Resolved_Path_Name := Name_Find;
                Resolved_Paths.Set (Canonical_Path_Name, Resolved_Path_Name);
             end if;
          end if;

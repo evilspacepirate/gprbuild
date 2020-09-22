@@ -1033,15 +1033,14 @@ package body GPR.Proc is
                         if The_Default = Target_Value
                           and then Opt.Target_Origin = Specified
                         then
-                           Set_Name_Buffer (Opt.Target_Value.all);
-                           The_Variable.Value := Name_Find;
+                           The_Variable.Value := Get_Name_Id
+                             (Opt.Target_Value.all);
 
                         elsif The_Default = Canonical_Target_Value
                           and then Opt.Target_Value_Canonical /= null
                         then
-                           Set_Name_Buffer
+                           The_Variable.Value := Get_Name_Id
                              (Opt.Target_Value_Canonical.all);
-                           The_Variable.Value := Name_Find;
 
                         --  Check special value for Runtime (<lang>): --RTS=
                         --  overrides declaration of Runtime (<lang>).
@@ -1088,9 +1087,8 @@ package body GPR.Proc is
                                        The_Variable.Value := Empty_String;
 
                                     else
-                                       Set_Name_Buffer
+                                       The_Variable.Value := Get_Name_Id
                                          (Opt.Target_Value.all);
-                                       The_Variable.Value := Name_Find;
                                        The_Variable.From_Implicit_Target :=
                                          True;
                                     end if;
@@ -1100,9 +1098,8 @@ package body GPR.Proc is
                                        The_Variable.Value := Empty_String;
 
                                     else
-                                       Set_Name_Buffer
+                                       The_Variable.Value := Get_Name_Id
                                          (Opt.Target_Value_Canonical.all);
-                                       The_Variable.Value := Name_Find;
                                     end if;
 
                                  when Runtime_Value =>
@@ -1467,8 +1464,7 @@ package body GPR.Proc is
 
                            if Ext_List then
                               for Ind in Str_List'Range loop
-                                 Set_Name_Buffer (Str_List (Ind).all);
-                                 Value := Name_Find;
+                                 Value := Get_Name_Id (Str_List (Ind).all);
                                  Shared.String_Elements.Table (Last) :=
                                    (Value         => Value,
                                     Display_Value => No_Name,

@@ -571,8 +571,7 @@ procedure Gprbuild.Main is
          Db_Directory_Expected := False;
          Knowledge.Parse_Knowledge_Base (Project_Tree, Arg);
 
-         Set_Name_Buffer (Arg);
-         Add_Db_Switch_Arg (Name_Find);
+         Add_Db_Switch_Arg (Get_Name_Id (Arg));
 
          --  Set the processor/language for the following switches
 
@@ -593,11 +592,8 @@ procedure Gprbuild.Main is
       elsif Arg'Length > 7 and then Arg (1 .. 7) = "-cargs:" then
          Current_Processor := Compiler;
 
-         Set_Name_Buffer (Arg (8 .. Arg'Last));
-         To_Lower (Name_Buffer (1 .. Name_Len));
-
          declare
-            Lang : constant Name_Id := Name_Find;
+            Lang : constant Name_Id := Get_Lower_Name_Id (Arg (8 .. Arg'Last));
          begin
             if Command_Line then
                Current_Comp_Option_Table :=
@@ -644,11 +640,8 @@ procedure Gprbuild.Main is
 
          Current_Processor := Binder;
 
-         Set_Name_Buffer (Arg (8 .. Arg'Last));
-         To_Lower (Name_Buffer (1 .. Name_Len));
-
          declare
-            Lang : constant Name_Id := Name_Find;
+            Lang : constant Name_Id := Get_Lower_Name_Id (Arg (8 .. Arg'Last));
          begin
             Current_Bind_Option_Table :=
               Binder_Options_HTable.Get (Lang);
@@ -846,15 +839,8 @@ procedure Gprbuild.Main is
                   --  so a friendlier error message isn't needed here.
                end if;
 
-               Set_Name_Buffer (Lang);
-               To_Lower (Name_Buffer (1 .. Name_Len));
-
-               declare
-                  Lang_Id : constant Name_Id := Name_Find;
-               begin
-                  Set_Name_Buffer (Comp);
-                  Compiler_Subst_HTable.Include (Lang_Id, Name_Find);
-               end;
+               Compiler_Subst_HTable.Include
+                 (Get_Lower_Name_Id (Lang), Get_Name_Id (Comp));
             end;
 
          elsif Arg'Length >= Compiler_Pkg_Subst_Option'Length
@@ -877,9 +863,7 @@ procedure Gprbuild.Main is
                   --  package Pretty_Printer in the project file.
                end if;
 
-               Set_Name_Buffer (Package_Name);
-               To_Lower (Name_Buffer (1 .. Name_Len));
-               Compiler_Pkg_Subst := Name_Find;
+               Compiler_Pkg_Subst := Get_Lower_Name_Id (Package_Name);
             end;
 
          elsif Arg'Length > Build_Script_Option'Length
@@ -1038,10 +1022,8 @@ procedure Gprbuild.Main is
             begin
                for J in RTS_Language_Option'Length + 2 .. Arg'Last loop
                   if Arg (J) = '=' then
-                     Set_Name_Buffer
+                     Language_Name := Get_Lower_Name_Id
                        (Arg (RTS_Language_Option'Length + 1 .. J - 1));
-                     To_Lower (Name_Buffer (1 .. Name_Len));
-                     Language_Name := Name_Find;
                      RTS_Start := J + 1;
                      exit;
                   end if;
@@ -1712,8 +1694,7 @@ procedure Gprbuild.Main is
 
       --  Get the name id for "-L";
 
-      Set_Name_Buffer ("-L");
-      Dash_L := Name_Find;
+      Dash_L := Get_Name_Id ("-L");
 
       --  Get the command line arguments, starting with --version and --help
 

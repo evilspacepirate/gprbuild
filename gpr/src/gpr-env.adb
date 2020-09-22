@@ -2342,14 +2342,13 @@ package body GPR.Env is
          return;
 
       else
-         Set_Name_Buffer
+         Path := Get_Path_Name_Id
            (GNAT.OS_Lib.Normalize_Pathname
               (Result.all,
                Directory      => Directory,
                Resolve_Links  => Opt.Follow_Links_For_Files,
                Case_Sensitive => True));
          Free (Result);
-         Path := Name_Find;
       end if;
 
       Debug_Decrease_Indent;

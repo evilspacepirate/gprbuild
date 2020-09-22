@@ -113,12 +113,10 @@ package body GPR is
    -----------------------------
 
    procedure Add_Restricted_Language (Name : String) is
-      N : String (1 .. Name'Length) := Name;
    begin
-      To_Lower (N);
-      Set_Name_Buffer (N);
       Restricted_Languages :=
-        new Restricted_Lang'(Name => Name_Find, Next => Restricted_Languages);
+        new Restricted_Lang'
+          (Name => Get_Lower_Name_Id (Name), Next => Restricted_Languages);
    end Add_Restricted_Language;
 
    -----------------
@@ -267,13 +265,9 @@ package body GPR is
 
    procedure Delete_Temporary_File
      (Shared : Shared_Project_Tree_Data_Access := null;
-      Path   : String)
-   is
-      Path_Name : Path_Name_Type;
+      Path   : String) is
    begin
-      Set_Name_Buffer (Path);
-      Path_Name := Name_Find;
-      Delete_Temporary_File (Shared, Path_Name);
+      Delete_Temporary_File (Shared, Get_Path_Name_Id (Path));
    end Delete_Temporary_File;
 
    ---------------------------

@@ -31,6 +31,8 @@ with GPR.Cset;   use GPR.Cset;
 with GPR.Output; use GPR.Output;
 with GPR.Debug;
 
+with GNAT.Case_Util;
+
 package body GPR.Names is
 
    --  This table stores the actual string names. Although logically there is
@@ -49,7 +51,7 @@ package body GPR.Names is
    subtype Hash_Index_Type is Int range 0 .. Hash_Max;
    --  Range of hash index values
 
-   Hash_Table : array (Hash_Index_Type) of Name_Id;
+   Hash_Table : array (Hash_Index_Type) of Name_Id := (others => No_Name);
    --  The hash table is used to locate existing entries in the names table.
    --  The entries point to the first names table entry whose hash value
    --  matches the hash code. Then subsequent names table entries with the
@@ -143,6 +145,27 @@ package body GPR.Names is
       pragma Assert (C <= 255);
       return Character'Val (C);
    end Get_Character;
+
+   -----------------------
+   -- Get_Lower_Name_Id --
+   -----------------------
+
+   function Get_Lower_Name_Id (Name : String) return Name_Id is
+   begin
+      Set_Name_Buffer (Name);
+      GNAT.Case_Util.To_Lower (Name_Buffer (1 .. Name_Len));
+      return Name_Find;
+   end Get_Lower_Name_Id;
+
+   -----------------
+   -- Get_Name_Id --
+   -----------------
+
+   function Get_Name_Id (Name : String) return Name_Id is
+   begin
+      Set_Name_Buffer (Name);
+      return Name_Find;
+   end Get_Name_Id;
 
    -------------------
    -- Get_Char_Code --
@@ -627,12 +650,5 @@ package body GPR.Names is
          Write_Str (" (body)");
       end if;
    end Write_Unit_Name;
-
-begin
-   --  Clear hash table
-
-   for J in Hash_Index_Type loop
-      Hash_Table (J) := No_Name;
-   end loop;
 
 end GPR.Names;

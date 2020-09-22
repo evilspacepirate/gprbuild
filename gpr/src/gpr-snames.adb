@@ -36,9 +36,8 @@ package body GPR.Snames is
 
    procedure Add_Name (S : String) is
    begin
-      Set_Name_Buffer (S);
       Sequence := Sequence + 1;
-      if Name_Find /= Sequence then
+      if Get_Name_Id (S) /= Sequence then
          raise Program_Error with
            "Wrong string constant """ & S & """ initialization" & Sequence'Img;
       end if;

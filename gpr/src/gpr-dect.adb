@@ -1493,8 +1493,7 @@ package body GPR.Dect is
                --  The project name is the idenfier or group of identifiers
                --  that prefixes the package name (last dot excluded).
 
-               Set_Name_Buffer (Buffer (1 .. Last_Dot_Index - 1));
-               Project_Name := Name_Find;
+               Project_Name := Get_Name_Id (Buffer (1 .. Last_Dot_Index - 1));
 
                --  Now check the project and package
 

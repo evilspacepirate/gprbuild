@@ -632,8 +632,7 @@ begin
       then
          Dash_O_Specified := True;
          Dash_O_File_Specified := True;
-         Set_Name_Buffer (Option (4 .. Option'Last));
-         Objects_Path := Name_Find;
+         Objects_Path := Get_Path_Name_Id (Option (4 .. Option'Last));
       end if;
    end loop;
 
@@ -931,15 +930,11 @@ begin
    if Main_ALI /= null or else not ALI_Files_Table.Is_Empty then
       Initialize_ALI;
 
-      if Main_ALI /= null then
-         Set_Name_Buffer (Main_ALI.all);
-
-      else
-         Set_Name_Buffer (ALI_Files_Table.First_Element);
-      end if;
-
       declare
-         F : constant File_Name_Type := Name_Find;
+         F : constant File_Name_Type :=
+           Get_File_Name_Id
+             (if Main_ALI = null then ALI_Files_Table.First_Element
+              else Main_ALI.all);
          T : Text_Buffer_Ptr;
          A : ALI_Id;
 

@@ -2294,8 +2294,8 @@ package body Gprbuild.Link is
                            Open (File, Options_File);
 
                            --  Record the linker options file as temporary.
-                           Set_Name_Buffer (Get_Current_Dir & Options_File);
-                           Options_File_Path_Name := Name_Find;
+                           Options_File_Path_Name :=
+                             Get_Path_Name_Id (Get_Current_Dir & Options_File);
                            Record_Temp_File
                              (Shared => Main_File.Tree.Shared,
                               Path => Options_File_Path_Name);
@@ -2611,8 +2611,8 @@ package body Gprbuild.Link is
                        (Ada_Lang_Data_Ptr.Config.Toolchain_Version);
                   begin
                      if GNAT_Version'Length >= 7 then
-                        Set_Name_Buffer (GNAT_Version (6 .. 7));
-                        GNAT_Version_Part := Name_Find;
+                        GNAT_Version_Part :=
+                          Get_Name_Id (GNAT_Version (6 .. 7));
                      end if;
                   end;
                end if;
