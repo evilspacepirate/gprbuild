@@ -217,7 +217,6 @@ package body GPR.Attr is
    "LaCleading_required_switches#" &
    "LaCtrailing_required_switches#" &
    "Lapic_option#" &
-   "Sapath_syntax#" &
    "LaCsource_file_switches#" &
    "Saobject_file_suffix#" &
    "LaCobject_file_switches#" &

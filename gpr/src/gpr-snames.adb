@@ -277,7 +277,6 @@ package body GPR.Snames is
       Add_Name ("objects_path_file");
       Add_Name ("object_dir");
       Add_Name ("option_list");
-      Add_Name ("path_syntax");
       Add_Name ("pic_option");
       Add_Name ("pretty_printer");
       Add_Name ("prefix");

@@ -259,7 +259,6 @@ package GPR.Snames is
    Name_Objects_Path_File                : constant Name_Id := Name_Id (L) - N;
    Name_Object_Dir                       : constant Name_Id := Name_Id (L) - N;
    Name_Option_List                      : constant Name_Id := Name_Id (L) - N;
-   Name_Path_Syntax                      : constant Name_Id := Name_Id (L) - N;
    Name_Pic_Option                       : constant Name_Id := Name_Id (L) - N;
    Name_Pretty_Printer                   : constant Name_Id := Name_Id (L) - N;
    Name_Prefix                           : constant Name_Id := Name_Id (L) - N;

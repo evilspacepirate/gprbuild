@@ -1666,22 +1666,6 @@ package body GPR.Nmsc is
                                 Name_Buffer (1);
                            end if;
 
-                           --  Attribute Path_Syntax (<language>)
-
-                        elsif Current_Array.Name = Name_Path_Syntax then
-                           begin
-                              Lang_Index.Config.Path_Syntax :=
-                                Path_Syntax_Kind'Value
-                                  (Get_Name_String (Element.Value.Value));
-
-                           exception
-                              when Constraint_Error =>
-                                 Error_Msg
-                                   (Data.Flags,
-                                    "invalid value for Path_Syntax",
-                                    Element.Value.Location, Project);
-                           end;
-
                            --  Attribute Source_File_Switches (<language>)
 
                         elsif

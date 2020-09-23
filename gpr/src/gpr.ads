@@ -770,10 +770,6 @@ package GPR is
 
    No_Source : constant Source_Id := null;
 
-   type Path_Syntax_Kind is
-     (Canonical, -- Unix style
-      Host);     -- Host specific syntax
-
    --  The following record describes the configuration of a language
 
    type Language_Config is record
@@ -810,9 +806,6 @@ package GPR is
       Multi_Unit_Object_Separator : Character := ' ';
       --  The string separating the base name of a source from the index of the
       --  unit in a multi-source file, in the object file name.
-
-      Path_Syntax : Path_Syntax_Kind := Host;
-      --  Value may be Canonical (Unix style) or Host (host syntax)
 
       Source_File_Switches : Name_List_Index := No_Name_List;
       --  Optional switches to be put before the source file. The source file
