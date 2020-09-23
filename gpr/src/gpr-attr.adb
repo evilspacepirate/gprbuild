@@ -240,6 +240,7 @@ package body GPR.Attr is
    "Saconfig_spec_file_name_index#" &
    "Saconfig_spec_file_name_pattern#" &
    "Saconfig_file_unique#" &
+   "Saconfig_file_dependency_support#" &
 
    --  Configuration - Dependencies
 
