@@ -1859,7 +1859,26 @@ package body GPR.Nmsc is
                            Lang_Index.Config.Config_Spec_Pattern :=
                              Element.Value.Value;
 
-                           --  Attribute Config_File_Unique (<language>)
+                        --  Attribute Config_File_Dependency_Support (<lang>)
+
+                        elsif
+                          Current_Array.Name =
+                            Name_Config_File_Dependency_Support
+                        then
+                           begin
+                              Lang_Index.Config.Config_File_Dependency_Support
+                                := Boolean'Value
+                                     (Get_Name_String (Element.Value.Value));
+                           exception
+                              when Constraint_Error =>
+                                 Error_Msg
+                                   (Data.Flags,
+                                    "illegal value for "
+                                    & "Config_File_Dependency_Support",
+                                    Element.Value.Location, Project);
+                           end;
+
+                        --  Attribute Config_File_Unique (<language>)
 
                         elsif Current_Array.Name = Name_Config_File_Unique then
                            begin

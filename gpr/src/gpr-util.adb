@@ -4241,7 +4241,7 @@ package body GPR.Util is
       --  Source files processed for ALI_Closure mode
 
       function Process_Makefile_Deps
-        (Dep_Name, Obj_Dir : String)    return Boolean;
+        (Dep_Name, Obj_Dir : String) return Boolean;
       function Process_ALI_Deps (Closure : Boolean) return Boolean;
       --  Process the dependencies for the current source file for the various
       --  dependency modes.
@@ -4711,7 +4711,7 @@ package body GPR.Util is
          Proj  : Project_Id;
          Found : Boolean := False;
 
-         Conf_Paths_Found :  Config_Paths_Found := (Conf_Paths'Range => False);
+         Conf_Paths_Found : Config_Paths_Found := (Conf_Paths'Range => False);
 
       begin
          if Text = null then
@@ -5189,17 +5189,19 @@ package body GPR.Util is
 
             --  Check that all the config files have been found in the ALI file
 
-            for J in Conf_Paths_Found'Range loop
-               if not Conf_Paths_Found (J) then
-                  if Opt.Verbosity_Level > Opt.Low then
-                     Put_Line
-                       ("   -> new config file " &
-                        Get_Name_String (Conf_Paths (J)));
-                  end if;
+            if Source.Language.Config.Config_File_Dependency_Support then
+               for J in Conf_Paths_Found'Range loop
+                  if not Conf_Paths_Found (J) then
+                     if Opt.Verbosity_Level > Opt.Low then
+                        Put_Line
+                          ("   -> new config file " &
+                             Get_Name_String (Conf_Paths (J)));
+                     end if;
 
-                  return True;
-               end if;
-            end loop;
+                     return True;
+                  end if;
+               end loop;
+            end if;
          end;
 
          return False;

@@ -174,6 +174,7 @@ package body GPR.Snames is
       Add_Name ("config_body_file_name");
       Add_Name ("config_body_file_name_index");
       Add_Name ("config_body_file_name_pattern");
+      Add_Name ("config_file_dependency_support");
       Add_Name ("config_file_switches");
       Add_Name ("config_file_unique");
       Add_Name ("config_spec_file_name");

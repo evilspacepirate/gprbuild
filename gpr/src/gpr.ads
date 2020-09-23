@@ -937,6 +937,9 @@ package GPR is
       --  The template for a pragma Source_File_Name(_Project) for a naming
       --  spec pattern.
 
+      Config_File_Dependency_Support : Boolean := True;
+      --  True if dependency of the source files from config file is supported
+
       Config_File_Unique : Boolean := False;
       --  True if the config file specified to the compiler needs to be unique.
       --  If it is unique, then all config files are concatenated into a temp

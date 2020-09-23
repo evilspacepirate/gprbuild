@@ -156,6 +156,7 @@ package GPR.Snames is
    Name_Config_Body_File_Name            : constant Name_Id := Name_Id (L) - N;
    Name_Config_Body_File_Name_Index      : constant Name_Id := Name_Id (L) - N;
    Name_Config_Body_File_Name_Pattern    : constant Name_Id := Name_Id (L) - N;
+   Name_Config_File_Dependency_Support   : constant Name_Id := Name_Id (L) - N;
    Name_Config_File_Switches             : constant Name_Id := Name_Id (L) - N;
    Name_Config_File_Unique               : constant Name_Id := Name_Id (L) - N;
    Name_Config_Spec_File_Name            : constant Name_Id := Name_Id (L) - N;
