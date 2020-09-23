@@ -742,12 +742,7 @@ package GPR is
       --  source file name of a body.
    end record;
 
-   No_Lang_Naming_Data : constant Lang_Naming_Data :=
-                           (Dot_Replacement => No_File,
-                            Casing          => All_Lower_Case,
-                            Separate_Suffix => No_File,
-                            Spec_Suffix     => No_File,
-                            Body_Suffix     => No_File);
+   No_Lang_Naming_Data : constant Lang_Naming_Data := (others => <>);
 
    function Is_Standard_GNAT_Naming (Naming : Lang_Naming_Data) return Boolean;
    --  True if the naming scheme is GNAT's default naming scheme. This
@@ -985,62 +980,7 @@ package GPR is
 
    end record;
 
-   No_Language_Config : constant Language_Config :=
-                          (Kind                         => File_Based,
-                           Naming_Data                  => No_Lang_Naming_Data,
-                           Include_Compatible_Languages => No_Name_List,
-                           Compiler_Driver              => No_File,
-                           Compiler_Driver_Path         => null,
-                           Compiler_Leading_Required_Switches
-                                                        => No_Name_List,
-                           Compiler_Trailing_Required_Switches
-                                                        => No_Name_List,
-                           Multi_Unit_Switches          => No_Name_List,
-                           Multi_Unit_Object_Separator  => ' ',
-                           Path_Syntax                  => Canonical,
-                           Source_File_Switches         => No_Name_List,
-                           Object_File_Suffix           => No_Name,
-                           Object_File_Switches         => No_Name_List,
-                           Object_Path_Switches         => No_Name_List,
-                           Compilation_PIC_Option       => No_Name_List,
-                           Object_Generated             => True,
-                           Objects_Linked               => True,
-                           Runtime_Dir                  => No_Name,
-                           Runtime_Library_Dirs         => No_Name_List,
-                           Runtime_Source_Dirs          => No_Name_List,
-                           Runtime_Library_Version      => No_Name,
-                           Mapping_File_Switches        => No_Name_List,
-                           Mapping_Spec_Suffix          => No_File,
-                           Mapping_Body_Suffix          => No_File,
-                           Config_File_Switches         => No_Name_List,
-                           Dependency_Kind              => None,
-                           Dependency_Option            => No_Name_List,
-                           Compute_Dependency           => No_Name_List,
-                           Include_Option               => No_Name_List,
-                           Include_Path                 => No_Name,
-                           Include_Switches_Via_Spec    => No_Name_List,
-                           Include_Path_File            => No_Name,
-                           Only_Dirs_With_Sources       => False,
-                           Objects_Path                 => No_Name,
-                           Objects_Path_File            => No_Name,
-                           Config_Body                  => No_Name,
-                           Config_Body_Index            => No_Name,
-                           Config_Body_Pattern          => No_Name,
-                           Config_Spec                  => No_Name,
-                           Config_Spec_Index            => No_Name,
-                           Config_Spec_Pattern          => No_Name,
-                           Config_File_Unique           => False,
-                           Binder_Driver                => No_File,
-                           Binder_Driver_Path           => No_Path,
-                           Binder_Required_Switches     => No_Name_List,
-                           Binder_Prefix                => No_Name,
-                           Toolchain_Version            => No_Name,
-                           Required_Toolchain_Version   => No_Name,
-                           Toolchain_Description        => No_Name,
-                           Clean_Object_Artifacts       => No_Name_List,
-                           Clean_Source_Artifacts       => No_Name_List,
-                           Resp_File_Format             => None,
-                           Resp_File_Options            => No_Name_List);
+   No_Language_Config : constant Language_Config := (others => <>);
 
    type Language_Data is record
       Name : Name_Id := No_Name;
@@ -1064,13 +1004,7 @@ package GPR is
 
    end record;
 
-   No_Language_Data : constant Language_Data :=
-                        (Name          => No_Name,
-                         Display_Name  => No_Name,
-                         Config        => No_Language_Config,
-                         First_Source  => No_Source,
-                         Mapping_Files => Mapping_Files_Htable.Nil,
-                         Next          => No_Language_Index);
+   No_Language_Data : constant Language_Data := (others => <>);
 
    type Language_List_Element;
    type Language_List is access all Language_List_Element;
