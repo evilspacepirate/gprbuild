@@ -168,6 +168,10 @@ const char *__gnat_default_libgcc_subdir = "lib";
     //  + sb.st_mtim.tv_nsec;
     // with check overflow below
 
+#if defined(__APPLE__) || defined(__NetBSD__)
+#define st_mtim st_mtimespec
+#endif
+
     if (__builtin_ssubll_overflow(sb.st_mtim.tv_sec, ada_epoch_offset, &result)) {
       return LLONG_MIN;
     }
