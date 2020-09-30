@@ -860,33 +860,33 @@ package body GPR.Knowledge is
             --  Include the language name in the Languages_Known hashed map,
             --  if it is not already there.
 
-            declare
-               Languages : External_Value_Nodes.Cursor :=
-                 Compiler.Languages.First;
-               Lang : External_Value_Node;
-               Lang_Name : Name_Id;
-            begin
-               while Languages /= External_Value_Nodes.No_Element loop
-                  Lang := External_Value_Nodes.Element (Languages);
-                  if Lang.Typ = Value_Constant then
-                     Get_Name_String (Lang.Value);
-                     To_Lower (Name_Buffer (1 .. Name_Len));
-                     Lang_Name := Name_Find;
+            Get_External_Value
+              (Attribute        => "languages",
+               Value            => Compiler.Languages,
+               Comp             => No_Compiler,
+               Split_Into_Words => True,
+               Processed_Value  => Lang);
+            C := First (Lang);
+            while Has_Element (C) loop
+               declare
+                  Lang_Name : Name_Id;
+               begin
+                  Get_Name_String (External_Value_Lists.Element (C).Value);
+                  To_Lower (Name_Buffer (1 .. Name_Len));
+                  Lang_Name := Name_Find;
 
-                     if not Known_Languages.Contains
+                  if not Known_Languages.Contains
+                    (Container => Languages_Known,
+                     Key       => Name_Find)
+                  then
+                     Known_Languages.Include
                        (Container => Languages_Known,
-                        Key       => Name_Find)
-                     then
-                        Known_Languages.Include
-                          (Container => Languages_Known,
-                           Key       => Lang_Name,
-                           New_Item  => Lang_Name);
-                     end if;
+                        Key       => Lang_Name,
+                        New_Item  => Lang_Name);
                   end if;
-
-                  Next (Languages);
-               end loop;
-            end;
+               end;
+               Next (C);
+            end loop;
          end if;
       end Parse_Compiler_Description;
 
