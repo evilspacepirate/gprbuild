@@ -2094,7 +2094,6 @@ package body GPR.Part is
       end if;
 
       if not Duplicated and then Name_Of_Project /= No_Name then
-
          --  Add the name of the project to the hash table, so that we can
          --  check that no other subsequent project will have the same name.
 
@@ -2107,6 +2106,8 @@ package body GPR.Part is
                   Extended       => Extended,
                   From_Extended  => From_Extended /= None,
                   Proj_Qualifier => Project_Qualifier_Of (Project, In_Tree)));
+
+         In_Tree.Project_Nodes.Table (Project).Checksum := Scans.Checksum;
       end if;
 
       declare
@@ -2162,7 +2163,7 @@ package body GPR.Part is
 
       Debug_Decrease_Indent;
 
-      if Project /= Empty_Project_Node and then Implicit_Project then
+      if Implicit_Project then
          Set_Name_Buffer (Current_Dir);
          Add_Char_To_Name_Buffer (Dir_Sep);
          In_Tree.Project_Nodes.Table (Project).Directory := Name_Find;

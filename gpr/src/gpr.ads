@@ -1720,6 +1720,9 @@ package GPR is
          --
          --  For N_Comment, designates the next comment, if any.
 
+         Checksum : Word := 0;
+         --  Checksum taken from parser
+
       end record;
 
       --  type Project_Node_Kind is
@@ -2265,6 +2268,9 @@ package GPR is
       Unkept_Comments : Boolean := False;
       --  True if there are comments in the project sources that cannot be kept
       --  in the project tree.
+
+      Checksum : Word := 0;
+      --  Checksum of the project taken from parser
 
       -----------------------------
       -- Qualifier-Specific data --

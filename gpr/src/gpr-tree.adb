@@ -112,27 +112,7 @@ package body GPR.Tree is
          Project_Node_Table.Increment_Last (In_Tree.Project_Nodes);
          In_Tree.Project_Nodes.Table
            (Project_Node_Table.Last (In_Tree.Project_Nodes)) :=
-           (Kind         => N_Comment_Zones,
-            Qualifier    => Unspecified,
-            Expr_Kind    => Undefined,
-            Location     => No_Location,
-            Directory    => No_Path,
-            Variables    => Empty_Project_Node,
-            Packages     => Empty_Project_Node,
-            Pkg_Id       => Empty_Package,
-            Name         => No_Name,
-            Display_Name => No_Name,
-            Src_Index    => 0,
-            Path_Name    => No_Path,
-            Value        => No_Name,
-            Default      => Empty_Value,
-            Field1       => Empty_Project_Node,
-            Field2       => Empty_Project_Node,
-            Field3       => Empty_Project_Node,
-            Field4       => Empty_Project_Node,
-            Flag1        => False,
-            Flag2        => False,
-            Comments     => Empty_Project_Node);
+           (Kind => N_Comment_Zones, others => <>);
 
          Zone := Project_Node_Table.Last (In_Tree.Project_Nodes);
          In_Tree.Project_Nodes.Table (To).Comments := Zone;
@@ -161,28 +141,11 @@ package body GPR.Tree is
             Project_Node_Table.Increment_Last (In_Tree.Project_Nodes);
             In_Tree.Project_Nodes.Table
               (Project_Node_Table.Last (In_Tree.Project_Nodes)) :=
-              (Kind             => N_Comment,
-               Qualifier        => Unspecified,
-               Expr_Kind        => Undefined,
-               Flag1            => Comments.Table (J).Follows_Empty_Line,
-               Flag2            =>
-                 Comments.Table (J).Is_Followed_By_Empty_Line,
-               Location         => No_Location,
-               Directory        => No_Path,
-               Variables        => Empty_Project_Node,
-               Packages         => Empty_Project_Node,
-               Pkg_Id           => Empty_Package,
-               Name             => No_Name,
-               Display_Name     => No_Name,
-               Src_Index        => 0,
-               Path_Name        => No_Path,
-               Value            => Comments.Table (J).Value,
-               Default          => Empty_Value,
-               Field1           => Empty_Project_Node,
-               Field2           => Empty_Project_Node,
-               Field3           => Empty_Project_Node,
-               Field4           => Empty_Project_Node,
-               Comments         => Empty_Project_Node);
+              (Kind   => N_Comment,
+               Flag1  => Comments.Table (J).Follows_Empty_Line,
+               Flag2  => Comments.Table (J).Is_Followed_By_Empty_Line,
+               Value  => Comments.Table (J).Value,
+               others => <>);
 
             --  If this is the first comment, put it in the right field of
             --  the node Zone.
@@ -334,27 +297,7 @@ package body GPR.Tree is
          Project_Node_Table.Increment_Last (In_Tree.Project_Nodes);
          Zone := Project_Node_Table.Last (In_Tree.Project_Nodes);
          In_Tree.Project_Nodes.Table (Zone) :=
-        (Kind             => N_Comment_Zones,
-         Qualifier        => Unspecified,
-         Location         => No_Location,
-         Directory        => No_Path,
-         Expr_Kind        => Undefined,
-         Variables        => Empty_Project_Node,
-         Packages         => Empty_Project_Node,
-         Pkg_Id           => Empty_Package,
-         Name             => No_Name,
-         Display_Name     => No_Name,
-         Src_Index        => 0,
-         Path_Name        => No_Path,
-         Value            => No_Name,
-         Default          => Empty_Value,
-         Field1           => Empty_Project_Node,
-         Field2           => Empty_Project_Node,
-         Field3           => Empty_Project_Node,
-         Field4           => Empty_Project_Node,
-         Flag1            => False,
-         Flag2            => False,
-         Comments         => Empty_Project_Node);
+           (Kind => N_Comment_Zones, others => <>);
          In_Tree.Project_Nodes.Table (Node).Comments := Zone;
       end if;
 
@@ -428,27 +371,9 @@ package body GPR.Tree is
       Project_Node_Table.Increment_Last (In_Tree.Project_Nodes);
       In_Tree.Project_Nodes.Table
         (Project_Node_Table.Last (In_Tree.Project_Nodes)) :=
-        (Kind             => Of_Kind,
-         Qualifier        => Unspecified,
-         Location         => No_Location,
-         Directory        => No_Path,
-         Expr_Kind        => And_Expr_Kind,
-         Variables        => Empty_Project_Node,
-         Packages         => Empty_Project_Node,
-         Pkg_Id           => Empty_Package,
-         Name             => No_Name,
-         Display_Name     => No_Name,
-         Src_Index        => 0,
-         Path_Name        => No_Path,
-         Value            => No_Name,
-         Default          => Empty_Value,
-         Field1           => Empty_Project_Node,
-         Field2           => Empty_Project_Node,
-         Field3           => Empty_Project_Node,
-         Field4           => Empty_Project_Node,
-         Flag1            => False,
-         Flag2            => False,
-         Comments         => Empty_Project_Node);
+        (Kind      => Of_Kind,
+         Expr_Kind => And_Expr_Kind,
+         others    => <>);
 
       --  Save the new node for the returned value
 
@@ -466,27 +391,7 @@ package body GPR.Tree is
             Project_Node_Table.Increment_Last (In_Tree.Project_Nodes);
             In_Tree.Project_Nodes.Table
               (Project_Node_Table.Last (In_Tree.Project_Nodes)) :=
-              (Kind             => N_Comment_Zones,
-               Qualifier        => Unspecified,
-               Expr_Kind        => Undefined,
-               Location         => No_Location,
-               Directory        => No_Path,
-               Variables        => Empty_Project_Node,
-               Packages         => Empty_Project_Node,
-               Pkg_Id           => Empty_Package,
-               Name             => No_Name,
-               Display_Name     => No_Name,
-               Src_Index        => 0,
-               Path_Name        => No_Path,
-               Value            => No_Name,
-               Default          => Empty_Value,
-               Field1           => Empty_Project_Node,
-               Field2           => Empty_Project_Node,
-               Field3           => Empty_Project_Node,
-               Field4           => Empty_Project_Node,
-               Flag1            => False,
-               Flag2            => False,
-               Comments         => Empty_Project_Node);
+              (Kind => N_Comment_Zones, others => <>);
 
             Zone := Project_Node_Table.Last (In_Tree.Project_Nodes);
             In_Tree.Project_Nodes.Table (Result).Comments := Zone;
@@ -499,28 +404,11 @@ package body GPR.Tree is
                Project_Node_Table.Increment_Last (In_Tree.Project_Nodes);
                In_Tree.Project_Nodes.Table
                  (Project_Node_Table.Last (In_Tree.Project_Nodes)) :=
-                 (Kind             => N_Comment,
-                  Qualifier        => Unspecified,
-                  Expr_Kind        => Undefined,
-                  Flag1            => Comments.Table (J).Follows_Empty_Line,
-                  Flag2            =>
-                    Comments.Table (J).Is_Followed_By_Empty_Line,
-                  Location         => No_Location,
-                  Directory        => No_Path,
-                  Variables        => Empty_Project_Node,
-                  Packages         => Empty_Project_Node,
-                  Pkg_Id           => Empty_Package,
-                  Name             => No_Name,
-                  Display_Name     => No_Name,
-                  Src_Index        => 0,
-                  Path_Name        => No_Path,
-                  Value            => Comments.Table (J).Value,
-                  Default          => Empty_Value,
-                  Field1           => Empty_Project_Node,
-                  Field2           => Empty_Project_Node,
-                  Field3           => Empty_Project_Node,
-                  Field4           => Empty_Project_Node,
-                  Comments         => Empty_Project_Node);
+                 (Kind   => N_Comment,
+                  Flag1  => Comments.Table (J).Follows_Empty_Line,
+                  Flag2  => Comments.Table (J).Is_Followed_By_Empty_Line,
+                  Value  => Comments.Table (J).Value,
+                  others => <>);
 
                --  Link it to the N_Comment_Zones node, if it is the first,
                --  otherwise to the previous one.

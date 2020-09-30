@@ -16,6 +16,7 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
+with Ada.Calendar;
 with Ada.Containers.Hashed_Maps;
 with Ada.Containers.Ordered_Sets;
 with Ada.Directories;
@@ -3751,6 +3752,8 @@ package body Gprbuild.Post_Compile is
    procedure Post_Compilation_Phase
      (Main_Project : Project_Id; Project_Tree : Project_Tree_Ref)
    is
+      use Ada.Calendar;
+
       Exchange_File : Text_IO.File_Type;
       Line          : String (1 .. 1_000);
       Last          : Natural;
@@ -3759,8 +3762,8 @@ package body Gprbuild.Post_Compile is
 
       Shared_Libs : Boolean := False;
 
-      Bind_Exchange_TS                 : Time_Stamp_Type;
-      Bind_Object_TS                   : Time_Stamp_Type;
+      Bind_Exchange_TS                 : Time;
+      Bind_Object_TS                   : Time;
       Binder_Driver_Needs_To_Be_Called : Boolean := False;
 
       function Get_Project_Checksum
@@ -3913,6 +3916,10 @@ package body Gprbuild.Post_Compile is
          function Hash (Item : Path_Name_Type) return Ada.Containers.Hash_Type
          is (Ada.Containers.Hash_Type'Mod (Item));
 
+         function File_Stamp (File : Path_Name_Type) return Time is
+           (File_Time_Stamp (Get_Name_String (File)));
+         --  Returns file modification time
+
          package Project_File_Paths is new Ada.Containers.Hashed_Maps
            (Key_Type        => Path_Name_Type,
             Element_Type    => Project_Check_Line,
@@ -3947,11 +3954,14 @@ package body Gprbuild.Post_Compile is
          begin
             Position := Projects.Find (Project.Path.Display_Name);
 
-            if Project_File_Paths.Has_Element (Position) then
+            if Project_File_Paths.Has_Element (Position)
+              and then Project_File_Paths.Element (Position).Line (1)
+              /= ASCII.NUL
+            then
                return Project_File_Paths.Element (Position).Line;
             end if;
 
-            return String (File_Stamp (Project.Path.Display_Name)) & ' '
+            return String (Osint.File_Stamp (Project.Path.Display_Name)) & ' '
               & Get_Project_Checksum (Project);
          end Get_Project_Checkline;
 
@@ -3980,7 +3990,7 @@ package body Gprbuild.Post_Compile is
              (Path_Name_Type'(Create_Name (Bind_Exchange.all)));
 
          if not Binder_Driver_Needs_To_Be_Called then
-            if Bind_Exchange_TS = Empty_Time_Stamp then
+            if Bind_Exchange_TS = Osint.Invalid_Time then
                Binder_Driver_Needs_To_Be_Called := True;
 
                if Opt.Verbosity_Level > Opt.Low then
@@ -4048,7 +4058,7 @@ package body Gprbuild.Post_Compile is
                --  Do not perform this check in CodePeer mode where there is
                --  no object file per se.
 
-               if Bind_Object_TS = Empty_Time_Stamp
+               if Bind_Object_TS = Osint.Invalid_Time
                  and not Opt.CodePeer_Mode
                then
                   Binder_Driver_Needs_To_Be_Called := True;
@@ -4131,7 +4141,7 @@ package body Gprbuild.Post_Compile is
                        (Projects (Position).Line = Empty_Check_String);
 
                      Projects (Position).Line :=
-                       String (File_Stamp (Project_Path))
+                       String (Osint.File_Stamp (Project_Path))
                        & ' ' & Get_Project_Checksum
                                  (Projects (Position).Project);
                      Get_Line (Exchange_File, Line, Last);
@@ -4283,7 +4293,6 @@ package body Gprbuild.Post_Compile is
                   Dep_TS   : aliased File_Attributes := Unknown_Attributes;
                   Dep_File : File_Name_Type;
                   Dep_Path : Path_Name_Type;
-                  Stamp    : Time_Stamp_Type;
                   The_ALI  : ALI.ALI_Id;
                   Text     : Text_Buffer_Ptr;
                   Found    : Boolean;
@@ -4364,12 +4373,12 @@ package body Gprbuild.Post_Compile is
                         end loop;
                      end;
 
-                     Stamp := File_Time_Stamp (Dep_Path, Dep_TS'Access);
-
                      --  Check the time stamp against the binder
                      --  exchange file time stamp.
 
-                     if Stamp = Empty_Time_Stamp then
+                     if File_Time_Stamp (Dep_Path, Dep_TS'Access)
+                       = Empty_Time_Stamp
+                     then
                         Binder_Driver_Needs_To_Be_Called := True;
 
                         if Opt.Verbosity_Level > Opt.Low then
@@ -4379,18 +4388,18 @@ package body Gprbuild.Post_Compile is
 
                         exit;
 
-                     elsif Stamp > Bind_Exchange_TS then
+                     elsif File_Stamp (Dep_Path) > Bind_Exchange_TS then
                         Binder_Driver_Needs_To_Be_Called := True;
 
                         if Opt.Verbosity_Level > Opt.Low then
                            Put ("      -> ");
                            Put (Get_Name_String (Dep_Path));
                            Put_Line
-                             (" is more recent than the binder "
-                              & "exchange file");
+                             (" is more recent than the binder exchange file");
                         end if;
 
                         exit;
+
                      else
                         Text := Read_Library_Info_From_Full
                           (File_Name_Type (Dep_Path), Dep_TS'Access);
@@ -5025,7 +5034,10 @@ package body Gprbuild.Post_Compile is
       is
          procedure Update_Vars (Items : Variable_Id);
 
-         Chk  : Context;
+         Chk : Context;
+         Pkg : Package_Id := Project.Decl.Packages;
+         Tbl : Package_Table.Table_Ptr renames
+           Project_Tree.Shared.Packages.Table;
 
          -----------------
          -- Update_Vars --
@@ -5069,6 +5081,14 @@ package body Gprbuild.Post_Compile is
       begin
          Update_Vars (Project.Decl.Variables);
          Update_Vars (Project.Decl.Attributes);
+
+         while Pkg /= No_Package loop
+            Update_Vars (Tbl (Pkg).Decl.Variables);
+            Update_Vars (Tbl (Pkg).Decl.Attributes);
+            Pkg := Tbl (Pkg).Next;
+         end loop;
+
+         Update (Chk, Hex_Image (Project.Checksum));
 
          return Digest (Chk);
       end Get_Project_Checksum;
