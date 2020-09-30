@@ -3230,6 +3230,9 @@ package body GPR.Proc is
 
             Project.Extended_By := Extended_By;
 
+            Project.Checksum := From_Project_Node_Tree.Project_Nodes.Table
+              (From_Project_Node).Checksum;
+
             Add_Attributes
               (Project,
                Name,
