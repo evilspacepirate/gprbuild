@@ -4840,12 +4840,6 @@ Package Compiler Attributes
     compiling a source of the language when the project is a shared library
     project.
 
-  * **Path_Syntax**: single, indexed, case-insensitive index
-
-    Index is a language name. Value is the kind of path syntax to be used when
-    invoking the compiler for the language. Only authorized case-insensitive
-    values are "canonical" and "host" (the default).
-
   * **Source_File_Switches**: single, indexed, case-insensitive index
     configuration concatenable
 
