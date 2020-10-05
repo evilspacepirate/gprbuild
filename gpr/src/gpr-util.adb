@@ -4710,6 +4710,13 @@ package body GPR.Util is
                       Source.Dep_TS'Access);
          Proj  : Project_Id;
          Found : Boolean := False;
+         Preps : String_Sets.Set;
+         --  Preprocessor data files to detect config pragma files by exclusion
+         --  method. If file in D line is absolute filename then it is either
+         --  config pragma file or preprocessor data file. We can detect that
+         --  the file is preprocessor data files by the existence of the A line
+         --  with --  -gnatep= prefix. Config pragma files in D line does not
+         --  have any additional references.
 
          Conf_Paths_Found : Config_Paths_Found := (Conf_Paths'Range => False);
 
@@ -4731,7 +4738,7 @@ package body GPR.Util is
               Text,
               Ignore_ED     => False,
               Err           => True,
-              Read_Lines    => "PDW");
+              Read_Lines    => "APDW");
          Free (Text);
 
          if The_ALI = ALI.No_ALI_Id then
@@ -4743,6 +4750,24 @@ package body GPR.Util is
 
             return True;
          end if;
+
+         declare
+            U : Unit_Record renames Units.Table
+              (ALIs.Table (The_ALI).First_Unit);
+            A : String_Access;
+
+            Gnatep : constant String := "-gnatep=";
+         begin
+            for J in U.First_Arg .. U.Last_Arg loop
+               A := Args.Table (J);
+               if Starts_With (A.all, Gnatep) then
+                  Preps.Include
+                    (Normalize_Pathname
+                       (A (A'First + Gnatep'Length .. A'Last),
+                        Case_Sensitive => False));
+               end if;
+            end loop;
+         end;
 
          --  Check if the ALI's GNAT version matches
          --  Tree.Shared.Ada_Runtime_Library_Version
@@ -4847,10 +4872,12 @@ package body GPR.Util is
                      --  directories of the project.
 
                      declare
-                        Path  : Path_Name_Type  := No_Path;
-                        File  : constant String := Get_Name_String (Sfile);
-                        Stamp : Time_Stamp_Type := Empty_Time_Stamp;
-                        List  : String_List_Id  := In_Project.Source_Dirs;
+                        Path  : Path_Name_Type   := No_Path;
+                        File  : constant String  := Get_Name_String (Sfile);
+                        Stamp : Time_Stamp_Type  := Empty_Time_Stamp;
+                        List  : String_List_Id   := In_Project.Source_Dirs;
+                        Absp  : constant Boolean := Is_Absolute_Path (File);
+                        --  Config pragma file or preprocessor data file
                         Elem  : String_Element;
 
                         procedure Get_Path (Dir : String);
@@ -4877,32 +4904,42 @@ package body GPR.Util is
                         end Get_Path;
 
                      begin
-                        if Conf_Paths'Length > 0
-                          or else Is_Absolute_Path (File)
-                        then
+                        if Conf_Paths'Length > 0 or else Absp then
                            Path := Path_Name_Type (Sfile);
                            Stamp := File_Stamp (Path);
 
-                           if Conf_Paths'Length > 0 then
-                              --  This may be a config file. Check if it is one
-                              --  of the config files expected.
+                           declare
+                              Found : Boolean := False;
+                              Norm_Path : constant String :=
+                                Normalize_Pathname
+                                  (File, Case_Sensitive => False);
+                           begin
+                              for J in Conf_Paths'Range loop
+                                 if Normalize_Pathname
+                                   (Get_Name_String (Conf_Paths (J)),
+                                    Case_Sensitive => False) = Norm_Path
+                                 then
+                                    Found                := True;
+                                    Conf_Paths_Found (J) := True;
+                                 end if;
+                              end loop;
 
-                              declare
-                                 Norm_Path : constant String :=
-                                   Normalize_Pathname
-                                     (Name           => File,
-                                      Case_Sensitive => False);
-                              begin
-                                 for J in Conf_Paths'Range loop
-                                    if Normalize_Pathname
-                                      (Get_Name_String (Conf_Paths (J)),
-                                       Case_Sensitive => False) = Norm_Path
-                                    then
-                                       Conf_Paths_Found (J) := True;
-                                    end if;
-                                 end loop;
-                              end;
-                           end if;
+                              if Absp
+                                and then not Found
+                                and then not Preps.Contains (Norm_Path)
+                              then
+                                 --  Config pragma file is in D line but was
+                                 --  not referenced from project.
+
+                                 if Opt.Verbosity_Level > Opt.Low then
+                                    Put ("  -> """);
+                                    Put (File);
+                                    Put_Line (""" not defined in project");
+                                 end if;
+
+                                 return True;
+                              end if;
+                           end;
                         end if;
 
                         --  Look in the directory of the source
