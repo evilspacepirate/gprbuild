@@ -3406,21 +3406,15 @@ package body Gprbuild.Compile is
          The_ALI                : ALI.ALI_Id;
          Compiler               : OS_Lib.String_Access;
 
-         Last_Conf_Path : Natural := 0;
-
       begin
          Get_Config_Paths (Id, Source_Project);
-
-         if not Distributed_Mode then
-            Last_Conf_Path := Last_Config_Path;
-         end if;
 
          if Always_Compile or else not Source_Project.Externally_Built then
             Need_To_Compile
               (Source         => Source.Id,
                Tree           => Source.Tree,
                In_Project     => Source_Project,
-               Conf_Paths     => The_Config_Paths (1 .. Last_Conf_Path),
+               Conf_Paths     => The_Config_Paths (1 .. Last_Config_Path),
                Must_Compile   => Compilation_Needed,
                The_ALI        => The_ALI,
                Object_Check   => Object_Checked,
