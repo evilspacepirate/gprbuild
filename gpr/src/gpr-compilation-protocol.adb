@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2012-2018, Free Software Foundation, Inc.         --
+--          Copyright (C) 2012-2020, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -22,6 +22,7 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
+with Ada.Calendar.Conversions;
 with Ada.Calendar.Formatting;    use Ada.Calendar.Formatting;
 with Ada.Calendar.Time_Zones;    use Ada.Calendar;
 with Ada.Characters.Handling;
@@ -967,29 +968,18 @@ package body GPR.Compilation.Protocol is
    procedure Set_File_Stamp
      (Path_Name : String; Time_Stamp : Time_Stamp_Type)
    is
-      use type Time_Zones.Time_Offset;
-
-      TS : constant String (Time_Stamp_Type'Range) := String (Time_Stamp);
-
-      T  : constant Time :=
-             Time_Of (Year      => Year_Number'Value (TS (1 .. 4)),
-                      Month     => Month_Number'Value (TS (5 .. 6)),
-                      Day       => Day_Number'Value (TS (7 .. 8)),
-                      Hour      => Hour_Number'Value (TS (9 .. 10)),
-                      Minute    => Minute_Number'Value (TS (11 .. 12)),
-                      Second    => Second_Number'Value (TS (13 .. 14)),
-                      Time_Zone => -Time_Zones.UTC_Time_Offset);
-      --  Time_Zone is negative to translate the UTC Time_Stamp to local time
+      function TS (First, Last : Positive) return Integer is
+        (Integer'Value (String (Time_Stamp (First .. Last))));
+      --  Converts substring from Time_Stamp to Integer
    begin
       Set_File_Last_Modify_Time_Stamp
         (Path_Name,
-         GM_Time_Of
-           (Year   => Formatting.Year (T),
-            Month  => Formatting.Month (T),
-            Day    => Formatting.Day (T),
-            Hour   => Formatting.Hour (T),
-            Minute => Formatting.Minute (T),
-            Second => Formatting.Second (T)));
+         To_Ada
+           (time_t
+              (Conversions.To_Unix_Time
+                 (Time_Of
+                    (TS (1, 4), TS (5, 6), TS (7, 8),
+                     TS (9, 10), TS (11, 12), TS (13, 14))))));
    end Set_File_Stamp;
 
    -----------------------
