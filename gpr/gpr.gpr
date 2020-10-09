@@ -48,7 +48,8 @@ library project GPR is
       case Bld is
          when "debug" =>
             for Default_Switches ("Ada") use Common_Switches &
-              ("-g", "-gnata", "-gnatVa", "-gnatwaCJI", "-gnatwe", "-gnatyg");
+              ("-g", "-gnata", "-gnatVa", "-gnatwaCJI", "-gnatwe", "-gnatyg",
+               "-fstack-check");
 
             for Local_Configuration_Pragmas use "debug.adc";
 
