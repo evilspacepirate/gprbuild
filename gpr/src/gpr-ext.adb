@@ -116,7 +116,7 @@ package body GPR.Ext is
             then
                if not Silent then
                   Debug_Output
-                    ("Not overridding existing external reference '"
+                    ("Not overriding existing external reference '"
                      & External_Name & "', value was defined in "
                      & N.Source'Img);
                end if;

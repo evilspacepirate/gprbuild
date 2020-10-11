@@ -185,7 +185,7 @@ package GPR.Compilation.Protocol is
       Root_Dir : String;
       Files    : File_Data_Set.Vector);
    --  Send a set of filenames and associated timestamps. Will receive a OK or
-   --  KO with the list of files to be transfered to the slave.
+   --  KO with the list of files to be transferred to the slave.
 
    procedure Send_End_Of_Compilation (Channel : Communication_Channel);
    --  Send an end of compilation signal, the slave will at this point be able

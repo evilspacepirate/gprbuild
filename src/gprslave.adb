@@ -901,7 +901,7 @@ procedure Gprslave is
       Define_Switch
         (Config, Hash'Access,
          "-s:", Long_Switch => "--hash=",
-         Help => "specifiy a hash, must match with master");
+         Help => "specify a hash, must match with master");
 
       Set_Usage (Config, Usage => "[switches]");
 
