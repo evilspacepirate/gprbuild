@@ -697,6 +697,8 @@ package body GPR is
          In_Aggregate_Lib      : Boolean;
          From_Encapsulated_Lib : Boolean)
       is
+         Position  : Name_Id_Set.Cursor;
+         Inserted  : Boolean;
          Seen_Name : Name_Id_Set.Set;
          --  This set is needed to ensure that we do not handle the same
          --  project twice in the context of aggregate libraries.
@@ -790,12 +792,12 @@ package body GPR is
                   In_Aggregate_Lib, From_Encapsulated_Lib);
             end if;
 
-            if not Seen_Name.Contains (Project.Name) then
+            Seen_Name.Insert (Project.Name, Position, Inserted);
+
+            if Inserted then
 
                --  Even if a project is aggregated multiple times in an
                --  aggregated library, we will only return it once.
-
-               Seen_Name.Include (Project.Name);
 
                if not Imported_First then
                   if Project.Qualifier /= Abstract_Project or else
