@@ -927,6 +927,10 @@ package body GPR.Nmsc is
       if Path /= No_Path_Information then
          Id.Path := Path;
          Source_Paths_Htable.Set (Data.Tree.Source_Paths_HT, Path.Name, Id);
+
+      elsif Source /= No_Source and then Source.Path /= No_Path_Information
+      then
+         Id.Path := Source.Path;
       end if;
 
       Id.Next_With_File_Name :=
