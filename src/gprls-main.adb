@@ -232,8 +232,8 @@ procedure Gprls.Main is
                GNATDIST.Output_ALI (FN_Source);
             end if;
          end loop;
-      else
 
+      else
          for FN_Source of File_Names loop
             declare
                Id        : ALI_Id;
@@ -247,7 +247,6 @@ procedure Gprls.Main is
                      null;
 
                   else
-
                      Get_Name_String
                        (Units.Table (ALIs.Table (Id).First_Unit).Uname);
 
@@ -1081,6 +1080,7 @@ procedure Gprls.Main is
                                          .Display_File)
                               then
                                  FN_Source.Source := Unit.File_Names (Impl);
+                                 FN_Source.Tree   := Tree;
                                  exit Unit_Loop;
                               end if;
                            end;
@@ -1112,6 +1112,7 @@ procedure Gprls.Main is
                                   (Unit.File_Names (Spec).Display_File)
                         then
                            FN_Source.Source := Unit.File_Names (Spec);
+                           FN_Source.Tree   := Tree;
                         end if;
                      end;
                   end if;
