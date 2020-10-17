@@ -24,7 +24,7 @@ with GPR.Util;
 
 package body Gprls is
 
-   No_Obj : aliased String := "<no_obj>";
+   No_Obj : constant String := "<no_obj>";
 
    use GPR.Stamps;
 
@@ -265,19 +265,13 @@ package body Gprls is
    -------------------
 
    procedure Output_Object (O : File_Name_Type) is
-      Object_Name : String_Access;
-
    begin
       if Print_Object then
          if O /= No_File then
-            Get_Name_String (O);
-            Object_Name := new String'(Name_Buffer (1 .. Name_Len));
+            Put_Line (Get_Name_String (O));
          else
-            Object_Name := No_Obj'Unchecked_Access;
+            Put_Line (No_Obj);
          end if;
-
-         Put_Line (Object_Name.all);
-
       end if;
    end Output_Object;
 
@@ -383,11 +377,17 @@ package body Gprls is
 
    begin
       if Sdep_I /= No_Sdep_Id then
-         Output_Source
-           (Get_Source
-              ((if Tree = No_Project_Tree then Project_Tree else Tree),
-               Util.Main_Project, Sdep.Table (Sdep_I).Sfile),
-            Sdep_I);
+         if Tree /= No_Project_Tree then
+            Output_Source
+              (Source_Files_Htable.Get
+                 (Tree.Source_Files_HT, Sdep.Table (Sdep_I).Sfile),
+               Sdep_I);
+         else
+            Output_Source
+              (Get_Source
+                 (Project_Tree, Util.Main_Project, Sdep.Table (Sdep_I).Sfile),
+               Sdep_I);
+         end if;
       end if;
    end Output_Source;
 
