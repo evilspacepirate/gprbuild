@@ -111,15 +111,27 @@ procedure Gprls.Main is
    subtype One_Range is Integer range -1 .. 1;
 
    function Compare (Left, Right : String) return One_Range is
-      (if Left > Right then 1 elsif Left = Right then 0 else -1);
+     (if Left > Right then 1 elsif Left = Right then 0 else -1);
+
+   function Compare (Left, Right : Name_Id) return One_Range is
+     (if Left > Right then 1 elsif Left = Right then 0 else -1);
 
    function Before (Left, Right : Positive) return Boolean
-   is (case Compare (File_Names (Left).File_Name, File_Names (Right).File_Name)
-       is
-          when 1 => False,
-          when 0 => File_Names (Left).Source.Path.Display_Name
-                  < File_Names (Right).Source.Path.Display_Name,
-          when -1 => True);
+   is
+     (case Compare
+        (File_Names (Left).Source.Project.Name,
+         File_Names (Right).Source.Project.Name)
+      is
+      when  1 => False,
+      when -1 => True,
+      when  0 =>
+        (case Compare
+           (File_Names (Left).File_Name, File_Names (Right).File_Name)
+         is
+         when  1 => False,
+         when -1 => True,
+         when  0 => File_Names (Left).Source.Path.Display_Name
+                    < File_Names (Right).Source.Path.Display_Name));
    --  Returns True if element of the File_Names in Left position have to be
    --  before the element in Right position.
 
@@ -1374,6 +1386,8 @@ begin
       begin
          while Idx <= File_Names.Last_Index loop
             if Same_Path (File_Names (Idx - 1).Source, File_Names (Idx).Source)
+              and then File_Names (Idx - 1).Source.Project.Name
+                       = File_Names (Idx).Source.Project.Name
             then
                File_Names.Delete (Idx);
             else
