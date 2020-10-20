@@ -6,7 +6,6 @@ import sys
 import os
 import time
 import re
-import datetime
 
 sys.path.append('.')
 
@@ -43,15 +42,16 @@ def get_gpr_version():
                   gpr_version_content)
     if m:
         return m.group(1).strip()
-    print ('cannot find GPR version in ' + gpr_version_spec)
+    print('cannot find GPR version in ' + gpr_version_spec)
     return 'unknown'
+
 
 # Exclude sources that are not part of the current documentation
 exclude_patterns = []
 for d in os.listdir(root_source_dir):
     if d not in ('share', doc_name, doc_name + '.rst'):
         exclude_patterns.append(d)
-        print ('ignoring %s' % d)
+        print('ignoring %s' % d)
 
 extensions = []
 templates_path = ['_templates']
