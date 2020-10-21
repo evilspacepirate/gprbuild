@@ -2050,10 +2050,13 @@ package body Gprinstall.Install is
 
                   --  And then generates the interfaces
 
-                  Line := +"         for Library_Interface use (";
-
                   declare
                      First : Boolean := True;
+
+                     V     : constant Variable_Value :=
+                               Value_Of (Name_Interfaces,
+                                         Project.Decl.Attributes,
+                                         Tree.Shared);
 
                      procedure Source_Interface (Source : Source_Id);
 
@@ -2080,10 +2083,25 @@ package body Gprinstall.Install is
                        new For_Interface_Sources (Source_Interface);
 
                   begin
-                     List_Interfaces (Tree, Project);
+                     if V /= Nil_Variable_Value
+                       and then not V.Default
+                       and then V.Values /= Nil_String
+                     then
+                        Line := +"         for Interfaces use ";
+
+                        pragma Assert (V.Kind = List);
+
+                        Append (Line, Image (V));
+
+                     else
+                        Line := +"         for Library_Interface use (";
+
+                        List_Interfaces (Tree, Project);
+
+                        Append (Line, ");");
+                     end if;
                   end;
 
-                  Append (Line, ");");
                   V.Append (-Line);
                end if;
             end if;
