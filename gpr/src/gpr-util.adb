@@ -2262,6 +2262,10 @@ package body GPR.Util is
       --  Here, we are assuming that the language is Ada, as it is the only
       --  unit based language that we know.
 
+      pragma Assert
+        (Source.Path /= No_Path_Information,
+         Get_Name_String (Source.File) & ' ' & Source.Locally_Removed'Img);
+
       Src_Ind :=
         Sinput.Load_File
           (Get_Name_String (Source.Path.Display_Name));
@@ -4993,12 +4997,12 @@ package body GPR.Util is
                      end if;
 
                      while Dep_Src /= No_Source loop
-                        Initialize_Source_Record (Dep_Src);
-
                         if not Dep_Src.Locally_Removed
                           and then Dep_Src.Unit /= No_Unit_Index
                         then
                            Found := True;
+
+                           Initialize_Source_Record (Dep_Src);
 
                            if Dep_Src.Checksum /= ALI.Sdep.Table (D).Checksum
                            then
