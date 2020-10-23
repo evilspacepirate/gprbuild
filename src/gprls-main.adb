@@ -113,15 +113,13 @@ procedure Gprls.Main is
    function Compare (Left, Right : String) return One_Range is
      (if Left > Right then 1 elsif Left = Right then 0 else -1);
 
-   function Compare (Left, Right : Name_Id) return One_Range is
-     (if Left > Right then 1 elsif Left = Right then 0 else -1);
+   function Get_Tree_Name (Index : Positive) return String;
+   --  Get main project name of the source taken by Index from File_Names
+   --  container.
 
    function Before (Left, Right : Positive) return Boolean
    is
-     (case Compare
-        (File_Names (Left).Source.Project.Name,
-         File_Names (Right).Source.Project.Name)
-      is
+     (case Compare (Get_Tree_Name (Left), Get_Tree_Name (Right)) is
       when  1 => False,
       when -1 => True,
       when  0 =>
@@ -486,6 +484,20 @@ procedure Gprls.Main is
          Source_Dirs := Tree.Shared.String_Elements.Table (Source_Dirs).Next;
       end loop;
    end Get_Source_Dirs;
+
+   -------------------
+   -- Get_Tree_Name --
+   -------------------
+
+   function Get_Tree_Name (Index : Positive) return String is
+      Tree : constant Project_Tree_Ref := File_Names (Index).Tree;
+   begin
+      if Tree = null then
+         return "";
+      else
+         return Get_Name_String (Tree.Projects.Project.Name);
+      end if;
+   end Get_Tree_Name;
 
    ----------------------
    -- Look_For_Sources --
@@ -946,10 +958,14 @@ procedure Gprls.Main is
       end if;
    end Initialize;
 
+   --------------
+   -- _Do_List --
+   --------------
+
    procedure Do_List
      (Project : Project_Id; Tree : Project_Tree_Ref)
    is
-      Iter : Source_Iterator := For_Each_Source (Tree);
+      Iter   : Source_Iterator := For_Each_Source (Tree);
       Source : GPR.Source_Id;
    begin
       loop
