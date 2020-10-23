@@ -2804,11 +2804,13 @@ package GPR is
 
    function To_Hash (Item : Name_Id) return Ada.Containers.Hash_Type;
 
-   package Language_Maps is new Ada.Containers.Hashed_Maps
+   package Name_Id_Maps is new Ada.Containers.Hashed_Maps
      (Key_Type        => Name_Id,
       Element_Type    => Name_Id,
       Hash            => To_Hash,
       Equivalent_Keys => "=");
+
+   package Language_Maps renames Name_Id_Maps;
    --  Hash table to keep the languages and its required versions used in
    --  the project tree.
 
