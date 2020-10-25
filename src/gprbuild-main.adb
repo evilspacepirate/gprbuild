@@ -2518,13 +2518,15 @@ begin
       GPR.Err.Initialize;
    end if;
 
-   --  Adjust switches for "c" target: never perform the link phase
+   --  Adjust switches for "c" targets: never perform the link phase
 
    declare
       C_Target : Boolean := False;
       Variable : Variable_Value;
    begin
-      if Target_Name.all = "c" then
+      if Target_Name.all = "c"
+        or else Target_Name.all = "ccg"
+      then
          C_Target := True;
 
       else
@@ -2532,15 +2534,16 @@ begin
            (Name_Target, Main_Project.Decl.Attributes, Project_Tree.Shared);
 
          if Variable /= Nil_Variable_Value
-           and then Get_Name_String (Variable.Value) = "c"
+           and then (Get_Name_String (Variable.Value) = "c"
+                     or else Get_Name_String (Variable.Value) = "ccg")
          then
             C_Target := True;
 
             --  Set Target_Name so that e.g. gprbuild-post_compile.adb knows
-            --  that we have Target = "c".
+            --  that we have Target = "c"/"ccg".
 
             Free (Target_Name);
-            Target_Name := new String'("c");
+            Target_Name := new String'(Get_Name_String (Variable.Value));
          end if;
       end if;
 
