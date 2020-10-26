@@ -2518,16 +2518,17 @@ begin
       GPR.Err.Initialize;
    end if;
 
-   --  Adjust switches for "c" targets: never perform the link phase
+   --  Adjust switches for C and jvm targets: never perform the link phase
 
    declare
-      C_Target : Boolean := False;
+      No_Link  : Boolean := False;
       Variable : Variable_Value;
    begin
       if Target_Name.all = "c"
         or else Target_Name.all = "ccg"
+        or else Target_Name.all = "jvm"
       then
-         C_Target := True;
+         No_Link := True;
 
       else
          Variable := GPR.Util.Value_Of
@@ -2535,19 +2536,20 @@ begin
 
          if Variable /= Nil_Variable_Value
            and then (Get_Name_String (Variable.Value) = "c"
-                     or else Get_Name_String (Variable.Value) = "ccg")
+                     or else Get_Name_String (Variable.Value) = "ccg"
+                     or else Get_Name_String (Variable.Value) = "jvm")
          then
-            C_Target := True;
+            No_Link := True;
 
             --  Set Target_Name so that e.g. gprbuild-post_compile.adb knows
-            --  that we have Target = "c"/"ccg".
+            --  that we have Target = c/ccg/jvm.
 
             Free (Target_Name);
             Target_Name := new String'(Get_Name_String (Variable.Value));
          end if;
       end if;
 
-      if C_Target then
+      if No_Link then
          Opt.Link_Only := False;
 
          if not Opt.Compile_Only and not Opt.Bind_Only then

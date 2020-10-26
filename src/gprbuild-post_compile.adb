@@ -5125,10 +5125,10 @@ package body Gprbuild.Post_Compile is
                   --  Try building a library only if no error occurred in
                   --  library project and projects it depends on.
                   --  Do not actually create the library for aggregate projects
-                  --  or in CodePeer mode or when generating "C", since
-                  --  there is no notion of library is this case, only the
-                  --  rest of the processing (creation and compilation of
-                  --  binder file in particular, possibly copying ALI files)
+                  --  or in CodePeer mode or when generating C or Java byte
+                  --  code, since there is no notion of library is this case,
+                  --  only the rest of the processing (creation and compilation
+                  --  of binder file in particular, possibly copying ALI files)
                   --  is useful.
 
                   if not Project_Compilation_Failed (Proj.Proj) then
@@ -5145,7 +5145,8 @@ package body Gprbuild.Post_Compile is
                                 Proj.Is_Aggregated
                                   or else Opt.CodePeer_Mode
                                   or else Target_Name.all = "c"
-                                  or else Target_Name.all = "ccg");
+                                  or else Target_Name.all = "ccg"
+                                  or else Target_Name.all = "jvm");
                            exit when Stop_Spawning;
                         end if;
 
