@@ -5144,9 +5144,8 @@ package body Gprbuild.Post_Compile is
                               No_Create =>
                                 Proj.Is_Aggregated
                                   or else Opt.CodePeer_Mode
-                                  or else Target_Name.all = "c"
-                                  or else Target_Name.all = "ccg"
-                                  or else Target_Name.all = "jvm");
+                                  or else No_Link_Target (Target_Name.all));
+
                            exit when Stop_Spawning;
                         end if;
 

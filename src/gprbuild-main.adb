@@ -2524,10 +2524,7 @@ begin
       No_Link  : Boolean := False;
       Variable : Variable_Value;
    begin
-      if Target_Name.all = "c"
-        or else Target_Name.all = "ccg"
-        or else Target_Name.all = "jvm"
-      then
+      if No_Link_Target (Target_Name.all) then
          No_Link := True;
 
       else
@@ -2535,9 +2532,7 @@ begin
            (Name_Target, Main_Project.Decl.Attributes, Project_Tree.Shared);
 
          if Variable /= Nil_Variable_Value
-           and then (Get_Name_String (Variable.Value) = "c"
-                     or else Get_Name_String (Variable.Value) = "ccg"
-                     or else Get_Name_String (Variable.Value) = "jvm")
+           and then No_Link_Target (Get_Name_String (Variable.Value))
          then
             No_Link := True;
 
