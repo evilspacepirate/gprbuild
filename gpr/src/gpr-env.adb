@@ -2293,6 +2293,8 @@ package body GPR.Env is
       Result : String_Access;
       --  Keep temporary search results here before final conversion into Path
 
+      Normalized : Boolean := False;
+
       function Is_Regular_File_Cached (Name : String) return Boolean;
       --  Calls GNAT.OS_Lib.Is_Regular_File is Name not found in Self.Cache
       --  and put result into the cache.
@@ -2328,7 +2330,15 @@ package body GPR.Env is
       end if;
 
       if not Is_Absolute_Path (File) and then Directory /= "" then
-         Result := Try_Path_Name (Self, Ensure_Directory (Directory) & File);
+         Result :=
+           Try_Path_Name
+             (Self,
+              GNAT.OS_Lib.Normalize_Pathname
+                (File,
+                 Directory      => Directory,
+                 Resolve_Links  => Opt.Follow_Links_For_Files,
+                 Case_Sensitive => True));
+         Normalized := Result /= null;
       end if;
 
       if Result = null then
@@ -2343,7 +2353,8 @@ package body GPR.Env is
 
       else
          Path := Get_Path_Name_Id
-           (GNAT.OS_Lib.Normalize_Pathname
+           (if Normalized then Result.all
+            else GNAT.OS_Lib.Normalize_Pathname
               (Result.all,
                Directory      => Directory,
                Resolve_Links  => Opt.Follow_Links_For_Files,
