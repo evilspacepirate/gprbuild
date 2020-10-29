@@ -2346,6 +2346,7 @@ package body GPR.Env is
            (GNAT.OS_Lib.Normalize_Pathname
               (Result.all,
                Directory      => Directory,
+               Resolve_Links  => Opt.Follow_Links_For_Files,
                Case_Sensitive => True));
          Free (Result);
       end if;
