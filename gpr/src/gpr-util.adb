@@ -22,8 +22,6 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Ada.Calendar;
-with Ada.Calendar.Time_Zones;                use Ada.Calendar.Time_Zones;
 with Ada.Command_Line;                       use Ada.Command_Line;
 with Ada.Containers.Indefinite_Ordered_Sets;
 with Ada.Containers.Ordered_Sets;
@@ -72,6 +70,8 @@ package body GPR.Util is
    --  This is only for gprls.
 
    Program_Name : String_Access := null;
+
+   Timestamp_Picture : constant Picture_String := "%Y%m%d%H%M%S";
 
    type File_Stamp_Record is record
       Known : Boolean         := False;
@@ -2795,19 +2795,17 @@ package body GPR.Util is
    function To_Time_Stamp
      (Time : Calendar.Time) return Stamps.Time_Stamp_Type is
    begin
-      return Time_Stamp_Type (Image (Time, "%Y%m%d%H%M%S"));
+      return Time_Stamp_Type (Image (Time, Timestamp_Picture));
    end To_Time_Stamp;
 
-   ----------------------
-   -- To_UTC_Timestamp --
-   ----------------------
+   -----------------------
+   -- To_UTC_Time_Stamp --
+   -----------------------
 
    function To_UTC_Time_Stamp
-     (Time : Calendar.Time) return Stamps.Time_Stamp_Type
-   is
-      use type Ada.Calendar.Time;
+     (Time : Calendar.Time) return Stamps.Time_Stamp_Type is
    begin
-      return To_Time_Stamp (Time - Duration (UTC_Time_Offset (Time)) * 60);
+      return Time_Stamp_Type (Image (Time, Timestamp_Picture, Time_Zone => 0));
    end To_UTC_Time_Stamp;
 
    --------------
