@@ -22,9 +22,8 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
-with Ada.Calendar.Conversions;
+with Ada.Calendar.Conversions;   use Ada.Calendar;
 with Ada.Calendar.Formatting;    use Ada.Calendar.Formatting;
-with Ada.Calendar.Time_Zones;    use Ada.Calendar;
 with Ada.Characters.Handling;
 with Ada.Directories;            use Ada.Directories;
 with Ada.Streams.Stream_IO;      use Ada.Streams;
@@ -766,9 +765,8 @@ package body GPR.Compilation.Protocol is
       Time_Stamp : Time_Stamp_Type := Empty_Time_Stamp;
    begin
       if Keep_Time_Stamp then
-         Time_Stamp := GPR.Util.To_Time_Stamp
-           (Modification_Time (Path_Name)
-            - Duration (Time_Zones.UTC_Time_Offset) * 60.0);
+         Time_Stamp := GPR.Util.To_UTC_Time_Stamp
+           (Modification_Time (Path_Name));
       end if;
 
       if Rewrite then

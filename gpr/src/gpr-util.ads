@@ -479,6 +479,10 @@ package GPR.Util is
    function To_Time_Stamp (Time : Calendar.Time) return Stamps.Time_Stamp_Type;
    --  Returns Time as a time stamp type
 
+   function To_UTC_Time_Stamp
+     (Time : Calendar.Time) return Stamps.Time_Stamp_Type;
+   --  Return timestamp shifted to UTC on conversion
+
    function UTC_Time return Stamps.Time_Stamp_Type;
    --  Returns the UTC time
 

@@ -2798,18 +2798,25 @@ package body GPR.Util is
       return Time_Stamp_Type (Image (Time, "%Y%m%d%H%M%S"));
    end To_Time_Stamp;
 
+   ----------------------
+   -- To_UTC_Timestamp --
+   ----------------------
+
+   function To_UTC_Time_Stamp
+     (Time : Calendar.Time) return Stamps.Time_Stamp_Type
+   is
+      use type Ada.Calendar.Time;
+   begin
+      return To_Time_Stamp (Time - Duration (UTC_Time_Offset (Time)) * 60);
+   end To_UTC_Time_Stamp;
+
    --------------
    -- UTC_Time --
    --------------
 
    function UTC_Time return Time_Stamp_Type is
-      use type Ada.Calendar.Time;
-
-      Now : constant Calendar.Time :=
-              Calendar.Clock - Duration (UTC_Time_Offset) * 60;
-      --  The UTC_Time_Offset is in minutes
    begin
-      return Time_Stamp_Type (Image (Now, "%Y%m%d%H%M%S"));
+      return To_UTC_Time_Stamp (Ada.Calendar.Clock);
    end UTC_Time;
 
    --------------
