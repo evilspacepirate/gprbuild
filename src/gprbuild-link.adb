@@ -1541,8 +1541,7 @@ package body Gprbuild.Link is
          --  there is a non empty executable suffix, add the suffix to the
          --  executable name.
 
-         if Main_Proj.Config.Executable_Suffix /= No_Name
-            and then Length_Of_Name (Main_Proj.Config.Executable_Suffix) > 0
+         if Main_Proj.Config.Executable_Suffix not in No_Name | Empty_String
          then
             declare
                Suffix : String := Get_Name_String

@@ -347,6 +347,8 @@ package body GPR.Snames is
       Add_Name ("include_switches_via_spec");
       Add_Name ("required_toolchain_version");
       Add_Name ("toolchain_name");
+      Add_Name ("");
+      Add_Name (".");
    end Initialize;
 
 end GPR.Snames;

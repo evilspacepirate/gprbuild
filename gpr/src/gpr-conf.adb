@@ -532,7 +532,7 @@ package body GPR.Conf is
           or else Target = "native"
           or else
             (Tgt_Name /= No_Name
-              and then (Length_Of_Name (Tgt_Name) = 0
+              and then (Tgt_Name = Empty_String
                          or else Target = Get_Name_String (Tgt_Name)));
 
       if not OK then
@@ -1369,7 +1369,7 @@ package body GPR.Conf is
 
                   if CodePeer_Mode
                     or else Variable = Nil_Variable_Value
-                    or else Length_Of_Name (Variable.Value) = 0
+                    or else Variable.Value = Empty_String
                   then
                      Result (Count) := new String'
                        (Config_Common & ',' & Toolchain_Name_For (Name));

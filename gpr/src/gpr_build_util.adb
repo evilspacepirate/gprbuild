@@ -2454,9 +2454,8 @@ package body Gpr_Build_Util is
 
                   begin
                      while Language /= No_Language_Index loop
-                        if Language.Config.Compiler_Driver /= No_File
-                           and then
-                           Language.Config.Compiler_Driver /= Empty_File
+                        if Language.Config.Compiler_Driver
+                           not in No_File | Empty_File
                         then
                            if Lang /= No_Name then
                               Lang := No_Name;

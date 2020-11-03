@@ -416,11 +416,11 @@ package GPR is
 
    GNAT_And_Space : constant String := "GNAT ";
 
-   function Empty_File   return File_Name_Type;
-   function Empty_String return Name_Id;
+   function Empty_File   return File_Name_Type with Inline_Always;
+   function Empty_String return Name_Id        with Inline_Always;
    --  Return the id for an empty string ""
 
-   function Dot_String return Name_Id;
+   function Dot_String return Name_Id with Inline_Always;
    --  Return the id for "."
 
    type Path_Information is record

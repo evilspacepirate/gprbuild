@@ -584,7 +584,7 @@ package body GPR.Nmsc is
       Min_Prefix_Length : Natural := 0;
 
    begin
-      if Suffix = No_File or else Suffix = Empty_File then
+      if Suffix in No_File | Empty_File then
          return False;
       end if;
 
@@ -2648,9 +2648,9 @@ package body GPR.Nmsc is
                elsif Attribute.Name = Name_Warning_Message then
                   Project.Warning_Message := Attribute.Value.Value;
 
-                  if Project.Extended_By = No_Project and then
-                    Project.Warning_Message /= No_Name and then
-                    Project.Warning_Message /= Empty_String
+                  if Project.Extended_By = No_Project
+                    and then Project.Warning_Message
+                             not in No_Name | The_Empty_String
                   then
                      Error_Msg
                        (Data.Flags,
@@ -4581,7 +4581,7 @@ package body GPR.Nmsc is
             pragma Assert
               (Dot_Repl.Kind = Single, "Dot_Replacement is not a string");
 
-            if Length_Of_Name (Dot_Repl.Value) = 0 then
+            if Dot_Repl.Value = Empty_String then
                Error_Msg
                  (Data.Flags, "Dot_Replacement cannot be empty",
                   Dot_Repl.Location, Project);
@@ -4680,7 +4680,7 @@ package body GPR.Nmsc is
          Write_Attr ("Casing", Image (Casing));
 
          if not Sep_Suffix.Default then
-            if Length_Of_Name (Sep_Suffix.Value) = 0 then
+            if Sep_Suffix.Value = Empty_String then
                Error_Msg
                  (Data.Flags,
                   "Separate_Suffix cannot be empty",
@@ -6265,7 +6265,7 @@ package body GPR.Nmsc is
 
       Project.Exec_Directory := Project.Object_Directory;
 
-      if Exec_Dir.Value /= Empty_String and then Exec_Dir.Value /= No_Name then
+      if Exec_Dir.Value not in Empty_String | No_Name then
          Get_Name_String (Exec_Dir.Value);
 
          if Name_Len = 0 then
@@ -6516,7 +6516,7 @@ package body GPR.Nmsc is
          while List /= Nil_String loop
             Elem := Shared.String_Elements.Table (List);
 
-            if Length_Of_Name (Elem.Value) = 0 then
+            if Elem.Value = Empty_String then
                Error_Msg
                  (Data.Flags,
                   "?a main cannot have an empty name",

@@ -47,6 +47,9 @@ package body GPR is
       Next : Restricted_Lang_Access;
    end record;
 
+   Initialized : Boolean := False;
+   --  A flag to avoid multiple initialization
+
    Restricted_Languages : Restricted_Lang_Access := null;
    --  When null, all languages are allowed, otherwise only the languages in
    --  the list are allowed.
@@ -56,9 +59,6 @@ package body GPR is
 
    Initial_Buffer_Size : constant := 100;
    --  Initial size for extensible buffer used in Add_To_Buffer
-
-   The_Empty_String : Name_Id := No_Name;
-   The_Dot_String   : Name_Id := No_Name;
 
    Debug_Level : Integer := 0;
    --  Current indentation level for debug traces
@@ -1231,13 +1231,8 @@ package body GPR is
 
    procedure Initialize (Tree : Project_Tree_Ref) is
    begin
-      if The_Empty_String = No_Name then
-         Name_Len := 0;
-         The_Empty_String := Name_Find;
-
-         Name_Len := 1;
-         Name_Buffer (1) := '.';
-         The_Dot_String := Name_Find;
+      if not Initialized then
+         Initialized := True;
 
          GPR.Attr.Initialize;
 
@@ -2021,9 +2016,8 @@ package body GPR is
    begin
       case Source.Compilable is
          when Unknown =>
-            if Source.Language.Config.Compiler_Driver /= No_File
-              and then
-                Length_Of_Name (Source.Language.Config.Compiler_Driver) /= 0
+            if Source.Language.Config.Compiler_Driver
+                 not in No_File | Empty_File
               and then not Source.Locally_Removed
               and then (Source.Language.Config.Kind /= File_Based
                          or else Source.Kind /= Spec)

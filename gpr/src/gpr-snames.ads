@@ -329,6 +329,8 @@ package GPR.Snames is
    Name_Include_Switches_Via_Spec        : constant Name_Id := Name_Id (L) - N;
    Name_Required_Toolchain_Version       : constant Name_Id := Name_Id (L) - N;
    Name_Toolchain_Name                   : constant Name_Id := Name_Id (L) - N;
+   The_Empty_String                      : constant Name_Id := Name_Id (L) - N;
+   The_Dot_String                        : constant Name_Id := Name_Id (L) - N;
    --  End of empty lines prohibition
 
    subtype Reserved_Ada_95 is Name_Id

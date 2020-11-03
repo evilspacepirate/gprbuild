@@ -179,7 +179,7 @@ package body GPR.Proc is
 
    procedure Add (To_Exp : in out Name_Id; Str : Name_Id) is
    begin
-      if To_Exp = No_Name or else To_Exp = Empty_String then
+      if To_Exp in No_Name | Empty_String then
 
          --  To_Exp is nil or empty. The result is Str
 
@@ -187,7 +187,7 @@ package body GPR.Proc is
 
       --  If Str is nil, then do not change To_Ext
 
-      elsif Str /= No_Name and then Str /= Empty_String then
+      elsif Str not in No_Name | Empty_String then
          declare
             S : constant String := Get_Name_String (Str);
          begin

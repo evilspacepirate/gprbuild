@@ -5293,7 +5293,7 @@ package body GPR.Util is
 
       --  No need to compile if there is no "compiler"
 
-      if Length_Of_Name (Source.Language.Config.Compiler_Driver) = 0 then
+      if Source.Language.Config.Compiler_Driver = Empty_File then
          Must_Compile := False;
          return;
       end if;
