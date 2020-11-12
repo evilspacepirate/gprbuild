@@ -1262,6 +1262,9 @@ package body Gprbuild.Compile is
       Finish   : Natural;
       Last_Obj : Natural;
 
+      Keep_Dep_File : Boolean := False;
+      --  We need to keep dependency file in some error cases for diagnostic
+
       The_Config_Paths : Config_Paths (1 .. 2);
       --  Paths of eventual global and local configuration pragmas files
       Last_Config_Path : Natural := 0;
@@ -1639,6 +1642,7 @@ package body Gprbuild.Compile is
 
          Compilation_OK  : Boolean := True;
          Dep_File_OK     : Boolean := False;
+
       begin
          Open (Dep_File, Get_Name_String (Src_Data.Id.Dep_Path));
 
@@ -1794,6 +1798,29 @@ package body Gprbuild.Compile is
                               Path_Name_Type (Src_Name_Id));
                            Src_TS :=
                              File_Stamp (File_Name_Type (Unescaped_Id));
+
+                           if Src_TS = Empty_Time_Stamp then
+                              --  File from dependency list does not exist
+
+                              Put ('"');
+                              Put
+                                (Get_Name_String
+                                   (Src_Data.Id.Path.Display_Name));
+                              Put_Line ("""");
+
+                              Put (ASCII.HT);
+                              Put ("depends on non-existent """);
+                              Put (Src_Name);
+                              Put_Line ("""");
+
+                              Put (ASCII.HT);
+                              Put ("noted in the """);
+                              Put (Get_Name_String (Src_Data.Id.Dep_Path));
+                              Put_Line ("""");
+
+                              Keep_Dep_File  := True;
+                              Compilation_OK := False;
+                           end if;
 
                            if Source_2 /= No_Source then
                               --  It is a source of a project
@@ -3615,7 +3642,9 @@ package body Gprbuild.Compile is
                --  artifacts.
 
                if not Compilation_OK then
-                  if Source_Identity.Id.Dep_Path /= No_Path then
+                  if Source_Identity.Id.Dep_Path /= No_Path
+                    and then not Keep_Dep_File
+                  then
                      Delete_File
                        (Get_Name_String (Source_Identity.Id.Dep_Path),
                         No_Check);
