@@ -52,7 +52,6 @@ with GPR.Snames;                 use GPR.Snames;
 with GPR.Tempdir;                use GPR.Tempdir;
 with GPR.Tree;                   use GPR.Tree;
 with GPR.Util.Aux;               use GPR.Util;
-with GPR.Version;                use GPR.Version;
 
 procedure Gprbuild.Main is
 
@@ -401,8 +400,7 @@ procedure Gprbuild.Main is
 
       if not Copyright_Output then
          Copyright_Output := True;
-         Display_Version
-           ("GPRBUILD", "2004", Version_String => Gpr_Version_String);
+         Display_Version ("GPRBUILD", "2004");
       end if;
    end Copyright;
 
@@ -1698,10 +1696,7 @@ procedure Gprbuild.Main is
 
       --  Get the command line arguments, starting with --version and --help
 
-      Check_Version_And_Help
-        ("GPRBUILD",
-         "2004",
-         Version_String => Gpr_Version_String);
+      Check_Version_And_Help ("GPRBUILD", "2004");
 
       --  Check for switch --dumpmachine and, if found, output the normalized
       --  hostname and exit.

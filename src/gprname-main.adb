@@ -35,7 +35,6 @@ with GPR.Osint;          use GPR.Osint;
 with GPR.Snames;         use GPR.Snames;
 with GPR.Tree;           use GPR.Tree;
 with GPR.Util;           use GPR.Util;
-with GPR.Version;        use GPR.Version;
 
 with Gpr_Build_Util; use Gpr_Build_Util;
 
@@ -228,8 +227,7 @@ procedure GPRName.Main is
 
       --  First check for --version or --help
 
-      Check_Version_And_Help
-        ("GPRNAME", "2001", Version_String => Gpr_Version_String);
+      Check_Version_And_Help ("GPRNAME", "2001");
 
       --  Now scan the other switches
 
@@ -410,8 +408,7 @@ procedure GPRName.Main is
       if not Version_Output then
          Version_Output := True;
          New_Line;
-         Display_Version
-           ("GPRNAME", "2001", Version_String => Gpr_Version_String);
+         Display_Version ("GPRNAME", "2001");
       end if;
    end Output_Version;
 

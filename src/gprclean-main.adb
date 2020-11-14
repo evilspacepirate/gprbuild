@@ -43,7 +43,6 @@ with GPR.Proc;                   use GPR.Proc;
 with GPR.Snames;
 with GPR.Tree;                   use GPR.Tree;
 with GPR.Util.Aux;               use GPR.Util;
-with GPR.Version;                use GPR.Version;
 
 procedure Gprclean.Main is
 
@@ -86,8 +85,7 @@ procedure Gprclean.Main is
    begin
       if not Copyright_Displayed then
          Copyright_Displayed := True;
-         Display_Version
-           ("GPRCLEAN", "2006", Version_String => Gpr_Version_String);
+         Display_Version ("GPRCLEAN", "2006");
       end if;
    end Display_Copyright;
 
@@ -166,10 +164,7 @@ procedure Gprclean.Main is
    begin
       --  First deal with --version and --help
 
-      Check_Version_And_Help
-        ("GPRCLEAN",
-         "2006",
-         Version_String => Gpr_Version_String);
+      Check_Version_And_Help ("GPRCLEAN", "2006");
 
       --  Now deal with the other options
 

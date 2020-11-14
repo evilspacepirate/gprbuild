@@ -648,9 +648,7 @@ package GPR.Util is
    --  Output the two lines of usage for switches --version and --help
 
    procedure Display_Version
-     (Tool_Name      : String;
-      Initial_Year   : String;
-      Version_String : String);
+     (Tool_Name : String; Initial_Year : String);
    --  Display version of a tool when switch --version is used
 
    function Calculate_Checksum (Source : Source_Id) return Boolean;
@@ -660,9 +658,7 @@ package GPR.Util is
       with procedure Usage;
       --  Print tool-specific part of --help message
    procedure Check_Version_And_Help_G
-     (Tool_Name      : String;
-      Initial_Year   : String;
-      Version_String : String);
+     (Tool_Name : String; Initial_Year : String);
    --  Check if switches --version or --help is used. If one of this switch is
    --  used, issue the proper messages and end the process.
 

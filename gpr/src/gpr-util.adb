@@ -3280,9 +3280,7 @@ package body GPR.Util is
    Help_Switch    : constant String := "--help";
 
    procedure Check_Version_And_Help_G
-     (Tool_Name      : String;
-      Initial_Year   : String;
-      Version_String : String)
+     (Tool_Name : String; Initial_Year : String)
    is
       Version_Switch_Present : Boolean := False;
       Help_Switch_Present    : Boolean := False;
@@ -3310,7 +3308,7 @@ package body GPR.Util is
       --  If --version was used, display version and exit
 
       if Version_Switch_Present then
-         Display_Version (Tool_Name, Initial_Year, Version_String);
+         Display_Version (Tool_Name, Initial_Year);
 
          Put_Line (Free_Software);
          New_Line;
@@ -3434,11 +3432,9 @@ package body GPR.Util is
    ---------------------
 
    procedure Display_Version
-     (Tool_Name      : String;
-      Initial_Year   : String;
-      Version_String : String) is
+     (Tool_Name : String; Initial_Year : String) is
    begin
-      Put_Line (Tool_Name & " " & Version_String);
+      Put_Line (Tool_Name & " " & Gpr_Version_String);
 
       Put ("Copyright (C) ");
       Put (Initial_Year);

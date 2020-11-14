@@ -37,7 +37,6 @@ with GPR.Proc;       use GPR.Proc;
 with GPR.Snames;     use GPR.Snames;
 with GPR.Tree;       use GPR.Tree;
 with GPR.Util;       use GPR.Util;
-with GPR.Version;    use GPR.Version;
 
 with Gprinstall.DB;
 with Gprinstall.Install;
@@ -105,8 +104,7 @@ procedure Gprinstall.Main is
 
       if not Copyright_Output then
          Copyright_Output := True;
-         Display_Version
-           ("GPRINSTALL", "2012", Version_String => Gpr_Version_String);
+         Display_Version ("GPRINSTALL", "2012");
       end if;
    end Copyright;
 
@@ -567,8 +565,7 @@ procedure Gprinstall.Main is
 
       --  Get the command line arguments, starting with --version and --help
 
-      Check_Version_And_Help
-        ("GPRINSTALL", "2012", Version_String => Gpr_Version_String);
+      Check_Version_And_Help ("GPRINSTALL", "2012");
 
       --  Now process the other options
 

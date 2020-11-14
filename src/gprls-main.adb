@@ -31,7 +31,6 @@ with GPR.Osint;
 with GPR.Snames;
 with GPR.Tree;
 with GPR.Util;    use GPR.Util;
-with GPR.Version; use GPR.Version;
 
 with Gpr_Build_Util; use Gpr_Build_Util;
 
@@ -332,8 +331,7 @@ procedure Gprls.Main is
       Path : Path_Access;
    begin
       New_Line;
-      Display_Version
-        ("GPRLS", "2015", Version_String => Gpr_Version_String);
+      Display_Version ("GPRLS", "2015");
 
       New_Line;
       Put_Line ("Source Search Path:");
@@ -1210,8 +1208,7 @@ begin
 
    Add_Gpr_Tool_External;
 
-   Check_Version_And_Help
-     ("GPRLS", "2015", Version_String => Gpr_Version_String);
+   Check_Version_And_Help ("GPRLS", "2015");
 
    Project_File_Name_Expected := False;
 

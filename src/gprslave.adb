@@ -905,10 +905,7 @@ procedure Gprslave is
 
       Set_Usage (Config, Usage => "[switches]");
 
-      Check_Version_And_Help
-        ("GPRSLAVE",
-         "2013",
-         Version_String => Version.Gpr_Version_String);
+      Check_Version_And_Help ("GPRSLAVE", "2013");
 
       Getopt (Config);
 
