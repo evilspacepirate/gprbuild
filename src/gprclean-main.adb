@@ -22,11 +22,11 @@
 with Ada.Command_Line; use Ada.Command_Line;
 with Ada.Directories;
 with Ada.Exceptions;   use Ada.Exceptions;
+with Ada.Text_IO;      use Ada.Text_IO;
 
 with GNAT.Case_Util;            use GNAT.Case_Util;
 with GNAT.Command_Line;         use GNAT.Command_Line;
 with GNAT.Directory_Operations; use GNAT.Directory_Operations;
-with GNAT.IO;                   use GNAT.IO;
 with GNAT.OS_Lib;               use GNAT.OS_Lib;
 
 with Gpr_Build_Util;             use Gpr_Build_Util;
