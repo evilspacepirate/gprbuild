@@ -17,10 +17,9 @@
 ------------------------------------------------------------------------------
 
 with Ada.Directories;           use Ada.Directories;
-with Ada.Text_IO;
+with Ada.Text_IO;               use Ada.Text_IO;
 
 with GNAT.Directory_Operations; use GNAT.Directory_Operations;
-with GNAT.IO;                   use GNAT.IO;
 with GNAT.Regexp;               use GNAT.Regexp;
 
 with Gprexch;        use Gprexch;
