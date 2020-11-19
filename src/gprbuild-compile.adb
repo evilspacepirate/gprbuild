@@ -1808,13 +1808,11 @@ package body Gprbuild.Compile is
                                    (Src_Data.Id.Path.Display_Name));
                               Put_Line ("""");
 
-                              Put (ASCII.HT);
-                              Put ("depends on non-existent """);
-                              Put (Src_Name);
+                              Put (ASCII.HT & "depends on non-existent """);
+                              Put (Unescaped);
                               Put_Line ("""");
 
-                              Put (ASCII.HT);
-                              Put ("noted in the """);
+                              Put (ASCII.HT & "noted in the """);
                               Put (Get_Name_String (Src_Data.Id.Dep_Path));
                               Put_Line ("""");
 
