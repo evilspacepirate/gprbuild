@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2006-2019, Free Software Foundation, Inc.         --
+--          Copyright (C) 2006-2020, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -25,8 +25,6 @@
 --  This unit is responsible for parsing the gprconfig knowledge base
 
 with Ada.Containers.Doubly_Linked_Lists;
-with Ada.Containers.Indefinite_Doubly_Linked_Lists;
-with Ada.Containers.Indefinite_Hashed_Maps;
 with Ada.Containers.Hashed_Maps;
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
@@ -36,9 +34,6 @@ with GNAT.Regpat;
 package GPR.Knowledge is
 
    use Ada.Strings.Unbounded;
-
-   package String_Lists is
-     new Ada.Containers.Indefinite_Doubly_Linked_Lists (String);
 
    Generate_Error : exception;
    --  To be raised when an error occurs during generation of config files
@@ -144,7 +139,7 @@ package GPR.Knowledge is
    --  No_Name if Comp is null.
 
    package Compiler_Lists
-     is new Ada.Containers.Indefinite_Doubly_Linked_Lists (Compiler_Access);
+     is new Ada.Containers.Doubly_Linked_Lists (Compiler_Access);
    --  A list of compilers
 
    function Is_Selected (Comp : Compiler) return Boolean;
@@ -341,7 +336,7 @@ package GPR.Knowledge is
    end record;
 
    package Double_String_Lists is
-     new Ada.Containers.Indefinite_Doubly_Linked_Lists (Double_String);
+     new Ada.Containers.Doubly_Linked_Lists (Double_String);
    use Double_String_Lists;
 
    procedure Put_Verbose (Str : String; Indent_Delta : Integer := 0);
@@ -489,7 +484,7 @@ private
    --  taken as a regular expression.
 
    package Compiler_Description_Maps is new
-     Ada.Containers.Indefinite_Hashed_Maps
+     Ada.Containers.Hashed_Maps
        (Name_Id, Compiler_Description, Hash_Name_Id, "=");
 
    type Compiler_Filter is record

@@ -23,36 +23,36 @@
 ------------------------------------------------------------------------------
 
 with Ada.Unchecked_Deallocation;
-with Ada.Characters.Handling;   use Ada.Characters.Handling;
-with Ada.Command_Line;          use Ada.Command_Line;
-with Ada.Containers;            use Ada.Containers;
+with Ada.Characters.Handling;               use Ada.Characters.Handling;
+with Ada.Command_Line;                      use Ada.Command_Line;
+with Ada.Containers.Indefinite_Hashed_Maps; use Ada.Containers;
 with Ada.Strings.Hash;
-with Ada.Directories;           use Ada.Directories;
-with Ada.Environment_Variables; use Ada.Environment_Variables;
-with Ada.Exceptions;            use Ada.Exceptions;
+with Ada.Directories;                       use Ada.Directories;
+with Ada.Environment_Variables;             use Ada.Environment_Variables;
+with Ada.Exceptions;                        use Ada.Exceptions;
 with Ada.IO_Exceptions;
-with Ada.Strings.Fixed;         use Ada.Strings.Fixed;
+with Ada.Strings.Fixed;                     use Ada.Strings.Fixed;
 with Ada.Strings.Hash_Case_Insensitive;
-with Ada.Text_IO;               use Ada.Text_IO;
+with Ada.Text_IO;                           use Ada.Text_IO;
 
-with GNAT.Case_Util;            use GNAT.Case_Util;
-with GNAT.Directory_Operations; use GNAT.Directory_Operations;
-with GNAT.Expect;               use GNAT.Expect;
-with GNAT.Regpat;               use GNAT.Regpat;
-with GNAT.Strings;              use GNAT.Strings;
+with GNAT.Case_Util;                        use GNAT.Case_Util;
+with GNAT.Directory_Operations;             use GNAT.Directory_Operations;
+with GNAT.Expect;                           use GNAT.Expect;
+with GNAT.Regpat;                           use GNAT.Regpat;
+with GNAT.Strings;                          use GNAT.Strings;
 
-with DOM.Core.Nodes;        use DOM.Core, DOM.Core.Nodes;
-with DOM.Core.Documents;
-with Input_Sources.File;    use Input_Sources.File;
-with Sax.Readers;           use Sax.Readers;
-with Schema.Dom_Readers;    use Schema.Dom_Readers;
-with Schema.Schema_Readers; use Schema.Schema_Readers;
-with Schema.Validators;     use Schema.Validators;
+with DOM.Core.Documents;                    use DOM.Core;
+with DOM.Core.Nodes;                        use DOM.Core.Nodes;
+with Input_Sources.File;                    use Input_Sources.File;
+with Sax.Readers;                           use Sax.Readers;
+with Schema.Dom_Readers;                    use Schema.Dom_Readers;
+with Schema.Schema_Readers;                 use Schema.Schema_Readers;
+with Schema.Validators;                     use Schema.Validators;
 
-with GPR.Sdefault;       use GPR.Sdefault;
-with GPR.Names;          use GPR.Names;
+with GPR.Sdefault;                          use GPR.Sdefault;
+with GPR.Names;                             use GPR.Names;
 with GPR.Opt;
-with GPR.Util;           use GPR.Util;
+with GPR.Util;                              use GPR.Util;
 
 package body GPR.Knowledge is
 
