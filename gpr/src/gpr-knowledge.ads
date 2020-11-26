@@ -25,6 +25,7 @@
 --  This unit is responsible for parsing the gprconfig knowledge base
 
 with Ada.Containers.Doubly_Linked_Lists;
+with Ada.Containers.Indefinite_Doubly_Linked_Lists;
 with Ada.Containers.Hashed_Maps;
 with Ada.Containers.Vectors;
 with Ada.Strings.Unbounded;
@@ -34,6 +35,9 @@ with GNAT.Regpat;
 package GPR.Knowledge is
 
    use Ada.Strings.Unbounded;
+
+   package String_Lists is
+     new Ada.Containers.Indefinite_Doubly_Linked_Lists (String);
 
    Generate_Error : exception;
    --  To be raised when an error occurs during generation of config files

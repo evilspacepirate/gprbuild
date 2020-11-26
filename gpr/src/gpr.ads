@@ -28,7 +28,6 @@
 --  Children of this package implement various services on these data types
 
 with Ada.Containers.Hashed_Maps;
-with Ada.Containers.Indefinite_Doubly_Linked_Lists;
 with Ada.Containers.Indefinite_Ordered_Sets;
 with Ada.Containers.Ordered_Sets;
 
@@ -263,9 +262,6 @@ package GPR is
    --  a unit name where some previous processing has found an error.
 
    package String_Sets is new Ada.Containers.Indefinite_Ordered_Sets (String);
-
-   package String_Lists is
-     new Ada.Containers.Indefinite_Doubly_Linked_Lists (String);
 
    ------------------------------
    -- File and Path Name Types --
