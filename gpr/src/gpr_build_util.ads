@@ -213,7 +213,8 @@ package Gpr_Build_Util is
    --  Return True if the library project correspond to a static library.
 
    function Unescape (Path : String) return String;
-   --  Remove the character '\' if it is before ' ', '"' or '\'
+   --  Remove the character '\' if it is before ' ', '#', ':', or '\'.
+   --  Remove the character '$' if it is before '$'.
 
    function Escape_Path (Path : String) return String;
    --  Escapes the characters '\', ' ' and '"' with character '\' before them

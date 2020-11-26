@@ -2716,9 +2716,9 @@ package body Gpr_Build_Util is
       Target : Integer := Path'First - 1;
    begin
       while Source <= Path'Last loop
-         if Path (Source) = '\'
-           and then Source < Path'Last
-           and then Path (Source + 1) in '\' | '"' | ' '
+         if Source < Path'Last
+           and then Path (Source .. Source + 1) in "\\" | "\#" | "\ " | "\:"
+                                                 | "$$"
          then
             Source := Source + 1;
          end if;
