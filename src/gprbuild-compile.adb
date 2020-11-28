@@ -1941,21 +1941,16 @@ package body Gprbuild.Compile is
                         --  compilation.
 
                         Put ('"');
-                        Put
-                          (Get_Name_String (Src_Data.Id.Path.Display_Name));
+                        Put (Get_Name_String (Src_Data.Id.Path.Display_Name));
                         Put (""" cannot import """);
-                        Put
-                          (Get_Name_String (Included.Path.Display_Name));
+                        Put (Get_Name_String (Included.Path.Display_Name));
                         Put_Line (""":");
 
                         Put ("  """);
                         Put
-                          (Get_Name_String
-                             (Src_Data.Id.Project.Display_Name));
-                        Put
-                          (""" does not directly import project """);
-                        Put
-                          (Get_Name_String (Included.Project.Display_Name));
+                          (Get_Name_String (Src_Data.Id.Project.Display_Name));
+                        Put (""" does not directly import project """);
+                        Put (Get_Name_String (Included.Project.Display_Name));
                         Put_Line ("""");
 
                         Compilation_OK := False;
@@ -1975,11 +1970,7 @@ package body Gprbuild.Compile is
                Put (Dep_File, " ");
                Put (Dep_File, String (Srcs (J).TS));
 
-               if J < Srcs.Last_Index then
-                  Put_Line (Dep_File, " \");
-               else
-                  Put_Line (Dep_File, "");
-               end if;
+               Put_Line (Dep_File, (if J < Srcs.Last_Index then " \" else ""));
             end loop;
 
             Close (Dep_File);

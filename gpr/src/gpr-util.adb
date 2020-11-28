@@ -4549,30 +4549,20 @@ package body GPR.Util is
                            --  If we have a time stamp, check if it is the
                            --  same as the source time stamp.
 
-                           declare
-                              Tstring : constant
-                                String (1 .. Time_Stamp_Length) :=
-                                Line (Start .. Finish);
-                              TS : constant Time_Stamp_Type :=
-                                Time_Stamp_Type (Tstring);
-                              OK : constant Boolean := Last_TS = TS;
-
-                           begin
-                              if not OK and then Opt.Verbosity_Level > Opt.Low
-                              then
+                           if String (Last_TS) = Line (Start .. Finish) then
+                              Free (Last_Source);
+                           else
+                              if Opt.Verbosity_Level > Opt.Low then
                                  Put ("      -> source ");
-                                 Put  (Last_Source.all);
-                                 Put_Line
-                                   (" has modified time stamp");
+                                 Put (Last_Source.all);
+                                 Put_Line (" has modified time stamp");
                               end if;
 
                               Free (Last_Source);
 
-                              if not OK then
-                                 Close (Dep_File);
-                                 return True;
-                              end if;
-                           end;
+                              Close (Dep_File);
+                              return True;
+                           end if;
 
                         else
                            --  Check this source
