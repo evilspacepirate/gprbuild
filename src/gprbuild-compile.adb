@@ -1774,15 +1774,28 @@ package body Gprbuild.Compile is
 
                         declare
                            Src_Name : constant String :=
-                                        Normalize_Pathname
-                                         (Name           =>
-                                            Line (Start .. Finish),
-                                          Resolve_Links  => False,
-                                          Case_Sensitive => False);
+                                        Line (Start .. Finish);
+                           --  It is GCC encoded filename. We are going to put
+                           --  it as is into new rewritten dependency file.
+                           --  It would be error to apply Normalise_Filename on
+                           --  it because normalised it can be different
+                           --  filename. For example on windows
+                           --  c:\path\filename.c escaped became
+                           --  c\:path\\filename.c. Normalise_Filename would
+                           --  not understand that it is drive letter at first
+                           --  characters and prepend it with current
+                           --  directory. We do not need filename to be
+                           --  normalised in the GPR rewritten dependency file
+                           --  because it is going to be normalised relatively
+                           --  object directoy at reading in
+                           --  GPR.Util.Need_To_Compile.Process_Makefile_Deps.
+                           --  All explanations of why there is no call to
+                           --  Normalize Filename just because it was here
+                           --  before and was removed in the fix.
+
                            Src_Name_Id : Name_Id;
 
-                           Unescaped : constant String :=
-                                     Unescape (Line (Start .. Finish));
+                           Unescaped : constant String := Unescape (Src_Name);
                            Unescaped_Id : Name_Id;
                            --  Only use to get the time stamp
 

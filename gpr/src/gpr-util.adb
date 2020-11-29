@@ -4570,7 +4570,7 @@ package body GPR.Util is
                            declare
                               Src_Name : constant String :=
                                 Normalize_Pathname
-                                  (Name           => Line (Start .. Finish),
+                                  (Unescape (Line (Start .. Finish)),
                                    Directory      => Obj_Dir,
                                    Resolve_Links  => False);
                               C_Src_Name : String := Src_Name;
