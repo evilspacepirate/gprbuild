@@ -1825,6 +1825,17 @@ procedure Gprslave is
          Dep_Dir  : String;
          Pid      : out Process_Id) is
       begin
+         if Debug then
+            Put (Driver);
+            Put (' ');
+
+            for O of Options loop
+               Put (O.all);
+               Put (' ');
+            end loop;
+            New_Line;
+         end if;
+
          IO.Spawn (Driver, Options, Out_File, Pid);
 
          Job.Pid      := Pid;
