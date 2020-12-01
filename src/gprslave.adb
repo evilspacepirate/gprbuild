@@ -395,7 +395,7 @@ procedure Gprslave is
    end IO;
 
    Compiler_Path : constant OS_Lib.String_Access :=
-                     Locate_Exec_On_Path ("gnatls");
+                     Locate_Exec_On_Path ("gprls");
 
    Slave_Id : Remote_Id;
    --  Host Id used to compose a unique job id across all running slaves
