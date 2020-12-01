@@ -34,8 +34,8 @@ with Ada.Unchecked_Deallocation;
 with System.Multiprocessors;                use System;
 
 with GNAT.Command_Line;         use GNAT;
-with GNAT.Directory_Operations; use GNAT.Directory_Operations;
 with GNAT.CRC32;
+with GNAT.Directory_Operations; use GNAT.Directory_Operations;
 with GNAT.Exception_Traces;
 with GNAT.OS_Lib;             use GNAT.OS_Lib;
 with GNAT.Sockets;            use GNAT.Sockets;
@@ -51,14 +51,14 @@ with GPR.Util;                 use GPR.Util;
 with GPR.Version;
 
 with GPR;                      use GPR;
-with GPR.Opt;                  use GPR.Opt;
-with GPR.Knowledge;            use GPR.Knowledge;
 with GPR.Env;
+with GPR.Knowledge;            use GPR.Knowledge;
 with GPR.Names;                use GPR.Names;
+with GPR.Opt;                  use GPR.Opt;
 with GPR.Part;                 use GPR.Part;
 with GPR.Proc;
-with GPR.Tree;                 use GPR.Tree;
 with GPR.Snames;               use GPR.Snames;
+with GPR.Tree;                 use GPR.Tree;
 
 procedure Gprslave is
 
