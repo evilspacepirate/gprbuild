@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2012-2018, Free Software Foundation, Inc.         --
+--          Copyright (C) 2012-2020, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -719,6 +719,8 @@ package body GPR.Compilation.Protocol is
       Project  : String;
       Dir      : String;
       Language : String;
+      Target   : String;
+      Runtime  : String;
       Options  : String_Vectors.Vector;
       Obj_Name : String;
       Dep_Name : String;
@@ -746,8 +748,12 @@ package body GPR.Compilation.Protocol is
         (Channel.Channel,
          Command_Kind'Image (EX)
          & Filter_Wrapper (Project, WD_Path_Tag)
-         & Args_Sep & Dir & Args_Sep & Language
-         & Args_Sep & Obj_Name & Args_Sep & Dep_Name
+         & Args_Sep & Dir
+         & Args_Sep & Language
+         & Args_Sep & Target
+         & Args_Sep & Runtime
+         & Args_Sep & Obj_Name
+         & Args_Sep & Dep_Name
          & Args_Sep & To_String (R_Cmd)
          & Args_Sep & Filter_Wrapper (Env, WD_Path_Tag));
    end Send_Exec;

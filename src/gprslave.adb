@@ -1220,7 +1220,10 @@ procedure Gprslave is
    task body Execute_Job is
 
       function Get_Driver
-        (Builder : Build_Master; Language, Project : String) return String;
+        (Builder        : Build_Master;
+         Language        : String;
+         Target, Runtime : String;
+         Project         : String) return String;
       --  Returns the compiler driver for the given language and the current
       --  target as retreived from the initial handshake context exchange.
 
@@ -1248,7 +1251,10 @@ procedure Gprslave is
       ----------------
 
       function Get_Driver
-        (Builder : Build_Master; Language, Project : String) return String
+        (Builder        : Build_Master;
+         Language        : String;
+         Target, Runtime : String;
+         Project         : String) return String
       is
          procedure Look_Driver (Project_Name : String; Is_Config : Boolean);
          --  Set Driver with the found driver for the Language
@@ -1256,7 +1262,8 @@ procedure Gprslave is
          Config_Filename    : constant String :=
                                 "slave_tmp-" & Language & ".cgpr";
          Key                : constant String :=
-                                To_String (Builder.D.Target) & '+' & Language;
+                                To_String (Builder.D.Target)
+                                & '+' & Language & "+" & Runtime;
          Position           : constant Drivers_Cache.Cursor :=
                                 Cache.Find (Key);
          Compilers, Filters : Compiler_Lists.List;
@@ -1362,7 +1369,7 @@ procedure Gprslave is
 
             Parse_Config_Parameter
               (Base              => Base,
-               Config            => Language,
+               Config            => Language & ",," & Runtime,
                Compiler          => Comp,
                Requires_Compiler => Requires_Comp);
 
@@ -1372,16 +1379,18 @@ procedure Gprslave is
                Compilers.Append (Comp);
             end if;
 
+            Get_Targets_Set (Base, Target, Selected_Targets_Set);
+
             declare
-               Unused_Target : Unbounded_String := Null_Unbounded_String;
+               Used_Target : Unbounded_String := To_Unbounded_String (Target);
             begin
                Complete_Command_Line_Compilers
                  (Base,
                   Selected_Targets_Set,
                   Filters,
                   Compilers,
-                  Target_Specified => False,
-                  Selected_Target  => Unused_Target);
+                  Target_Specified => True,
+                  Selected_Target  => Used_Target);
             end;
 
             --  Generate configuration project file
@@ -1409,6 +1418,11 @@ procedure Gprslave is
                Look_Driver (Project, Is_Config => False);
 
                --  Ensure that we have a full-path name
+
+               if Driver = Key then
+                  --  Driver not found, use <target>-gcc if it exists
+                  Driver := Builder.D.Target & "-gcc";
+               end if;
 
                declare
                   Exe : OS_Lib.String_Access :=
@@ -1570,18 +1584,20 @@ procedure Gprslave is
                   Is_Debug => True);
          end;
 
-         Create (List, Args (Job.Cmd) (6).all, String'(1 => Opts_Sep));
+         Create (List, Args (Job.Cmd) (8).all, String'(1 => Opts_Sep));
 
          Execute  : declare
             Project   : constant String :=
                           Get_Arg (Builder, Args (Job.Cmd) (1).all);
             Language  : constant String := Args (Job.Cmd) (3).all;
+            Target    : constant String := Args (Job.Cmd) (4).all;
+            Runtime   : constant String := Args (Job.Cmd) (5).all;
             Out_File  : constant String :=
                           Get_Output_File (Builder);
-            Obj_File  : constant String := Args (Job.Cmd) (4).all;
-            Dep_File  : constant String := Args (Job.Cmd) (5).all;
+            Obj_File  : constant String := Args (Job.Cmd) (6).all;
+            Dep_File  : constant String := Args (Job.Cmd) (7).all;
             Env       : constant String :=
-                          Get_Arg (Builder, Args (Job.Cmd) (7).all);
+                          Get_Arg (Builder, Args (Job.Cmd) (9).all);
             O         : Argument_List := Get_Args (Builder, List);
             First_Opt : Positive := O'First;
             Pid       : Process_Id;
@@ -1619,7 +1635,8 @@ procedure Gprslave is
 
             else
                Driver := To_Unbounded_String
-                           (Get_Driver (Builder, Language, Project));
+                           (Get_Driver (Builder, Language,
+                                        Target, Runtime, Project));
             end if;
 
             Running.Start
@@ -2433,9 +2450,6 @@ procedure Gprslave is
             Display (Builder, Exception_Information (E));
             return;
       end;
-
-      Get_Targets_Set
-        (Base, To_String (Builder.D.Target), Selected_Targets_Set);
 
       Display
         (Builder, "Handling project : " & To_String (Builder.D.Project_Name));

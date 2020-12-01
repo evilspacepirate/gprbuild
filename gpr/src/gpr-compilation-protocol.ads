@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2012-2018, Free Software Foundation, Inc.         --
+--          Copyright (C) 2012-2020, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -154,6 +154,8 @@ package GPR.Compilation.Protocol is
       Project  : String;
       Dir      : String;
       Language : String;
+      Target   : String;
+      Runtime  : String;
       Options  : String_Vectors.Vector;
       Obj_Name : String;
       Dep_Name : String;
