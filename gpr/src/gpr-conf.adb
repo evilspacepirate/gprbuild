@@ -1042,8 +1042,7 @@ package body GPR.Conf is
             if Selected_Target /= null
               and then Selected_Target.all /= ""
             then
-               Args (4) :=
-                  new String'("--target=" & Selected_Target.all);
+               Args (4) := new String'("--target=" & Selected_Target.all);
                Arg_Last := 4;
 
             elsif Normalized_Hostname /= "" then
@@ -1336,7 +1335,9 @@ package body GPR.Conf is
          for CL in Language_Htable.Iterate loop
             Name := Language_Maps.Key (CL);
 
-            if not CodePeer_Mode or else Name = Name_Ada then
+            if (not CodePeer_Mode or else Name = Name_Ada)
+              and then Is_Allowed_Language (Name)
+            then
                Count := Count + 1;
 
                --  Check if IDE'Compiler_Command is declared for the language.
@@ -1396,7 +1397,11 @@ package body GPR.Conf is
             end if;
          end loop;
 
-         if Count /= Result'Last then
+         if Count = 0 then
+            Free (Result);
+            raise Invalid_Config with "no languages for auto configuration";
+
+         elsif Count /= Result'Last then
             Result := new String_List'(Result (1 .. Count));
          end if;
 
