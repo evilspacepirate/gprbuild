@@ -1775,23 +1775,25 @@ package body Gprbuild.Compile is
                         declare
                            Src_Name : constant String :=
                                         Line (Start .. Finish);
-                           --  It is GCC encoded filename. We are going to put
-                           --  it as is into new rewritten dependency file.
-                           --  It would be error to apply Normalise_Filename on
-                           --  it because normalised it can be different
+                           --  This is a filename encoded by GCC for use as a
+                           --  Makefile dependency, with some characters
+                           --  escaped for this specific purpose. We are about
+                           --  to reuse it in a rewritten dependency file.
+                           --  We used to Normalize the path name at this
+                           --  point, and this turned out both wrong and
+                           --  unnecessary.
+                           --  It would be an error to apply Normalize_Pathname
+                           --  on it because normalised it can be different
                            --  filename. For example on windows
                            --  c:\path\filename.c escaped became
-                           --  c\:path\\filename.c. Normalise_Filename would
+                           --  c\:path\\filename.c. Normalize_Pathname would
                            --  not understand that it is drive letter at first
                            --  characters and prepend it with current
                            --  directory. We do not need filename to be
                            --  normalised in the GPR rewritten dependency file
                            --  because it is going to be normalised relatively
-                           --  object directoy at reading in
+                           --  to the object directory at reading in
                            --  GPR.Util.Need_To_Compile.Process_Makefile_Deps.
-                           --  All explanations of why there is no call to
-                           --  Normalize Filename just because it was here
-                           --  before and was removed in the fix.
 
                            Src_Name_Id : Name_Id;
 
