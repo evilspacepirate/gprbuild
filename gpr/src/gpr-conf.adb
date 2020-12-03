@@ -1399,7 +1399,7 @@ package body GPR.Conf is
 
          if Count = 0 then
             Free (Result);
-            raise Invalid_Config with "no languages for auto configuration";
+            raise Invalid_Config with "project has no languages";
 
          elsif Count /= Result'Last then
             Result := new String_List'(Result (1 .. Count));
