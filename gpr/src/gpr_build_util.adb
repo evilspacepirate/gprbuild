@@ -898,7 +898,7 @@ package body Gpr_Build_Util is
          Canonical_Case_File_Name (Name_Buffer (1 .. Name_Len));
 
          Names.Append ((Name_Find, Index, Location, No_Source,
-                       Project, Tree, String_Vectors.Empty_Vector));
+                        Project, Tree, String_Vectors.Empty_Vector), 1);
 
          if Tree /= null then
             Builder_Data (Tree).Number_Of_Mains :=
@@ -967,12 +967,12 @@ package body Gpr_Build_Util is
 
                   Names.Append
                     ((File     => Src.File,
-                     Index    => Src.Index,
-                     Location => No_Location,
-                     Source   => Src,
-                     Project  => Src.Project,
-                     Tree     => Tree,
-                     Command  => String_Vectors.Empty_Vector));
+                      Index    => Src.Index,
+                      Location => No_Location,
+                      Source   => Src,
+                      Project  => Src.Project,
+                      Tree     => Tree,
+                      Command  => String_Vectors.Empty_Vector), 1);
 
                   Builder_Data (Tree).Number_Of_Mains :=
                     Builder_Data (Tree).Number_Of_Mains + 1;

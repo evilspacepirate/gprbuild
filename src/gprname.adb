@@ -1791,7 +1791,7 @@ package body GPRName is
                         Foreign_Sources.Append
                           ((File_Name => Name_Find,
                             Position  => Get_Source_Position (File_Name_Id),
-                            Language  => Current_Language));
+                            Language  => Current_Language), 1);
                      end if;
                   end if;
                end if;

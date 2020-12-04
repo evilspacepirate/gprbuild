@@ -369,7 +369,7 @@ package body GPR.Names is
         ((Name_Len  => Name_Len,
           Value     => Name_Buffer (1 .. Name_Len),
           Int_Info  => 0,
-          Hash_Link => No_Name));
+          Hash_Link => No_Name), 1);
 
       if Debug.Debug_Flag_A then
          Put_Line ("<<<< Appending: '" & Name_Buffer (1 .. Name_Len) &
@@ -432,7 +432,7 @@ package body GPR.Names is
         ((Name_Len  => Name_Len,
           Value     => Name_Buffer (1 .. Name_Len),
           Hash_Link => No_Name,
-          Int_Info  => 0));
+          Int_Info  => 0), 1);
 
       if Debug.Debug_Flag_A then
          Put_Line ("<<<< Appending: '" & Name_Buffer (1 .. Name_Len) &

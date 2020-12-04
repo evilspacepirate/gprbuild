@@ -1190,7 +1190,7 @@ package body GPR.Knowledge is
          end loop;
 
          if not Target_Lists.Is_Empty (Set) then
-            Targets_Set_Vectors.Append (Append_To, (Name, Set));
+            Targets_Set_Vectors.Append (Append_To, (Name, Set), 1);
          end if;
       end Parse_Targets_Set;
 
@@ -3770,7 +3770,7 @@ package body GPR.Knowledge is
          Put_Verbose ("create a new target set for " & Target);
          Set.Append
            (new Pattern_Matcher'(Compile ("^" & Quote (Target) & "$")));
-         Base.Targets_Sets.Append ((Get_String (Target), Set));
+         Base.Targets_Sets.Append ((Get_String (Target), Set), 1);
          Id := Base.Targets_Sets.Last_Index;
       end;
    end Get_Targets_Set;
