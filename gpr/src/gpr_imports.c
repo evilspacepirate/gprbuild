@@ -26,6 +26,10 @@
 extern "C" {
 #endif
 
+#define _FILE_OFFSET_BITS 64
+/* Defines that 64 bit file system interface shall be used in stat call below
+ * even if it happens in 32 bit OS */
+
 #ifdef IN_GCC
 #include "auto-host.h"
 #endif
