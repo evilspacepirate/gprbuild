@@ -1263,16 +1263,7 @@ procedure Gprbuild.Main is
             Opt.Display_Compilation_Progress := True;
 
          elsif Arg'Length = 3 and then Arg (2) = 'd' then
-            if Arg (3) in '1' .. '9'
-              or else Arg (3) in 'a' .. 'z'
-              or else Arg (3) in 'A' .. 'Z'
-            then
-               Set_Debug_Flag (Arg (3));
-
-            else
-               Fail_Program
-                 (Project_Tree, "illegal debug switch " & Arg);
-            end if;
+            Set_Debug_Flag (Arg (3));
 
          elsif Arg'Length > 3 and then Arg (1 .. 3) = "-eI" then
             if Subst_Switch_Present then
