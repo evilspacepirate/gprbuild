@@ -3429,8 +3429,7 @@ package body Gprbuild.Compile is
          Id                     : constant Source_Id := Source.Id;
          Project_Tree           : constant Project_Tree_Ref := Source.Tree;
          Source_Project         : constant Project_Id :=
-                                    Ultimate_Extending_Project_Of
-                                      (Source.Id.Project);
+                                    Ultimate_Extending_Project_Of (Id.Project);
          Compilation_Needed     : Boolean := True;
          Last_Switches_For_File : Integer;
          Mapping_File           : Path_Name_Type;
@@ -3442,7 +3441,7 @@ package body Gprbuild.Compile is
 
          if Always_Compile or else not Source_Project.Externally_Built then
             Need_To_Compile
-              (Source         => Source.Id,
+              (Source         => Id,
                Tree           => Source.Tree,
                In_Project     => Source_Project,
                Conf_Paths     => The_Config_Paths (1 .. Last_Config_Path),
@@ -3477,16 +3476,16 @@ package body Gprbuild.Compile is
                --  tried to compile this source as part of another import of
                --  the corresponding project file.
 
-               if Bad_Compilations.Contains (Source.Id) then
+               if Bad_Compilations.Contains (Id) then
                   Compilation_Needed := False;
                end if;
             end if;
 
             if Compilation_Needed or else Opt.Check_Switches then
-               Set_Options_For_File (Source.Id);
+               Set_Options_For_File (Id);
 
                if Opt.Check_Switches and then not Compilation_Needed then
-                  Compilation_Needed := Check_Switches_File (Source.Id);
+                  Compilation_Needed := Check_Switches_File (Id);
                end if;
             end if;
 
@@ -3505,7 +3504,7 @@ package body Gprbuild.Compile is
                   end;
                end if;
 
-               Update_Object_Path (Source.Id, Source_Project);
+               Update_Object_Path (Id, Source_Project);
                Change_To_Object_Directory
                  (Source_Project, Must_Be_Writable => True);
 
@@ -3541,7 +3540,7 @@ package body Gprbuild.Compile is
                end if;
 
             else
-               Print_Compilation_Outputs (Source.Id);
+               Print_Compilation_Outputs (Id);
 
                if Source.Closure
                  or else
