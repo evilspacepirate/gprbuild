@@ -3425,6 +3425,7 @@ package body Gprbuild.Compile is
          Project_Tree           : constant Project_Tree_Ref := Source.Tree;
          Source_Project         : constant Project_Id :=
                                     Ultimate_Extending_Project_Of (Id.Project);
+         Dummy                  : Boolean;
          Compilation_Needed     : Boolean := True;
          Last_Switches_For_File : Integer;
          Mapping_File           : Path_Name_Type;
@@ -3526,6 +3527,14 @@ package body Gprbuild.Compile is
                  Get_Compiler_Driver_Path (Source_Project, Id.Language);
 
                if Compiler /= null then
+                  if Id.Switches_Path /= No_Path then
+                     --  Need to remove .cswi file so that it doesn't get
+                     --  reused in case of compilation failure.
+
+                     OS_Lib.Delete_File
+                       (Get_Name_String (Id.Switches_Path), Dummy);
+                  end if;
+
                   Spawn_Compiler_And_Register
                     (Source                 => Source,
                      Source_Project         => Source_Project,
