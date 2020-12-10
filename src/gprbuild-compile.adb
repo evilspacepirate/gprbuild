@@ -1795,24 +1795,19 @@ package body Gprbuild.Compile is
                            --  to the object directory at reading in
                            --  GPR.Util.Need_To_Compile.Process_Makefile_Deps.
 
-                           Src_Name_Id : Name_Id;
-
                            Unescaped : constant String := Unescape (Src_Name);
-                           Unescaped_Id : Name_Id;
-                           --  Only use to get the time stamp
-
+                           Unescaped_Id : constant Path_Name_Type :=
+                                            Get_Path_Name_Id
+                                              (OS_Lib.Normalize_Pathname
+                                                 (Unescaped,
+                                                  Case_Sensitive => False));
                            Source_2   : Source_Id;
                            Src_TS     : Time_Stamp_Type;
 
                         begin
-                           Src_Name_Id  := Get_Name_Id (Src_Name);
-                           Unescaped_Id := Get_Name_Id (Unescaped);
-
                            Source_2 := Source_Paths_Htable.Get
-                             (Src_Data.Tree.Source_Paths_HT,
-                              Path_Name_Type (Src_Name_Id));
-                           Src_TS :=
-                             File_Stamp (File_Name_Type (Unescaped_Id));
+                             (Src_Data.Tree.Source_Paths_HT, Unescaped_Id);
+                           Src_TS := File_Stamp (Unescaped_Id);
 
                            if Src_TS = Empty_Time_Stamp then
                               --  File from dependency list does not exist
@@ -1879,7 +1874,7 @@ package body Gprbuild.Compile is
                                       (Get_Name_String
                                          (Src_Data.Id.Path.Display_Name));
                                     Put (""" cannot import """);
-                                    Put (Src_Name);
+                                    Put (Unescaped);
                                     Put_Line (""":");
 
                                     Put
