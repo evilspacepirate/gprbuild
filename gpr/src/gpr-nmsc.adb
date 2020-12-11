@@ -1102,7 +1102,7 @@ package body GPR.Nmsc is
 
    begin
       if Project.Source_Dirs /= Nil_String then
-         if Source_Dirs.Values  = Nil_String
+         if Source_Dirs.Values = Nil_String
            and then Source_Files.Values = Nil_String
            and then Languages.Values = Nil_String
            and then Source_List_File.Default
@@ -1112,8 +1112,8 @@ package body GPR.Nmsc is
          else
             Error_Msg
               (Data.Flags,
-               "at least one of Source_Files, Source_Dirs or Languages "
-               & "must be declared empty for an abstract project",
+               "non-empty set of sources can''t be defined in an abstract"
+               & " project",
                Project.Location, Project);
          end if;
       end if;
