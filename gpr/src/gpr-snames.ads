@@ -35,32 +35,7 @@ package GPR.Snames is
    --  the "End of empty lines prohibition" comment.
 
    N : constant Name_Id := Name_Id (L) - First_Name_Id; -- No empty lines below
-   Name_A                                : constant Name_Id := Name_Id (L) - N;
-   Name_B                                : constant Name_Id := Name_Id (L) - N;
    Name_C                                : constant Name_Id := Name_Id (L) - N;
-   Name_D                                : constant Name_Id := Name_Id (L) - N;
-   Name_E                                : constant Name_Id := Name_Id (L) - N;
-   Name_F                                : constant Name_Id := Name_Id (L) - N;
-   Name_G                                : constant Name_Id := Name_Id (L) - N;
-   Name_H                                : constant Name_Id := Name_Id (L) - N;
-   Name_I                                : constant Name_Id := Name_Id (L) - N;
-   Name_J                                : constant Name_Id := Name_Id (L) - N;
-   Name_K                                : constant Name_Id := Name_Id (L) - N;
-   Name_L                                : constant Name_Id := Name_Id (L) - N;
-   Name_M                                : constant Name_Id := Name_Id (L) - N;
-   Name_N                                : constant Name_Id := Name_Id (L) - N;
-   Name_O                                : constant Name_Id := Name_Id (L) - N;
-   Name_P                                : constant Name_Id := Name_Id (L) - N;
-   Name_Q                                : constant Name_Id := Name_Id (L) - N;
-   Name_R                                : constant Name_Id := Name_Id (L) - N;
-   Name_S                                : constant Name_Id := Name_Id (L) - N;
-   Name_T                                : constant Name_Id := Name_Id (L) - N;
-   Name_U                                : constant Name_Id := Name_Id (L) - N;
-   Name_V                                : constant Name_Id := Name_Id (L) - N;
-   Name_W                                : constant Name_Id := Name_Id (L) - N;
-   Name_X                                : constant Name_Id := Name_Id (L) - N;
-   Name_Y                                : constant Name_Id := Name_Id (L) - N;
-   Name_Z                                : constant Name_Id := Name_Id (L) - N;
    Name_Abort                            : constant Name_Id := Name_Id (L) - N;
    Name_Abs                              : constant Name_Id := Name_Id (L) - N;
    Name_Accept                           : constant Name_Id := Name_Id (L) - N;
