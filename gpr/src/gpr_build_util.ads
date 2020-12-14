@@ -446,13 +446,12 @@ package Gpr_Build_Util is
          With_Roots : Boolean := False;
          Repeat     : Boolean := False) return Boolean;
       --  Insert source in the queue. The second version returns False if the
-      --  Source was already marked in the queue. If With_Roots is True and the
-      --  source is in Format_Gprbuild mode (ie with a project), this procedure
-      --  also includes the "Roots" for this main, ie all the other files that
-      --  must be included in the library or binary (in particular to combine
-      --  Ada and C files connected through pragma Export/Import). When the
-      --  roots are computed, they are also stored in the corresponding
-      --  Source_Id for later reuse by the binder.
+      --  Source was already marked in the queue. If With_Roots is True, this
+      --  procedure also includes the "Roots" for this Source, ie all the other
+      --  files that must be included in the library or binary (in particular
+      --  to combine Ada and C files connected through pragma Export/Import).
+      --  When the roots are computed, they are also stored in the
+      --  corresponding Source_Id for later reuse by the binder.
       --  If Repeat is True source inserted into the queue even if it was
       --  alredy processed.
 
