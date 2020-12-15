@@ -1790,12 +1790,9 @@ package body Gpr_Build_Util is
             --  Then try "*"
 
             if Roots = Nil_Variable_Value then
-               Name_Len := 1;
-               Name_Buffer (1) := '*';
-
                Roots :=
                  GPR.Util.Value_Of
-                   (Index                  => Name_Find,
+                   (Index                  => The_Star_String,
                     Src_Index              => 0,
                     In_Array               => Root_Arr,
                     Shared                 => Source.Tree.Shared,

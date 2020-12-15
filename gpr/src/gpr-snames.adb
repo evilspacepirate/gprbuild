@@ -324,6 +324,7 @@ package body GPR.Snames is
       Add_Name ("toolchain_name");
       Add_Name ("");
       Add_Name (".");
+      Add_Name ("*");
    end Initialize;
 
 end GPR.Snames;
