@@ -69,7 +69,7 @@ version = get_gpr_version()
 # release = get_gpr_version() + ' (' + date + ')'
 release = get_gpr_version()
 
-pygments_style = 'sphinx'
+pygments_style = None
 html_theme = 'sphinxdoc'
 if os.path.isfile('adacore_transparent.png'):
     html_logo = 'adacore_transparent.png'
@@ -96,5 +96,5 @@ texinfo_documents = [
 
 
 def setup(app):
-    app.add_lexer('ada', ada_pygments.AdaLexer())
-    app.add_lexer('gpr', ada_pygments.GNATProjectLexer())
+    app.add_lexer('ada', ada_pygments.AdaLexer)
+    app.add_lexer('gpr', ada_pygments.GNATProjectLexer)
