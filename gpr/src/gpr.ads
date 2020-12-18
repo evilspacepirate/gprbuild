@@ -2814,6 +2814,14 @@ package GPR is
    --  Hash table to keep the languages and its required versions used in
    --  the project tree.
 
+   package Path_Name_HTable is new GNAT.Dynamic_HTables.Simple_HTable
+     (Header_Num => Header_Num,
+      Element    => Boolean,
+      No_Element => False,
+      Key        => Path_Name_Type,
+      Hash       => Hash,
+      Equal      => "=");
+
 private
 
    function To_Hash (Item : Name_Id) return Ada.Containers.Hash_Type

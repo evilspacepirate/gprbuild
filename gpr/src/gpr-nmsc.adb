@@ -8062,13 +8062,7 @@ package body GPR.Nmsc is
    is
       Shared : constant Shared_Project_Tree_Data_Access := Data.Tree.Shared;
 
-      package Recursive_Dirs is new GNAT.Dynamic_HTables.Simple_HTable
-        (Header_Num => Header_Num,
-         Element    => Boolean,
-         No_Element => False,
-         Key        => Path_Name_Type,
-         Hash       => Hash,
-         Equal      => "=");
+      package Recursive_Dirs renames Path_Name_HTable;
       --  Hash table stores recursive source directories, to avoid looking
       --  several times, and to avoid cycles that may be introduced by symbolic
       --  links.

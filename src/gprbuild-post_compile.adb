@@ -25,6 +25,7 @@ with Ada.Text_IO;               use Ada, Ada.Text_IO;
 
 with GNAT.Case_Util;            use GNAT.Case_Util;
 with GNAT.Directory_Operations; use GNAT.Directory_Operations;
+with GNAT.Dynamic_HTables;
 with GNAT.MD5;                  use GNAT.MD5;
 with GNAT.OS_Lib;               use GNAT.OS_Lib;
 
@@ -49,6 +50,14 @@ package body Gprbuild.Post_Compile is
 
    Libs_Are_Building : Name_Id_Set.Set;
    --  Libraries currently being built
+
+   package FNHS is new GNAT.Dynamic_HTables.Simple_HTable
+     (Header_Num => GPR.Header_Num,
+      Element    => Boolean,
+      No_Element => False,
+      Key        => File_Name_Type,
+      Hash       => GPR.Hash,
+      Equal      => "=");
 
    procedure Build_Library
      (For_Project  : Project_Id;
@@ -81,7 +90,8 @@ package body Gprbuild.Post_Compile is
       Known : Boolean;
    end record;
 
-   function "<" (Left, Right : Library_Object) return Boolean;
+   function "<" (Left, Right : Library_Object) return Boolean
+   is (Get_Name_String (Left.Path) < Get_Name_String (Right.Path));
    --  Operator uses for the ordered set Library_Objs in procedure
    --  Build_Library. Left < Right if Left path as a string is before
    --  Right path in alphabetical order.
@@ -101,17 +111,6 @@ package body Gprbuild.Post_Compile is
    procedure Add_Dep (Name : String);
    --  Insert a dependency file path name in the list starting at First_Dep,
    --  at the right place so that the list is sorted.
-
-   ---------
-   -- "<" --
-   ---------
-
-   function "<" (Left, Right : Library_Object) return Boolean is
-      Left_Path  : constant String := Get_Name_String (Left.Path);
-      Right_Path : constant String := Get_Name_String (Right.Path);
-   begin
-      return Left_Path < Right_Path;
-   end "<";
 
    ----------------
    -- Add_Dep --
@@ -161,22 +160,7 @@ package body Gprbuild.Post_Compile is
       --  Library Ada sources of Stand-Alone library, that is sources
       --  in the closure of the interface, including in imported projects.
 
-      package Interface_ALIs is new GNAT.HTable.Simple_HTable
-        (Header_Num => GPR.Header_Num,
-         Element    => Boolean,
-         No_Element => False,
-         Key        => File_Name_Type,
-         Hash       => GPR.Hash,
-         Equal      => "=");
-      --  The ALI files in the interface set
-
-      package Complete_Interface_ALIs is new GNAT.HTable.Simple_HTable
-        (Header_Num => GPR.Header_Num,
-         Element    => Boolean,
-         No_Element => False,
-         Key        => File_Name_Type,
-         Hash       => GPR.Hash,
-         Equal      => "=");
+      Complete_Interface_ALIs : FNHS.Instance;
       --  The ALI files in the complete interface set
 
       Expected_File_Name : String_Access;
@@ -270,22 +254,10 @@ package body Gprbuild.Post_Compile is
 
       procedure Get_Objects is
 
-         package Library_ALIs is new GNAT.HTable.Simple_HTable
-           (Header_Num => GPR.Header_Num,
-            Element    => Boolean,
-            No_Element => False,
-            Key        => File_Name_Type,
-            Hash       => GPR.Hash,
-            Equal      => "=");
+         Library_ALIs : FNHS.Instance;
          --  The ALI files of the Stand-Alone Library project
 
-         package Processed_ALIs is new GNAT.HTable.Simple_HTable
-           (Header_Num => GPR.Header_Num,
-            Element    => Boolean,
-            No_Element => False,
-            Key        => File_Name_Type,
-            Hash       => GPR.Hash,
-            Equal      => "=");
+         Processed_ALIs : FNHS.Instance;
          --  The ALI files that have been processed to check if the
          --  corresponding library unit is in the interface set.
 
@@ -473,8 +445,8 @@ package body Gprbuild.Post_Compile is
             --  Nothing to do if the ALI file has already been processed.
             --  This happens if an interface imports another interface.
 
-            if not Processed_ALIs.Get (The_ALI) then
-               Processed_ALIs.Set (The_ALI, True);
+            if not FNHS.Get (Processed_ALIs, The_ALI) then
+               FNHS.Set (Processed_ALIs, The_ALI, True);
 
                ALI_Path := No_Path;
                Find_ALI_Path (The_ALI, ALI_Path, Proj, Tree);
@@ -520,10 +492,11 @@ package body Gprbuild.Post_Compile is
                            Afile := Withs.Table (W).Afile;
 
                            if Afile /= No_File
-                             and then Library_ALIs.Get (Afile)
-                             and then not Processed_ALIs.Get (Afile)
+                             and then FNHS.Get (Library_ALIs, Afile)
+                             and then not FNHS.Get (Processed_ALIs, Afile)
                            then
-                              if not Complete_Interface_ALIs.Get (Afile) then
+                              if not FNHS.Get (Complete_Interface_ALIs, Afile)
+                              then
                                  if not Interface_Incomplete then
                                     Put
                                       ("Warning: In library project """);
@@ -558,8 +531,8 @@ package body Gprbuild.Post_Compile is
                                  Put (Name_Buffer (1 .. Name_Len - 2));
                                  Put_Line ("""");
 
-                                 Complete_Interface_ALIs.Set
-                                   (Afile, True);
+                                 FNHS.Set
+                                   (Complete_Interface_ALIs, Afile, True);
                               end if;
 
                               --  Now, process this unit
@@ -630,7 +603,7 @@ package body Gprbuild.Post_Compile is
                          Known => False));
 
                   else
-                     Library_ALIs.Set (Source.Dep_Name, True);
+                     FNHS.Set (Library_ALIs, Source.Dep_Name, True);
 
                      --  Check if it is an interface and record if it is one
 
@@ -669,10 +642,9 @@ package body Gprbuild.Post_Compile is
                            then
                               OK := True;
                               Library_Sources.Append (Source);
-                              Interface_ALIs.Set
-                                (Source.Dep_Name, True);
-                              Complete_Interface_ALIs.Set
-                                (Source.Dep_Name, True);
+                              FNHS.Set
+                                (Complete_Interface_ALIs, Source.Dep_Name,
+                                 True);
                               exit;
                            end if;
                         end;
@@ -709,19 +681,16 @@ package body Gprbuild.Post_Compile is
 
          procedure Check_Interface
            (Proj : Project_Id;
-            Tree : Project_Tree_Ref) is
-
+            Tree : Project_Tree_Ref)
+         is
             Iface : String_List_Id := Proj.Lib_Interface_ALIs;
-            ALI   : File_Name_Type;
-
          begin
             while Iface /= Nil_String loop
-               ALI :=
-                 File_Name_Type
-                   (Tree.Shared.String_Elements.Table (Iface).Value);
-               Process_ALI (ALI, Proj, Tree);
-               Iface :=
-                 Tree.Shared.String_Elements.Table (Iface).Next;
+               Process_ALI
+                 (File_Name_Type
+                    (Tree.Shared.String_Elements.Table (Iface).Value),
+                  Proj, Tree);
+               Iface := Tree.Shared.String_Elements.Table (Iface).Next;
             end loop;
          end Check_Interface;
 
@@ -1052,10 +1021,9 @@ package body Gprbuild.Post_Compile is
          Library_Sources.Clear;
          Library_Projs.Clear;
          Library_SAL_Projs.Clear;
-         Processed_ALIs.Reset;
-         Interface_ALIs.Reset;
-         Library_ALIs.Reset;
-         Complete_Interface_ALIs.Reset;
+         FNHS.Reset (Processed_ALIs);
+         FNHS.Reset (Library_ALIs);
+         FNHS.Reset (Complete_Interface_ALIs);
 
          if For_Project.Qualifier = Aggregate_Library then
             if For_Project.Standalone_Library = No then
@@ -1142,8 +1110,7 @@ package body Gprbuild.Post_Compile is
       -- Write_Object_Directory --
       ----------------------------
 
-      procedure Write_Object_Directory
-      is
+      procedure Write_Object_Directory is
 
          Object_Projects : Project_Vectors.Vector;
          Prj             : Project_Id;
@@ -1151,13 +1118,9 @@ package body Gprbuild.Post_Compile is
          --  The projects that have already be found when looking for object
          --  directories.
 
-         package Object_Directories is new GNAT.HTable.Simple_HTable
-           (Header_Num => GPR.Header_Num,
-            Element    => Boolean,
-            No_Element => False,
-            Key        => Path_Name_Type,
-            Hash       => Hash,
-            Equal      => "=");
+         package PNHT renames Path_Name_HTable;
+
+         Object_Directories : PNHT.Instance;
          --  The object directories that have already be found
 
          procedure Get_Object_Projects (Prj : Project_Id);
@@ -1167,8 +1130,8 @@ package body Gprbuild.Post_Compile is
          --  Returns True iff Prj is in table Object_Projects
 
          function Is_In_Object_Directories
-           (Dir : Path_Name_Type)
-            return Boolean;
+           (Dir : Path_Name_Type) return Boolean
+         is (PNHT.Get (Object_Directories, Dir));
          --  Returns True iff Dir is in table Object_Directories
 
          -------------------------
@@ -1201,8 +1164,10 @@ package body Gprbuild.Post_Compile is
                           and then not Is_In_Object_Directories
                             (Proj.Object_Directory.Display_Name)
                         then
-                           Object_Directories.Set
-                             (Proj.Object_Directory.Display_Name, True);
+                           PNHT.Set
+                             (Object_Directories,
+                              Proj.Object_Directory.Display_Name, True);
+
                            Put_Line
                              (Exchange_File,
                               Get_Name_String
@@ -1215,18 +1180,6 @@ package body Gprbuild.Post_Compile is
                end;
             end if;
          end Get_Object_Projects;
-
-         ------------------------------
-         -- Is_In_Object_Directories --
-         ------------------------------
-
-         function Is_In_Object_Directories
-           (Dir : Path_Name_Type)
-            return Boolean
-         is
-         begin
-            return Object_Directories.Get (Dir);
-         end Is_In_Object_Directories;
 
          ---------------------------
          -- Is_In_Object_Projects --
@@ -1241,7 +1194,7 @@ package body Gprbuild.Post_Compile is
 
       begin
          Object_Projects.Clear;
-         Object_Directories.Reset;
+         PNHT.Reset (Object_Directories);
          Put_Line (Exchange_File, Library_Label (Object_Directory));
          Get_Object_Projects (For_Project);
 
@@ -2460,16 +2413,17 @@ package body Gprbuild.Post_Compile is
       -------------------------------
 
       procedure Write_Interface_Dep_Files is
-         Interface_ALI : File_Name_Type := No_File;
-         In_Interface  : Boolean := False;
+         Key : FNHS.Key_Option;
+
+         function Interface_ALI return File_Name_Type
+         is (Key.K);
 
       begin
          Put_Line (Exchange_File, Library_Label (Interface_Dep_Files));
 
-         Complete_Interface_ALIs.Get_First
-           (Interface_ALI, In_Interface);
+         Key := FNHS.Get_First_Key (Complete_Interface_ALIs);
 
-         while In_Interface loop
+         while Key.Present loop
             --  Find the source to get the absolute path of the ALI file
 
             declare
@@ -2526,8 +2480,7 @@ package body Gprbuild.Post_Compile is
                end if;
             end;
 
-            Complete_Interface_ALIs.Get_Next
-              (Interface_ALI, In_Interface);
+            Key := FNHS.Get_Next_Key (Complete_Interface_ALIs);
          end loop;
       end Write_Interface_Dep_Files;
 
@@ -2558,9 +2511,10 @@ package body Gprbuild.Post_Compile is
          List      : String_List_Id := For_Project.Other_Interfaces;
          Element   : String_Element;
          Other_Int : Boolean := False;
+         Key       : FNHS.Key_Option;
 
-         Interface_Dep : File_Name_Type := No_File;
-         In_Interface  : Boolean;
+         function Interface_Dep return File_Name_Type
+         is (Key.K);
 
          function Base_Name (Name : Name_Id) return String;
          --  File name without path nor extension
@@ -2658,11 +2612,11 @@ package body Gprbuild.Post_Compile is
          --  First the Ada sources
 
          Other_Int := False;
-         Complete_Interface_ALIs.Get_First (Interface_Dep, In_Interface);
+         Key := FNHS.Get_First_Key (Complete_Interface_ALIs);
 
-         while In_Interface loop
+         while Key.Present loop
             Find_Source;
-            Complete_Interface_ALIs.Get_Next (Interface_Dep, In_Interface);
+            Key := FNHS.Get_Next_Key (Complete_Interface_ALIs);
          end loop;
 
          --  Then the foreign language objects
@@ -3938,9 +3892,10 @@ package body Gprbuild.Post_Compile is
 
          Main_Source : constant Source_Id := Main_File.Source;
 
-         Bind_Exchange                    : String_Access;
-         Options_Instance                 : Bind_Option_Table_Ref :=
-                                              No_Bind_Option_Table;
+         Bind_Exchange : constant String_Access :=
+                           Binder_Exchange_File_Name
+                             (Main_Base_Name_Index, B_Data.Binder_Prefix);
+
          Dep_Files                        : Boolean;
          Lang_Index                       : Language_Ptr;
          Object_File_Suffix_Label_Written : Boolean;
@@ -3982,9 +3937,6 @@ package body Gprbuild.Post_Compile is
               ("   Checking binder generated files for " & Main & "...");
          end if;
 
-         Bind_Exchange :=
-           Binder_Exchange_File_Name
-             (Main_Base_Name_Index, B_Data.Binder_Prefix);
          Bind_Exchange_TS :=
            File_Stamp
              (Path_Name_Type'(Create_Name (Bind_Exchange.all)));
@@ -4642,6 +4594,10 @@ package body Gprbuild.Post_Compile is
                Config         : constant Language_Config :=
                                   B_Data.Language.Config;
 
+               Options_Instance : constant Bind_Option_Table_Ref :=
+                                    Binder_Options_HTable.Get
+                                      (B_Data.Language_Name);
+
                Switches    : Variable_Value;
                Switch_List : String_List_Id;
                Element     : String_Element;
@@ -4713,9 +4669,6 @@ package body Gprbuild.Post_Compile is
                --  binder options, or in the main project file or
                --  on the command line, put them in the exchange
                --  file.
-
-               Options_Instance :=
-                 Binder_Options_HTable.Get (B_Data.Language_Name);
 
                if Config.Binder_Required_Switches /= No_Name_List
                  or else Switches.Kind = GPR.List
@@ -5178,9 +5131,8 @@ package body Gprbuild.Post_Compile is
 
       loop
          declare
-            Main_File : Main_Info;
+            Main_File : constant Main_Info := Mains.Next_Main;
          begin
-            Main_File := Mains.Next_Main;
             exit when Main_File = No_Main_Info;
 
             if Main_File.Tree /= Project_Tree
@@ -5204,26 +5156,18 @@ package body Gprbuild.Post_Compile is
                                            Get_Name_String (Main_File.File);
                   Main_Id              : constant File_Name_Type :=
                                            Create_Name (Base_Name (Main));
-                  Main_Index           : constant Int := Main_File.Index;
-                  B_Data               : Binding_Data;
-                  Main_Base_Name_Index : File_Name_Type;
-                  Main_Proj            : Project_Id;
-                  Index_Separator      : Character;
+                  Main_Base_Name_Index : constant File_Name_Type :=
+                                           Base_Name_Index_For
+                                             (Main, Main_File.Index,
+                                              Main_File.Source.Language.Config
+                                              .Multi_Unit_Object_Separator);
 
+                  Main_Proj : constant Project_Id :=
+                                Ultimate_Extending_Project_Of
+                                  (Main_File.Source.Project);
+                  B_Data    : Binding_Data :=
+                                Builder_Data (Main_File.Tree).Binding;
                begin
-                  Main_Proj := Ultimate_Extending_Project_Of
-                    (Main_File.Source.Project);
-
-                  --  Get the main base name-index name
-
-                  Index_Separator :=
-                    Main_File.Source.Language
-                      .Config.Multi_Unit_Object_Separator;
-
-                  Main_Base_Name_Index :=
-                    Base_Name_Index_For (Main, Main_Index, Index_Separator);
-
-                  B_Data := Builder_Data (Main_File.Tree).Binding;
                   while B_Data /= null loop
                      if B_Data.Language.Config.Compiler_Driver /= Empty_File
                      then

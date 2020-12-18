@@ -438,7 +438,7 @@ package Gpr_Build_Util is
       --  Returns True if queue is empty or if all object directories are busy
 
       procedure Insert
-        (Source  : Source_Info;
+        (Source     : Source_Info;
          With_Roots : Boolean := False;
          Repeat     : Boolean := False);
       function Insert

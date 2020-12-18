@@ -2255,8 +2255,8 @@ package body Gpr_Build_Util is
 
                   if Src_Id /= No_Source
                     and then (not Excluding_Shared_SALs
-                               or else Src_Id.Project.Standalone_Library = No
-                               or else Src_Id.Project.Library_Kind = Static)
+                              or else Src_Id.Project.Standalone_Library = No
+                              or else Src_Id.Project.Library_Kind = Static)
                   then
                      Queue.Insert
                        (Source => (Tree    => Project_Tree,

@@ -23,7 +23,7 @@ with Ada.Strings.Unbounded;                  use Ada.Strings.Unbounded;
 with Ada.Text_IO;                            use Ada.Text_IO;
 
 with GNAT.Directory_Operations; use GNAT, GNAT.Directory_Operations;
-with GNAT.Dynamic_HTables;      use GNAT.Dynamic_HTables;
+with GNAT.Dynamic_HTables;
 with GNAT.OS_Lib;               use GNAT.OS_Lib;
 
 with Gpr_Build_Util;               use Gpr_Build_Util;
@@ -1242,7 +1242,7 @@ package body Gprbuild.Compile is
                               Include_Path_File          => No_Path,
                               Include_Switches_Spec_File => No_Path);
 
-      package Local_Projects_HT is new Simple_HTable
+      package Local_Projects_HT is new Dynamic_HTables.Simple_HTable
         (Header_Num => GPR.Header_Num,
          Element    => Local_Project_Data,
          No_Element => No_Local_Project_Data,
