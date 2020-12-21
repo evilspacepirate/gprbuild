@@ -498,8 +498,7 @@ package body Gprbuild.Post_Compile is
                               if not FNHS.Get (Complete_Interface_ALIs, Afile)
                               then
                                  if not Interface_Incomplete then
-                                    Put
-                                      ("Warning: In library project """);
+                                    Put ("Warning: In library project """);
                                     Get_Name_String (Proj.Name);
                                     To_Mixed (Name_Buffer (1 .. Name_Len));
                                     Put (Name_Buffer (1 .. Name_Len));
@@ -525,7 +524,7 @@ package body Gprbuild.Post_Compile is
                                     null;
                                  end case;
 
-                                 Put ("""");
+                                 Put ('"');
                                  Get_Name_String (Unit_Data.Uname);
                                  To_Mixed (Name_Buffer (1 .. Name_Len - 2));
                                  Put (Name_Buffer (1 .. Name_Len - 2));
@@ -624,21 +623,22 @@ package body Gprbuild.Post_Compile is
                         declare
                            use Ada.Strings.Fixed;
 
-                           Actual_Dep_Str : constant String := Get_Name_String
-                             (Source.Dep_Name);
-                           Elem_Str       : constant String := Get_Name_String
-                             (Elem.Value);
+                           Dep_Str  : constant String :=
+                                        Get_Name_String (Source.Dep_Name);
+                           Elem_Str : constant String :=
+                                        Get_Name_String (Elem.Value);
 
-                           Dep_Multi_Char_Index : constant Natural := Index
-                             (Actual_Dep_Str, "~");
-                           Elem_Dot_Index       : constant Natural := Index
-                             (Elem_Str, ".");
+                           Dep_Multi_Index : constant Natural :=
+                                               Index (Dep_Str, "~");
+                           Elem_Dot_Index  : constant Natural :=
+                                               Index (Elem_Str, ".");
                         begin
-                           if Elem.Value = Name_Id (Source.Dep_Name) or else
-                             (Source.Index /= 0 and then
-                              Dep_Multi_Char_Index = Elem_Dot_Index and then
-                              Head (Actual_Dep_Str, Dep_Multi_Char_Index - 1) =
-                                  Head (Elem_Str, Elem_Dot_Index - 1))
+                           if Elem.Value = Name_Id (Source.Dep_Name)
+                             or else
+                               (Source.Index /= 0
+                                and then Dep_Multi_Index = Elem_Dot_Index
+                                and then Head (Dep_Str, Dep_Multi_Index - 1)
+                                       = Head (Elem_Str, Elem_Dot_Index - 1))
                            then
                               OK := True;
                               Library_Sources.Append (Source);
