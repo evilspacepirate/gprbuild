@@ -1643,8 +1643,10 @@ package body Gprbuild.Compile is
          Compilation_OK  : Boolean := True;
          Dep_File_OK     : Boolean := False;
 
+         Dep_Path : constant String := Get_Name_String (Src_Data.Id.Dep_Path);
+
       begin
-         Open (Dep_File, Get_Name_String (Src_Data.Id.Dep_Path));
+         Open (Dep_File, Dep_Path);
 
          if Is_Valid (Dep_File) then
 
@@ -1800,6 +1802,8 @@ package body Gprbuild.Compile is
                                             Get_Path_Name_Id
                                               (OS_Lib.Normalize_Pathname
                                                  (Unescaped,
+                                                  Directory => Dir_Name
+                                                                 (Dep_Path),
                                                   Case_Sensitive => False));
                            Source_2   : Source_Id;
                            Src_TS     : Time_Stamp_Type;
@@ -1823,7 +1827,7 @@ package body Gprbuild.Compile is
                               Put_Line ("""");
 
                               Put (ASCII.HT & "noted in the """);
-                              Put (Get_Name_String (Src_Data.Id.Dep_Path));
+                              Put (Dep_Path);
                               Put_Line ("""");
 
                               Keep_Dep_File  := True;
@@ -1971,7 +1975,7 @@ package body Gprbuild.Compile is
          end if;
 
          if Compilation_OK and Dep_File_OK then
-            Create (Dep_File, Get_Name_String (Src_Data.Id.Dep_Path));
+            Create (Dep_File, Dep_Path);
             Put (Dep_File, Object_Path.all);
             Put (Dep_File, ": ");
 
