@@ -1322,10 +1322,10 @@ procedure Gprbuild.Main is
                if Processed then
                   if Max_Proc = 0 then
                      Max_Proc := Natural (Number_Of_CPUs);
-                  end if;
 
-                  if Max_Proc = 0 then
-                     Max_Proc := 1;
+                     if Max_Proc = 0 then
+                        Max_Proc := 1;
+                     end if;
                   end if;
 
                   Opt.Maximum_Processes := Max_Proc;
