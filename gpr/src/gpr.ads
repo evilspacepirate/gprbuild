@@ -1150,9 +1150,6 @@ package GPR is
       Dep_Name : File_Name_Type := No_File;
       --  Dependency file simple name
 
-      Current_Dep_Path : Path_Name_Type := No_Path;
-      --  Path name of an existing dependency file
-
       Dep_Path : Path_Name_Type := No_Path;
       --  Path name of the real dependency file
 
@@ -1216,7 +1213,6 @@ package GPR is
                        Object_Path            => No_Path,
                        Object_TS              => Empty_Time_Stamp,
                        Dep_Name               => No_File,
-                       Current_Dep_Path       => No_Path,
                        Dep_Path               => No_Path,
                        Dep_TS                 => Unknown_Attributes,
                        Switches               => No_File,
