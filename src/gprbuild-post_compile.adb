@@ -432,13 +432,12 @@ package body Gprbuild.Post_Compile is
             Tree    : Project_Tree_Ref)
          is
             use ALI;
-            Text       : Text_Buffer_Ptr := null;
+            Text       : Text_Buffer_Ptr;
             Idread     : ALI_Id;
             First_Unit : Unit_Id;
             Last_Unit  : ALI.Unit_Id;
             Unit_Data  : ALI.Unit_Record;
             Afile      : File_Name_Type;
-
             ALI_Path   : Path_Name_Type;
 
          begin
@@ -514,14 +513,9 @@ package body Gprbuild.Post_Compile is
                                  Put ("         but it is needed by ");
 
                                  case Unit_Data.Utype is
-                                 when Is_Spec =>
-                                    Put ("the spec of ");
-
-                                 when Is_Body =>
-                                    Put ("the body of ");
-
-                                 when others =>
-                                    null;
+                                    when Is_Spec => Put ("the spec of ");
+                                    when Is_Body => Put ("the body of ");
+                                    when others  => null;
                                  end case;
 
                                  Put ('"');
@@ -661,8 +655,7 @@ package body Gprbuild.Post_Compile is
 
                         if Opt.Verbosity_Level > Opt.Low then
                            Put ("      -> missing object file: ");
-                           Get_Name_String (Source.Object);
-                           Put_Line (Name_Buffer (1 .. Name_Len));
+                           Put_Line (Get_Name_String (Source.Object));
                         end if;
                      end if;
 
@@ -2703,8 +2696,8 @@ package body Gprbuild.Post_Compile is
       --  Check consistency and build environment
 
       if For_Project.Config.Lib_Support = None then
-         Fail_Program (Project_Tree,
-                       "library projects not supported on this platform");
+         Fail_Program
+           (Project_Tree, "library projects not supported on this platform");
 
       elsif not Is_Static (For_Project)
         and then For_Project.Config.Lib_Support /= Full
@@ -2723,25 +2716,21 @@ package body Gprbuild.Post_Compile is
 
       if For_Project.Config.Library_Builder = No_Path then
          Fail_Program (Project_Tree, "no library builder specified");
-
-      else
-         Library_Builder :=
-           Locate_Exec_On_Path
-             (Get_Name_String (For_Project.Config.Library_Builder));
-
-         if Library_Builder = null then
-            Fail_Program
-              (Project_Tree,
-               "could not locate library builder """ &
-               Get_Name_String (For_Project.Config.Library_Builder) & '"');
-
-         else
-            Library_Builder_Name :=
-              new String'(Ada.Directories.Base_Name
-                            (Ada.Directories.Simple_Name
-                               (Library_Builder.all)));
-         end if;
       end if;
+
+      Library_Builder :=
+        Locate_Exec_On_Path
+          (Get_Name_String (For_Project.Config.Library_Builder));
+
+      if Library_Builder = null then
+         Fail_Program
+           (Project_Tree,
+            "could not locate library builder """ &
+              Get_Name_String (For_Project.Config.Library_Builder) & '"');
+      end if;
+
+      Library_Builder_Name :=
+        new String'(Ada.Directories.Base_Name (Library_Builder.all));
 
       if Opt.CodePeer_Mode then
          null;
@@ -2818,8 +2807,7 @@ package body Gprbuild.Post_Compile is
                exception
                   when others =>
                      if Opt.Verbosity_Level > Opt.Low then
-                        Put
-                          ("      -> library exchange file """);
+                        Put ("      -> library exchange file """);
                         Put (Exchange_File_Name.all);
                         Put_Line (""" cannot be open");
                      end if;
@@ -2913,9 +2901,9 @@ package body Gprbuild.Post_Compile is
 
                   if Opt.Verbosity_Level > Opt.Low then
                      Put_Line
-                       ("      -> " &
-                        "object file(s) more recent than library file " &
-                        Exchange_File_Name.all);
+                       ("      -> "
+                        & "object file(s) more recent than library file "
+                        & Exchange_File_Name.all);
                   end if;
                end if;
             end if;
@@ -2932,8 +2920,9 @@ package body Gprbuild.Post_Compile is
             Library_Needs_To_Be_Built := True;
 
             if Opt.Verbosity_Level > Opt.Low then
-               Put_Line ("      -> library exchange file "
-                           & Exchange_File_Name.all & " has wrong format");
+               Put_Line
+                 ("      -> library exchange file " & Exchange_File_Name.all
+                  & " has wrong format");
             end if;
          end if;
 
@@ -2951,8 +2940,8 @@ package body Gprbuild.Post_Compile is
             if End_Of_File (Exchange_File) then
                if Opt.Verbosity_Level > Opt.Low then
                   Put_Line
-                    ("      -> library exchange file " &
-                     Exchange_File_Name.all & " has wrong format");
+                    ("      -> library exchange file " & Exchange_File_Name.all
+                     & " has wrong format");
                end if;
 
             else
@@ -3032,16 +3021,14 @@ package body Gprbuild.Post_Compile is
                   then
                      Put ("      -> object file ");
                      Put (Get_Name_String (Object_Path));
-                     Put_Line
-                       (" does not exist or have wrong time stamp");
+                     Put_Line (" does not exist or have wrong time stamp");
                   end if;
 
                else
                   if Opt.Verbosity_Level > Opt.Low then
                      Put_Line
-                       ("      -> library exchange file " &
-                        Exchange_File_Name.all &
-                        " has wrong format");
+                       ("      -> library exchange file "
+                        & Exchange_File_Name.all & " has wrong format");
                   end if;
                end if;
             end if;
@@ -3064,8 +3051,7 @@ package body Gprbuild.Post_Compile is
                Library_Needs_To_Be_Built := True;
 
                if Opt.Verbosity_Level > Opt.Low then
-                  Put_Line
-                    ("      -> different library version");
+                  Put_Line ("      -> different library version");
                end if;
             end if;
          end if;
@@ -3171,8 +3157,8 @@ package body Gprbuild.Post_Compile is
             when others =>
                Fail_Program
                  (Project_Tree,
-                  "unable to create library exchange file " &
-                  Exchange_File_Name.all);
+                  "unable to create library exchange file "
+                  & Exchange_File_Name.all);
          end;
 
          if Opt.CodePeer_Mode then

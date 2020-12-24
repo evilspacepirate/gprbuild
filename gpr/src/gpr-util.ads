@@ -795,8 +795,7 @@ package GPR.Util is
    --  exists.
 
    function As_RPath
-     (Path           : String;
-      Case_Sensitive : Boolean) return String;
+     (Path : String; Case_Sensitive : Boolean) return String;
    --  Returns Path in a representation compatible with the use with --rpath or
    --  --rpath-link.
    --  This normalizes the path, and ensure the use of unix-style directory

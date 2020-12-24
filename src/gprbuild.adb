@@ -2,7 +2,7 @@
 --                                                                          --
 --                             GPR TECHNOLOGY                               --
 --                                                                          --
---                     Copyright (C) 2004-2019, AdaCore                     --
+--                     Copyright (C) 2004-2020, AdaCore                     --
 --                                                                          --
 -- This is  free  software;  you can redistribute it and/or modify it under --
 -- terms of the  GNU  General Public License as published by the Free Soft- --
@@ -225,11 +225,11 @@ package body Gprbuild is
          else
             Fail_Program
               (Project_Tree,
-               "object directory """ &
-                 Get_Name_String (Project.Object_Directory.Display_Name) &
-                 """ for project """ &
-                 Get_Name_String (Project.Name) &
-                 """ is not writable");
+               "object directory """
+               & Get_Name_String (Project.Object_Directory.Display_Name)
+               & """ for project """
+               & Get_Name_String (Project.Name)
+               & """ is not writable");
          end if;
       end if;
 

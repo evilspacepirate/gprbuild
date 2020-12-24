@@ -1932,12 +1932,11 @@ package body GPR.Util is
             declare
                Dep_Path : constant String :=
                             Normalize_Pathname
-                              (Name          =>
-                                 Get_Name_String (Source.Dep_Name),
+                              (Get_Name_String (Source.Dep_Name),
                                Resolve_Links => Opt.Follow_Links_For_Files,
                                Directory     => Obj_Dir);
             begin
-               if (not Gprls_Mode)
+               if not Gprls_Mode
                  or else Obj_Proj.Extends = No_Project
                  or else Is_Regular_File (Dep_Path)
                then
@@ -1954,8 +1953,7 @@ package body GPR.Util is
          declare
             Switches_Path : constant String :=
                               Normalize_Pathname
-                                (Name          =>
-                                   Get_Name_String (Source.Switches),
+                                (Get_Name_String (Source.Switches),
                                  Resolve_Links => Opt.Follow_Links_For_Files,
                                  Directory     => Obj_Dir);
          begin
@@ -2086,8 +2084,8 @@ package body GPR.Util is
                if Obj_Proj.Object_Directory /= No_Path_Information then
                   declare
                      Dir : constant String :=
-                       Get_Name_String
-                         (Obj_Proj.Object_Directory.Display_Name);
+                             Get_Name_String
+                               (Obj_Proj.Object_Directory.Display_Name);
 
                      Dep_Path_Name : constant String :=
                        Normalize_Pathname
@@ -2096,7 +2094,7 @@ package body GPR.Util is
                           Directory     => Dir);
 
                      Dep_Path : constant Path_Name_Type :=
-                       Create_Name (Dep_Path_Name);
+                                  Create_Name (Dep_Path_Name);
 
                      Stamp : Time_Stamp_Type := Empty_Time_Stamp;
 
@@ -2151,18 +2149,18 @@ package body GPR.Util is
       subtype Str8 is String (1 .. 8);
 
       Predef_Names : constant array (1 .. 12) of Str8 :=
-        ("ada     ",       -- Ada
-         "interfac",       -- Interfaces
-         "system  ",       -- System
-         "gnat    ",       -- GNAT
-         "calendar",       -- Calendar
-         "machcode",       -- Machine_Code
-         "unchconv",       -- Unchecked_Conversion
-         "unchdeal",       -- Unchecked_Deallocation
-         "directio",       -- Direct_IO
-         "ioexcept",       -- IO_Exceptions
-         "sequenio",       -- Sequential_IO
-         "text_io ");      -- Text_IO
+        ("ada     ",  -- Ada
+         "interfac",  -- Interfaces
+         "system  ",  -- System
+         "gnat    ",  -- GNAT
+         "calendar",  -- Calendar
+         "machcode",  -- Machine_Code
+         "unchconv",  -- Unchecked_Conversion
+         "unchdeal",  -- Unchecked_Deallocation
+         "directio",  -- Direct_IO
+         "ioexcept",  -- IO_Exceptions
+         "sequenio",  -- Sequential_IO
+         "text_io "); -- Text_IO
    begin
       Get_Name_String (Fname);
 
@@ -2220,18 +2218,18 @@ package body GPR.Util is
    begin
       To_Lower (Lower_Unit);
 
-      return Lower_Unit = "ada"
-        or else Lower_Unit = "gnat"
-        or else Lower_Unit = "interfaces"
-        or else Lower_Unit = "system"
-        or else Lower_Unit = "calendar"
-        or else Lower_Unit = "machine_code"
-        or else Lower_Unit = "unchecked_conversion"
-        or else Lower_Unit = "unchecked_deallocation"
-        or else Lower_Unit = "direct_io"
-        or else Lower_Unit = "io_exceptions"
-        or else Lower_Unit = "sequential_io"
-        or else Lower_Unit = "text_io"
+      return Lower_Unit in "ada"
+                         | "gnat"
+                         | "interfaces"
+                         | "system"
+                         | "calendar"
+                         | "machine_code"
+                         | "unchecked_conversion"
+                         | "unchecked_deallocation"
+                         | "direct_io"
+                         | "io_exceptions"
+                         | "sequential_io"
+                         | "text_io"
         or else Starts_With (Lower_Unit, "ada.")
         or else Starts_With (Lower_Unit, "gnat.")
         or else Starts_With (Lower_Unit, "system.")
@@ -2267,8 +2265,7 @@ package body GPR.Util is
          Get_Name_String (Source.File) & ' ' & Source.Locally_Removed'Img);
 
       Src_Ind :=
-        Sinput.Load_File
-          (Get_Name_String (Source.Path.Display_Name));
+        Sinput.Load_File (Get_Name_String (Source.Path.Display_Name));
 
       return Sinput.Source_File_Is_Subunit (Src_Ind);
    end Is_Subunit;
@@ -2302,10 +2299,9 @@ package body GPR.Util is
 
    function Object_Project
      (Project          : Project_Id;
-      Must_Be_Writable : Boolean := False)
-      return Project_Id
+      Must_Be_Writable : Boolean := False) return Project_Id
    is
-      Result     : Project_Id := No_Project;
+      Result : Project_Id := No_Project;
 
       procedure Check_Project (P : Project_Id);
       --  Find a project with an object dir
@@ -2317,12 +2313,10 @@ package body GPR.Util is
       procedure Check_Project (P : Project_Id) is
       begin
          if P.Qualifier = Aggregate
-              or else
-            P.Qualifier = Aggregate_Library
+           or else P.Qualifier = Aggregate_Library
          then
             declare
                List : Aggregated_Project_List := P.Aggregated_Projects;
-
             begin
                --  Look for a non aggregate project until one is found
 
@@ -2333,8 +2327,8 @@ package body GPR.Util is
             end;
 
          elsif P.Object_Directory.Name /= No_Path then
-            if (not Must_Be_Writable) or else
-              Is_Writable_File
+            if not Must_Be_Writable
+              or else Is_Writable_File
                 (Get_Name_String (P.Object_Directory.Display_Name))
             then
                Result := P;
@@ -2489,8 +2483,9 @@ package body GPR.Util is
 
       procedure Report_Error is
       begin
-         Write_Line ("errors in source info file """ &
-                     Tree.Source_Info_File_Name.all & '"');
+         Write_Line
+           ("errors in source info file """
+            & Tree.Source_Info_File_Name.all & '"');
          Tree.Source_Info_File_Exists := False;
       end Report_Error;
 
@@ -2507,8 +2502,9 @@ package body GPR.Util is
 
       if not Is_Valid (File) then
          if Opt.Verbosity_Level > Opt.Low then
-            Write_Line ("source info file " & Tree.Source_Info_File_Name.all &
-                        " does not exist");
+            Write_Line
+              ("source info file " & Tree.Source_Info_File_Name.all
+               & " does not exist");
          end if;
 
          Tree.Source_Info_File_Exists := False;
@@ -2518,8 +2514,8 @@ package body GPR.Util is
       Tree.Source_Info_File_Exists := True;
 
       if Opt.Verbosity_Level > Opt.Low then
-         Write_Line ("Reading source info file " &
-                     Tree.Source_Info_File_Name.all);
+         Write_Line
+           ("Reading source info file " & Tree.Source_Info_File_Name.all);
       end if;
 
       Source_Loop :
@@ -2568,6 +2564,7 @@ package body GPR.Util is
          end if;
 
          --  optional fields
+
          Option_Loop :
          loop
             Get_Line (File, Name_Buffer, Name_Len);
@@ -2703,10 +2700,9 @@ package body GPR.Util is
 
    function Source_Dir_Of (Source : Source_Id) return String is
       Path : constant String := Get_Name_String (Source.Path.Name);
-      Last : constant Natural :=
-               Path'Last - Natural (Length_Of_Name (Source.File));
    begin
-      return Path (Path'First .. Last);
+      return Path (Path'First
+                   .. Path'Last - Natural (Length_Of_Name (Source.File)));
    end Source_Dir_Of;
 
    --------------------
@@ -2745,9 +2741,7 @@ package body GPR.Util is
       end Add_String;
 
    begin
-      if Separator'Length = 0
-        or else Index (Source, Separator) = 0
-      then
+      if Separator'Length = 0 or else Index (Source, Separator) = 0 then
          --  List with one string = Argument
          Add_String (Source);
 
@@ -2757,19 +2751,12 @@ package body GPR.Util is
          end if;
 
          loop
-            if Index
-              (Source
-                 (Start .. Source'Last), Separator) = 0
-            then
-               Add_String
-                 (Source (Start .. Source'Last));
+            if Index (Source (Start .. Source'Last), Separator) = 0 then
+               Add_String (Source (Start .. Source'Last));
                exit;
 
             else
-               Finish :=
-                 Index
-                   (Source
-                      (Start .. Source'Last), Separator) - 1;
+               Finish := Index (Source (Start .. Source'Last), Separator) - 1;
                Add_String (Source (Start .. Finish));
                Start := Finish + 1 + Separator'Length;
                exit when Start > Source'Last;
@@ -2777,15 +2764,11 @@ package body GPR.Util is
          end loop;
       end if;
 
-      declare
-         Result : Name_Array_Type (1 .. Integer (List.Length));
-      begin
+      return Result : Name_Array_Type (1 .. Integer (List.Length)) do
          for J in Result'Range loop
             Result (J) := List.Element (J);
          end loop;
-
-         return Result;
-      end;
+      end return;
    end Split;
 
    -------------------
@@ -2900,38 +2883,36 @@ package body GPR.Util is
 
       Real_Index_1 := Index;
 
-      if not Element.Index_Case_Sensitive or else Force_Lower_Case_Index then
-         if Index /= All_Other_Names then
-            Get_Name_String (Index);
-            To_Lower (Name_Buffer (1 .. Name_Len));
-            Real_Index_1 := Name_Find;
-         end if;
+      if (not Element.Index_Case_Sensitive or else Force_Lower_Case_Index)
+        and then Index /= All_Other_Names
+      then
+         Get_Name_String (Index);
+         To_Lower (Name_Buffer (1 .. Name_Len));
+         Real_Index_1 := Name_Find;
       end if;
 
       while Current /= No_Array_Element loop
          Element := Shared.Array_Elements.Table (Current);
          Real_Index_2 := Element.Index;
 
-         if not Element.Index_Case_Sensitive
-           or else Force_Lower_Case_Index
+         if (not Element.Index_Case_Sensitive or else Force_Lower_Case_Index)
+           and then (Element.Index /= All_Other_Names)
          then
-            if Element.Index /= All_Other_Names then
-               Get_Name_String (Element.Index);
-               To_Lower (Name_Buffer (1 .. Name_Len));
-               Real_Index_2 := Name_Find;
-            end if;
+            Get_Name_String (Element.Index);
+            To_Lower (Name_Buffer (1 .. Name_Len));
+            Real_Index_2 := Name_Find;
          end if;
 
          if Src_Index = Element.Src_Index
            and then
              (Real_Index_1 = Real_Index_2
               or else (Real_Index_2 /= All_Other_Names
-                         and then
-                       Allow_Wildcards
-                         and then
-                       Match (Get_Name_String (Real_Index_1),
-                             Compile (Get_Name_String (Real_Index_2),
-                                      Glob => True))))
+                       and then Allow_Wildcards
+                       and then
+                       Match
+                         (Get_Name_String (Real_Index_1),
+                          Compile
+                            (Get_Name_String (Real_Index_2), Glob => True))))
          then
             return Element.Value;
          else
@@ -3562,11 +3543,9 @@ package body GPR.Util is
    --------------
 
    function As_RPath
-     (Path           : String;
-      Case_Sensitive : Boolean) return String
+     (Path : String; Case_Sensitive : Boolean) return String
    is
-      Dir_Sep_Map : constant Character_Mapping :=
-                      To_Mapping ("\", "/");
+      Dir_Sep_Map : constant Character_Mapping := To_Mapping ("\", "/");
    begin
       return Translate
         (Normalize_Pathname
