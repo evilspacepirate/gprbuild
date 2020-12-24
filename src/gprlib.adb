@@ -549,16 +549,10 @@ procedure Gprlib is
 
                      --  Create new modified ALI file
 
-                     Name_Len := Library_Dependency_Directory'Length;
-                     Name_Buffer (1 .. Name_Len) :=
-                       Library_Dependency_Directory.all;
-                     Name_Len := Name_Len + 1;
-                     Name_Buffer (Name_Len) := Directory_Separator;
-                     Name_Buffer
-                       (Name_Len + 1 .. Name_Len + File_Name'Length) :=
-                       File_Name;
-                     Name_Len := Name_Len + File_Name'Length + 1;
-                     Name_Buffer (Name_Len) := ASCII.NUL;
+                     Set_Name_Buffer (Library_Dependency_Directory.all);
+                     Add_Char_To_Name_Buffer (Directory_Separator);
+                     Add_Str_To_Name_Buffer (File_Name);
+                     Add_Char_To_Name_Buffer (ASCII.NUL);
 
                      FD := Create_File (Name_Buffer'Address, Binary);
 
@@ -1151,7 +1145,7 @@ procedure Gprlib is
          end if;
 
          declare
-            Size         : Natural := 0;
+            Size : Natural := 0;
          begin
             for Arg of Bind_Options loop
                Size := Size + Arg'Length + 1;
@@ -1183,8 +1177,7 @@ procedure Gprlib is
                --  Otherwise create a temporary response file
 
                declare
-                  EOL           : constant String (1 .. 1) :=
-                    (1 => ASCII.LF);
+                  EOL           : aliased constant Character := ASCII.LF;
                   FD            : File_Descriptor;
                   Path          : Path_Name_Type;
                   Args          : String_Vectors.Vector;
@@ -1254,7 +1247,7 @@ procedure Gprlib is
                         end if;
                      end if;
 
-                     Status := Write (FD, EOL (1)'Address, 1);
+                     Status := Write (FD, EOL'Address, 1);
 
                      if Status /= 1 then
                         Fail_Program (null, "disk full");

@@ -5365,8 +5365,8 @@ package body GPR.Util is
 
          if Stamp = Empty_Time_Stamp then
             if Opt.Verbosity_Level > Opt.Low then
-               Put  ("      -> dependency file ");
-               Put  (Get_Name_String (Source.Dep_Path));
+               Put ("      -> dependency file ");
+               Put (Get_Name_String (Source.Dep_Path));
                Put_Line (" does not exist");
             end if;
 
@@ -5414,8 +5414,8 @@ package body GPR.Util is
            and then Source.Object_TS < Stamp
          then
             if Opt.Verbosity_Level > Opt.Low then
-               Put  ("      -> ALI file ");
-               Put  (Get_Name_String (Source.Dep_Path));
+               Put ("      -> ALI file ");
+               Put (Get_Name_String (Source.Dep_Path));
                Put_Line (" has timestamp earlier than object file");
             end if;
 

@@ -2968,8 +2968,7 @@ package body Gprbuild.Post_Compile is
 
                         if Object_Path = Elem.Path then
                            Path_Found := True;
-                           Library_Needs_To_Be_Built :=
-                             Object_TS /= Elem.TS;
+                           Library_Needs_To_Be_Built := Object_TS /= Elem.TS;
                            Elem.Known := True;
                            Library_Objs.Delete (Cursor);
                            Library_Objs.Insert (Elem);
