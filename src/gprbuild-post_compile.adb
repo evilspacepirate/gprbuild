@@ -180,19 +180,21 @@ package body Gprbuild.Post_Compile is
       --  Get the paths of the object files of the library in ordered set
       --  Library_Objs.
 
-      procedure Write_List
-        (File  : Text_IO.File_Type;
-         Label : Library_Section;
-         List  : String_List_Id);
+      procedure Write_List (Label : Library_Section; List : String_List_Id);
       --  Write values in list into section Label in the given file. Ouptut
-      --  Label if it is not the current section.
+      --  Label is written first if it is not the current section.
 
       procedure Write_Name_List
-        (File  : Text_IO.File_Type;
-         Label : Library_Section;
-         List  : Name_List_Index);
-      --  Write name list values into the File, output Label first. Ouptut
-      --  Label if it is not the current section.
+        (Label : Library_Section; List : Name_List_Index);
+      --  Write name list values into the Exchange_File, output Label first.
+      --  Output Label is written first if it is not the current section.
+
+      procedure Write_Name (Label : Library_Section; Name : Name_Id);
+      --  Write name with label if Name /= No_Name
+
+      procedure Write_Filename
+        (Label : Library_Section; Filename : File_Name_Type);
+      --  Write Filename with label if Filename /= No_File
 
       --  Procedures to write specific sections of the exchange file
 
@@ -1089,8 +1091,7 @@ package body Gprbuild.Post_Compile is
             begin
                while Cursor /= No_Element loop
                   Put_Line
-                    (Exchange_File,
-                     Get_Name_String (Element (Cursor).Path));
+                    (Exchange_File, Get_Name_String (Element (Cursor).Path));
                   Next (Cursor);
                end loop;
             end;
@@ -1428,8 +1429,7 @@ package body Gprbuild.Post_Compile is
       --  Start of processing for Write_Compiler_Trailing_Switches
 
       begin
-         Put_Line
-           (Exchange_File, Library_Label (Compiler_Trailing_Switches));
+         Put_Line (Exchange_File, Library_Label (Compiler_Trailing_Switches));
 
          Compiler_Trailing_Switches_For (For_Project, Project_Tree, Dummy);
 
@@ -1439,31 +1439,49 @@ package body Gprbuild.Post_Compile is
       end Write_Compiler_Trailing_Switches;
 
       ----------------
+      -- Write_Name --
+      ----------------
+
+      procedure Write_Name (Label : Library_Section; Name : Name_Id) is
+      begin
+         if Name /= No_Name then
+            Put_Line
+              (Exchange_File,
+               Library_Label (Label) & ASCII.LF & Get_Name_String (Name));
+         end if;
+      end Write_Name;
+
+      --------------------
+      -- Write_Filename --
+      --------------------
+
+      procedure Write_Filename
+        (Label : Library_Section; Filename : File_Name_Type) is
+      begin
+         Write_Name (Label, Name_Id (Filename));
+      end Write_Filename;
+
+      ----------------
       -- Write_List --
       ----------------
 
-      procedure Write_List
-        (File  : Text_IO.File_Type;
-         Label : Library_Section;
-         List  : String_List_Id)
-      is
+      procedure Write_List (Label : Library_Section; List : String_List_Id) is
          Current      : String_List_Id := List;
          Element      : String_Element;
          Output_Label : Boolean := True;
       begin
          while Current /= Nil_String loop
-            Element :=
-              Project_Tree.Shared.String_Elements.Table (Current);
+            Element := Project_Tree.Shared.String_Elements.Table (Current);
             Get_Name_String (Element.Value);
 
             if Name_Len /= 0 then
                if Output_Label and then Current_Section /= Label then
-                  Put_Line (File, Library_Label (Label));
+                  Put_Line (Exchange_File, Library_Label (Label));
                   Output_Label := False;
                   Current_Section := Label;
                end if;
 
-               Put_Line (File, Name_Buffer (1 .. Name_Len));
+               Put_Line (Exchange_File, Name_Buffer (1 .. Name_Len));
             end if;
 
             Current := Element.Next;
@@ -1475,22 +1493,20 @@ package body Gprbuild.Post_Compile is
       ---------------------
 
       procedure Write_Name_List
-        (File  : Text_IO.File_Type;
-         Label : Library_Section;
-         List  : Name_List_Index)
+        (Label : Library_Section; List : Name_List_Index)
       is
          Current : Name_List_Index := List;
          Nam     : Name_Node;
       begin
          if List /= No_Name_List then
             if Current_Section /= Label then
-               Put_Line (File, Library_Label (Label));
+               Put_Line (Exchange_File, Library_Label (Label));
                Current_Section := Label;
             end if;
 
             while Current /= No_Name_List loop
                Nam := Project_Tree.Shared.Name_Lists.Table (Current);
-               Put_Line (File, Get_Name_String (Nam.Name));
+               Put_Line (Exchange_File, Get_Name_String (Nam.Name));
                Current := Nam.Next;
             end loop;
          end if;
@@ -1505,7 +1521,7 @@ package body Gprbuild.Post_Compile is
                   For_Project.Config.Lib_Partial_Linker;
       begin
          if List /= No_Name_List then
-            Write_Name_List (Exchange_File, Partial_Linker, List);
+            Write_Name_List (Partial_Linker, List);
          end if;
       end Write_Partial_Linker;
 
@@ -1527,15 +1543,12 @@ package body Gprbuild.Post_Compile is
 
             if not Library_Options.Default then
                Write_List
-                 (Exchange_File,
-                  Gprexch.Shared_Lib_Minimum_Options,
-                  Library_Options.Values);
+                 (Gprexch.Shared_Lib_Minimum_Options, Library_Options.Values);
             end if;
 
          else
             Write_Name_List
-              (Exchange_File,
-               Shared_Lib_Minimum_Options,
+              (Shared_Lib_Minimum_Options,
                For_Project.Config.Shared_Lib_Min_Options);
          end if;
       end Write_Shared_Lib_Minimum_Options;
@@ -1549,7 +1562,7 @@ package body Gprbuild.Post_Compile is
                   For_Project.Config.Lib_Version_Options;
       begin
          if List /= No_Name_List then
-            Write_Name_List (Exchange_File, Library_Version_Options, List);
+            Write_Name_List (Library_Version_Options, List);
          end if;
       end Write_Library_Version;
 
@@ -1683,8 +1696,7 @@ package body Gprbuild.Post_Compile is
 
                         if not Switches.Default then
                            Write_List
-                             (Exchange_File, Gprexch.Binding_Options,
-                              Switches.Values);
+                             (Gprexch.Binding_Options, Switches.Values);
                         end if;
                      end if;
 
@@ -1699,8 +1711,7 @@ package body Gprbuild.Post_Compile is
 
                         if not Switches.Default then
                            Write_List
-                             (Exchange_File, Gprexch.Binding_Options,
-                              Switches.Values);
+                             (Gprexch.Binding_Options, Switches.Values);
                         end if;
                      end if;
                   end;
@@ -1718,7 +1729,7 @@ package body Gprbuild.Post_Compile is
                   For_Project.Config.Run_Path_Option;
       begin
          if Opt.Run_Path_Option and then List /= No_Name_List then
-            Write_Name_List (Exchange_File, Run_Path_Option, List);
+            Write_Name_List (Run_Path_Option, List);
             Put_Line (Exchange_File,
                       Library_Label (Gprexch.Run_Path_Origin));
 
@@ -1752,8 +1763,7 @@ package body Gprbuild.Post_Compile is
 
          if not Leading_Library_Options.Default then
             Write_List
-              (Exchange_File,
-               Gprexch.Leading_Library_Options,
+              (Gprexch.Leading_Library_Options,
                Leading_Library_Options.Values);
          end if;
       end Write_Leading_Library_Options;
@@ -1862,9 +1872,7 @@ package body Gprbuild.Post_Compile is
             For_Project.Decl.Attributes, Project_Tree.Shared);
 
          if not Library_Options.Default then
-            Write_List
-              (Exchange_File,
-               Gprexch.Library_Options, Library_Options.Values);
+            Write_List (Gprexch.Library_Options, Library_Options.Values);
 
             --  For static libraries, check that the library options are
             --  existing object files.
@@ -2047,8 +2055,7 @@ package body Gprbuild.Post_Compile is
             if Lang_Ptr.Config.Compiler_Driver_Path = null then
                Lang_Ptr.Config.Compiler_Driver_Path :=
                  Locate_Exec_On_Path
-                   (Exec_Name =>
-                      Get_Name_String (Lang_Ptr.Config.Compiler_Driver));
+                   (Get_Name_String (Lang_Ptr.Config.Compiler_Driver));
             end if;
 
             if Lang_Ptr.Config.Compiler_Driver_Path /= null then
@@ -2083,8 +2090,7 @@ package body Gprbuild.Post_Compile is
 
                Tempdir.Create_Temp_File (FD, Pname);
                Spawn
-                 (Program_Name =>
-                    Lang_Ptr.Config.Compiler_Driver_Path.all,
+                 (Program_Name => Lang_Ptr.Config.Compiler_Driver_Path.all,
                   Args => Args.all,
                   Output_File_Descriptor => FD,
                   Return_Code => Return_Code);
@@ -2189,7 +2195,7 @@ package body Gprbuild.Post_Compile is
                      --  Nothing to do if there is no options
 
                      if Opt_List /= Nil_String then
-                           Get_Directory;
+                        Get_Directory;
                      end if;
                   end if;
 
@@ -2673,7 +2679,7 @@ package body Gprbuild.Post_Compile is
 
             if For_Project.Config.Resp_File_Options /= No_Name_List then
                Write_Name_List
-                 (Exchange_File, Response_File_Switches,
+                 (Response_File_Switches,
                   For_Project.Config.Resp_File_Options);
             end if;
          end if;
@@ -3142,8 +3148,7 @@ package body Gprbuild.Post_Compile is
          --  Must_Be_Writable set to True, to check if the object directory
          --  is writable and to fail graciously if it not.
 
-         Change_To_Object_Directory
-           (For_Project, Must_Be_Writable => True);
+         Change_To_Object_Directory (For_Project, Must_Be_Writable => True);
 
          --  Create the library exchange file
 
@@ -3188,12 +3193,7 @@ package body Gprbuild.Post_Compile is
 
          --  Library version
 
-         if For_Project.Lib_Internal_Name /= No_Name then
-            Put_Line
-              (Exchange_File,
-               Library_Label (Library_Version) & ASCII.LF
-               & Get_Name_String (For_Project.Lib_Internal_Name));
-         end if;
+         Write_Name (Library_Version, For_Project.Lib_Internal_Name);
 
          --  Library directory
 
@@ -3253,12 +3253,7 @@ package body Gprbuild.Post_Compile is
                end loop;
             end if;
 
-            if For_Project.Config.Archive_Suffix /= No_File then
-               Put_Line
-                 (Exchange_File,
-                  Library_Label (Archive_Suffix)  & ASCII.LF
-                  & Get_Name_String (For_Project.Config.Archive_Suffix));
-            end if;
+            Write_Filename (Archive_Suffix, For_Project.Config.Archive_Suffix);
 
             if Archive_Indexer_Path /= null then
                Put_Line
@@ -3274,28 +3269,17 @@ package body Gprbuild.Post_Compile is
          else
             --  Driver_Name
 
-            if For_Project.Config.Shared_Lib_Driver /= No_File then
-               Put_Line
-                 (Exchange_File, Library_Label (Driver_Name) & ASCII.LF
-                  & Get_Name_String (For_Project.Config.Shared_Lib_Driver));
-            end if;
+            Write_Filename (Driver_Name, For_Project.Config.Shared_Lib_Driver);
 
             --  Shared_Lib_Prefix
 
-            if For_Project.Config.Shared_Lib_Prefix /= No_File then
-               Put_Line
-                 (Exchange_File, Library_Label (Shared_Lib_Prefix) & ASCII.LF
-                  & Get_Name_String (For_Project.Config.Shared_Lib_Prefix));
-            end if;
+            Write_Filename
+              (Shared_Lib_Prefix, For_Project.Config.Shared_Lib_Prefix);
 
             --  Shared_Lib_Suffix
 
-            if For_Project.Config.Shared_Lib_Suffix /= No_File then
-               Put_Line
-                 (Exchange_File,
-                  Library_Label (Shared_Lib_Suffix) & ASCII.LF
-                  & Get_Name_String (For_Project.Config.Shared_Lib_Suffix));
-            end if;
+            Write_Filename
+              (Shared_Lib_Suffix, For_Project.Config.Shared_Lib_Suffix);
 
             Write_Shared_Lib_Minimum_Options;
 
@@ -3332,14 +3316,10 @@ package body Gprbuild.Post_Compile is
 
             --  Gprexch.Install_Name
 
-            if Opt.Run_Path_Option and then
-               For_Project.Config.Library_Install_Name_Option /= No_Name
-            then
-               Put_Line
-                 (Exchange_File,
-                  Library_Label (Gprexch.Install_Name) & ASCII.LF
-                  & Get_Name_String
-                      (For_Project.Config.Library_Install_Name_Option));
+            if Opt.Run_Path_Option then
+               Write_Name
+                 (Gprexch.Install_Name,
+                  For_Project.Config.Library_Install_Name_Option);
             end if;
 
             Write_Run_Path_Option;
