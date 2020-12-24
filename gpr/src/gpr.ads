@@ -2153,6 +2153,9 @@ package GPR is
       Was_Built : Boolean := False;
       --  The library project has been built in the current gprbuild execution
 
+      Need_Build : Boolean := False;
+      --  Library project has to be built even if no need any compilation
+
       Library_Src_Dir : Path_Information := No_Path_Information;
       --  If a Stand-Alone Library project, path name of the directory where
       --  the sources of the interfaces of the library are copied. By default,

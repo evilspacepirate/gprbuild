@@ -2754,7 +2754,8 @@ package body Gprbuild.Post_Compile is
          Check_Library_Symbol_File;
       end if;
 
-      Library_Needs_To_Be_Built := Opt.Force_Compilations;
+      Library_Needs_To_Be_Built :=
+        Opt.Force_Compilations or else For_Project.Need_Build;
 
       if not Library_Needs_To_Be_Built and then
          Opt.Verbosity_Level > Opt.Low

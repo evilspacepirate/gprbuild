@@ -5396,6 +5396,37 @@ package body GPR.Util is
             return;
          end if;
 
+         if In_Project.Library and then Source.Unit /= No_Unit_Index then
+            declare
+               Dep_Path : constant String :=
+                            Normalize_Pathname
+                              (Get_Name_String (Source.Dep_Name),
+                               Get_Name_String (In_Project.Library_Dir.Name),
+                               Resolve_Links => Opt.Follow_Links_For_Files);
+               Lib_Stamp : constant Time_Stamp_Type := File_Stamp (Dep_Path);
+            begin
+               if Lib_Stamp = Empty_Time_Stamp then
+                  if Opt.Verbosity_Level > Opt.Low then
+                     Put ("      -> file ");
+                     Put (Dep_Path);
+                     Put_Line (" does not exist");
+                  end if;
+
+                  In_Project.Need_Build := True;
+
+               elsif Lib_Stamp < Stamp then
+                  if Opt.Verbosity_Level > Opt.Low then
+                     Put ("      -> file ");
+                     Put (Dep_Path);
+                     Put (" has timestamp earlier than ");
+                     Put_Line (Get_Name_String (Source.Dep_Path));
+                  end if;
+
+                  In_Project.Need_Build := True;
+               end if;
+            end;
+         end if;
+
          --  If the ALI file has been created after the object file, we need
          --  to recompile.
 
