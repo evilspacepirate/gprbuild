@@ -2781,8 +2781,7 @@ package body Gprbuild.Post_Compile is
       if not Library_Needs_To_Be_Built then
          declare
             TS : constant Time_Stamp_Type :=
-                   File_Stamp (File_Name_Type'(Name_Find));
-
+                   File_Stamp (Exchange_File_Name.all);
          begin
             if String (TS) < String (Latest_Object_TS) then
                Library_Needs_To_Be_Built := True;
@@ -2906,7 +2905,7 @@ package body Gprbuild.Post_Compile is
 
             if not Library_Needs_To_Be_Built then
                For_Project.Library_TS :=
-                 File_Stamp (File_Name_Type'(Name_Find));
+                 File_Stamp (Name_Buffer (1 .. Name_Len));
 
                if For_Project.Library_TS < Latest_Object_TS then
                   Library_Needs_To_Be_Built := True;

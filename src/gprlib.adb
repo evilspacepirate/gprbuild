@@ -2450,11 +2450,7 @@ begin
 
    for Index in 1 .. Last_Object_File_Index loop
       Put_Line (IO_File, Object_Files (Index));
-
-      Name_Len := Object_Files.Element (Index)'Length;
-      Name_Buffer (1 .. Name_Len) := Object_Files (Index);
-      Put_Line
-        (IO_File, String (Osint.File_Stamp (Path_Name_Type'(Name_Find))));
+      Put_Line (IO_File, String (Osint.File_Stamp (Object_Files (Index))));
    end loop;
 
    if not Generated_Sources.Is_Empty then

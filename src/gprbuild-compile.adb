@@ -1797,21 +1797,19 @@ package body Gprbuild.Compile is
                            --  to the object directory at reading in
                            --  GPR.Util.Need_To_Compile.Process_Makefile_Deps.
 
-                           Unescaped : constant String := Unescape (Src_Name);
-                           Unescaped_Id : constant Path_Name_Type :=
-                                            Get_Path_Name_Id
-                                              (OS_Lib.Normalize_Pathname
-                                                 (Unescaped,
-                                                  Directory => Dir_Name
-                                                                 (Dep_Path),
-                                                  Case_Sensitive => False));
-                           Source_2   : Source_Id;
-                           Src_TS     : Time_Stamp_Type;
+                           Unescaped : constant String :=
+                                         OS_Lib.Normalize_Pathname
+                                           (Unescape (Src_Name),
+                                            Directory => Dir_Name (Dep_Path),
+                                            Case_Sensitive => False);
+                           Source_2 : Source_Id;
+                           Src_TS   : Time_Stamp_Type;
 
                         begin
                            Source_2 := Source_Paths_Htable.Get
-                             (Src_Data.Tree.Source_Paths_HT, Unescaped_Id);
-                           Src_TS := File_Stamp (Unescaped_Id);
+                             (Src_Data.Tree.Source_Paths_HT,
+                              Get_Path_Name_Id (Unescaped));
+                           Src_TS := File_Stamp (Unescaped);
 
                            if Src_TS = Empty_Time_Stamp then
                               --  File from dependency list does not exist
