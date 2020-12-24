@@ -568,8 +568,6 @@ package body Gprbuild.Post_Compile is
                Source := GPR.Element (Iter);
                exit when Source = No_Source;
 
-               Change_To_Object_Directory (Source.Project);
-
                Initialize_Source_Record (Source);
 
                if Is_Compilable (Source)
