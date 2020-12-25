@@ -700,12 +700,10 @@ package body Gprbuild.Post_Compile is
             Sfile    : File_Name_Type;
             Afile    : File_Name_Type;
             Src_Id   : GPR.Source_Id;
-            OK       : Boolean;
             Source   : Source_Id;
 
             procedure Add_To_Mapping
-              (Source          : Source_Id;
-               From_Object_Dir : Boolean);
+              (Source : Source_Id; From_Object_Dir : Boolean);
             --  Add data for Source in binder mapping file. Use the ALI file
             --  in the library ALI directory if From_Object_Dir is False and
             --  the project is a library project. Otherwise, use the ALI file
@@ -716,8 +714,7 @@ package body Gprbuild.Post_Compile is
             --------------------
 
             procedure Add_To_Mapping
-              (Source : Source_Id;
-               From_Object_Dir : Boolean)
+              (Source : Source_Id; From_Object_Dir : Boolean)
             is
                Unit : Unit_Index;
 
@@ -781,15 +778,31 @@ package body Gprbuild.Post_Compile is
                --  the last one found.
 
                if ALI_Name /= No_File then
-
                   --  Look in the project and the projects that are extending
                   --  it to find the real ALI
 
                   declare
                      ALI      : constant String := Get_Name_String (ALI_Name);
                      ALI_Path : Name_Id         := No_Name;
-                     Bytes    : Integer;
-                     pragma Unreferenced (Bytes);
+
+                     procedure Write_Mapping (Id : Name_Id);
+                     --  Write name and line feed to Mapping_FD
+
+                     ----------------
+                     -- Write_Name --
+                     ----------------
+
+                     procedure Write_Mapping (Id : Name_Id) is
+                     begin
+                        Get_Name_String (Id);
+                        Add_Char_To_Name_Buffer (ASCII.LF);
+
+                        if Write (Mapping_FD, Name_Buffer'Address, Name_Len)
+                          /= Name_Len
+                        then
+                           raise Program_Error with "Disk full";
+                        end if;
+                     end Write_Mapping;
 
                   begin
                      loop
@@ -817,36 +830,17 @@ package body Gprbuild.Post_Compile is
                      end loop;
 
                      if ALI_Path /= No_Name then
-
                         --  First line is the unit name
 
-                        Get_Name_String (ALI_Unit);
-                        Add_Char_To_Name_Buffer (ASCII.LF);
-                        Bytes :=
-                          Write
-                            (Mapping_FD,
-                             Name_Buffer (1)'Address,
-                             Name_Len);
+                        Write_Mapping (Name_Id (ALI_Unit));
 
                         --  Second line is the ALI file name
 
-                        Get_Name_String (ALI_Name);
-                        Add_Char_To_Name_Buffer (ASCII.LF);
-                        Bytes :=
-                          Write
-                            (Mapping_FD,
-                             Name_Buffer (1)'Address,
-                             Name_Len);
+                        Write_Mapping (Name_Id (ALI_Name));
 
                         --  Third line is the ALI path name
 
-                        Get_Name_String (ALI_Path);
-                        Add_Char_To_Name_Buffer (ASCII.LF);
-                        Bytes :=
-                          Write
-                            (Mapping_FD,
-                             Name_Buffer (1)'Address,
-                             Name_Len);
+                        Write_Mapping (ALI_Path);
                      end if;
                   end;
                end if;
@@ -877,9 +871,9 @@ package body Gprbuild.Post_Compile is
                     ALI.Scan_ALI
                       (File_Name_Type (Dep_Path),
                        Text,
-                       Ignore_ED     => False,
-                       Err           => True,
-                       Read_Lines    => "W");
+                       Ignore_ED  => False,
+                       Err        => True,
+                       Read_Lines => "W");
                   Free (Text);
 
                   --  Get the withed sources
@@ -936,9 +930,8 @@ package body Gprbuild.Post_Compile is
                            if Src_Id /= No_Source then
                               declare
                                  Proj : Project_Id := Src_Id.Project;
+                                 OK   : Boolean := False;
                               begin
-                                 OK := False;
-
                                  while Proj.Extended_By /= No_Project loop
                                     Proj := Proj.Extended_By;
                                  end loop;
@@ -954,40 +947,32 @@ package body Gprbuild.Post_Compile is
                                     Closure_Sources.Append (Src_Id);
                                  end if;
 
-                                 if OK then
-                                    if Library_Sources.Contains (Src_Id) then
-                                       OK := False;
-                                    end if;
+                                 if OK
+                                   and then not Library_Sources.Contains
+                                                  (Src_Id)
+                                 then
+                                    Library_Sources.Append (Src_Id);
+                                    Initialize_Source_Record (Src_Id);
 
-                                    if OK then
-                                       Library_Sources.Append (Src_Id);
-                                       Initialize_Source_Record (Src_Id);
+                                    if Src_Id.Object_TS = Empty_Time_Stamp then
+                                       Latest_Object_TS := Never;
 
-                                       if Src_Id.Object_TS = Empty_Time_Stamp
-                                       then
-                                          Latest_Object_TS := Never;
+                                       if not Library_Needs_To_Be_Built then
+                                          Library_Needs_To_Be_Built := True;
 
-                                          if not Library_Needs_To_Be_Built then
-                                             Library_Needs_To_Be_Built := True;
-
-                                             if Opt.Verbosity_Level > Opt.Low
-                                             then
-                                                Put
-                                                  ("      ->" &
-                                                   "missing object file: ");
-                                                Get_Name_String
-                                                  (Src_Id.Object);
-                                                Put_Line
-                                                  (Name_Buffer
-                                                     (1 .. Name_Len));
-                                             end if;
+                                          if Opt.Verbosity_Level > Opt.Low then
+                                             Put
+                                               ("      ->" &
+                                                  "missing object file: ");
+                                             Put_Line
+                                               (Get_Name_String
+                                                  (Src_Id.Object));
                                           end if;
-
-                                       elsif Src_Id.Object_TS >
-                                               Latest_Object_TS
-                                       then
-                                          Latest_Object_TS := Src_Id.Object_TS;
                                        end if;
+
+                                    elsif Src_Id.Object_TS > Latest_Object_TS
+                                    then
+                                       Latest_Object_TS := Src_Id.Object_TS;
                                     end if;
                                  end if;
                               end;
