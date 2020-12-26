@@ -325,8 +325,6 @@ package body Gprbuild.Post_Compile is
                Initialize_Source_Record
                  (Source, Always => Main_Project.Qualifier = Aggregate);
 
-               Change_To_Object_Directory (Source.Project);
-
                if Is_Compilable (Source)
                  and then Source.Replaced_By = No_Source
                  and then Source.Language.Config.Objects_Linked
