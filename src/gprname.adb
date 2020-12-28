@@ -40,7 +40,6 @@ with Gpr_Build_Util; use Gpr_Build_Util;
 
 with GPR.Sdefault;
 
-with GNAT.Case_Util; use GNAT.Case_Util;
 with System.CRTL;
 with System.HTable;
 
@@ -992,10 +991,10 @@ package body GPRName is
 
                      --  Get the name of the unit
 
-                     Get_Name_String (Current_Source.Unit_Name);
-                     To_Lower (Name_Buffer (1 .. Name_Len));
                      Set_Associative_Array_Index_Of
-                       (Attribute, Tree, To => Name_Find);
+                       (Attribute, Tree,
+                        To => Get_Lower_Name_Id
+                                (Get_Name_String (Current_Source.Unit_Name)));
 
                      Set_Expression_Of
                        (Attribute, Tree, To => Expression);

@@ -33,7 +33,6 @@ with Ada.Containers.Hashed_Maps;
 with Ada.Strings.Hash_Case_Insensitive;
 with Ada.Strings.Equal_Case_Insensitive;
 
-with GNAT.Case_Util;            use GNAT.Case_Util;
 with GNAT.Directory_Operations; use GNAT.Directory_Operations;
 with GNAT.Dynamic_HTables;
 with GNAT.Regexp;               use GNAT.Regexp;
@@ -567,7 +566,7 @@ package body GPR.Nmsc is
             Name_Buffer (Name_Len) := Replacement;
             J := J + Pattern'Length;
          else
-            Name_Buffer (Name_Len) := GNAT.Case_Util.To_Lower (Str (J));
+            Name_Buffer (Name_Len) := To_Lower (Str (J));
             J := J + 1;
          end if;
       end loop;
@@ -2105,42 +2104,14 @@ package body GPR.Nmsc is
 
                   elsif Attribute.Name = Name_Response_File_Format then
                      declare
-                        Name  : Name_Id;
-
+                        Success : Boolean;
                      begin
-                        Get_Name_String (Attribute.Value.Value);
-                        To_Lower (Name_Buffer (1 .. Name_Len));
-                        Name := Name_Find;
+                        Resp_File_Format
+                          (Name    => Attribute.Value.Value,
+                           Format  => Project.Config.Resp_File_Format,
+                           Success => Success);
 
-                        if Name = Name_None then
-                           Project.Config.Resp_File_Format := None;
-
-                        elsif Name = Name_Gnu then
-                           Project.Config.Resp_File_Format := GNU;
-
-                        elsif Name = Name_Object_List then
-                           Project.Config.Resp_File_Format := Object_List;
-
-                        elsif Name = Name_Option_List then
-                           Project.Config.Resp_File_Format := Option_List;
-
-                        elsif Name_Buffer (1 .. Name_Len) = "gcc" then
-                           Project.Config.Resp_File_Format := GCC;
-
-                        elsif Name_Buffer (1 .. Name_Len) = "gcc_gnu" then
-                           Project.Config.Resp_File_Format := GCC_GNU;
-
-                        elsif
-                          Name_Buffer (1 .. Name_Len) = "gcc_option_list"
-                        then
-                           Project.Config.Resp_File_Format := GCC_Option_List;
-
-                        elsif
-                          Name_Buffer (1 .. Name_Len) = "gcc_object_list"
-                        then
-                           Project.Config.Resp_File_Format := GCC_Object_List;
-
-                        else
+                        if not Success then
                            Error_Msg
                              (Data.Flags,
                               "illegal response file format",
@@ -2161,23 +2132,20 @@ package body GPR.Nmsc is
                   elsif Attribute.Name = Name_Export_File_Format then
 
                      declare
-                        Name  : Name_Id;
-
+                        Name : constant Name_Id :=
+                                 Get_Lower_Name_Id
+                                   (Get_Name_String (Attribute.Value.Value));
                      begin
-                        Get_Name_String (Attribute.Value.Value);
-                        To_Lower (Name_Buffer (1 .. Name_Len));
-                        Name := Name_Find;
-
                         if Name = Name_None then
                            Project.Config.Export_File_Format := None;
 
                         elsif Name = Name_Gnu then
                            Project.Config.Export_File_Format := GNU;
 
-                        elsif Name_Buffer (1 .. Name_Len) = "def" then
+                        elsif Name = Name_Def then
                            Project.Config.Export_File_Format := Def;
 
-                        elsif Name_Buffer (1 .. Name_Len) = "flat" then
+                        elsif Name = Name_Flat then
                            Project.Config.Export_File_Format := Flat;
 
                         else
@@ -2199,12 +2167,10 @@ package body GPR.Nmsc is
             Format  : out Response_File_Format;
             Success : out Boolean)
          is
-            Low_Name : Name_Id;
+            Low_Name : constant Name_Id :=
+                         Get_Lower_Name_Id (Get_Name_String (Name));
          begin
             Success := True;
-            Get_Name_String (Name);
-            To_Lower (Name_Buffer (1 .. Name_Len));
-            Low_Name := Name_Find;
 
             if Low_Name = Name_None then
                Format := None;
@@ -2218,20 +2184,16 @@ package body GPR.Nmsc is
             elsif Low_Name = Name_Option_List then
                Format := Option_List;
 
-            elsif Name_Buffer (1 .. Name_Len) = "gcc" then
+            elsif Low_Name = Name_Gcc then
                Format := GCC;
 
-            elsif Name_Buffer (1 .. Name_Len) = "gcc_gnu" then
+            elsif Low_Name = Name_Gcc_Gnu then
                Format := GCC_GNU;
 
-            elsif
-              Name_Buffer (1 .. Name_Len) = "gcc_option_list"
-            then
+            elsif Low_Name = Name_Gcc_Option_List then
                Format := GCC_Option_List;
 
-            elsif
-              Name_Buffer (1 .. Name_Len) = "gcc_object_list"
-            then
+            elsif Low_Name = Name_Gcc_Object_List then
                Format := GCC_Object_List;
 
             else
@@ -3289,17 +3251,20 @@ package body GPR.Nmsc is
 
    begin
       if not Externally_Built.Default then
-         Get_Name_String (Externally_Built.Value);
-         To_Lower (Name_Buffer (1 .. Name_Len));
+         declare
+            Lower_Value : constant String :=
+                            To_Lower
+                              (Get_Name_String (Externally_Built.Value));
+         begin
+            if Lower_Value = "true" then
+               Project.Externally_Built := True;
 
-         if Name_Buffer (1 .. Name_Len) = "true" then
-            Project.Externally_Built := True;
-
-         elsif Name_Buffer (1 .. Name_Len) /= "false" then
-            Error_Msg (Data.Flags,
-                       "Externally_Built may only be true or false",
-                       Externally_Built.Location, Project);
-         end if;
+            elsif Lower_Value /= "false" then
+               Error_Msg (Data.Flags,
+                          "Externally_Built may only be true or false",
+                          Externally_Built.Location, Project);
+            end if;
+         end;
       end if;
 
       --  A virtual project extending an externally built project is itself
@@ -3513,9 +3478,8 @@ package body GPR.Nmsc is
          List := Library_Interface.Values;
          while List /= Nil_String loop
             Element := Shared.String_Elements.Table (List);
-            Get_Name_String (Element.Value);
-            To_Lower (Name_Buffer (1 .. Name_Len));
-            Name := Name_Find;
+            Name := File_Name_Type
+              (Get_Lower_Name_Id (Get_Name_String (Element.Value)));
             Unit_Found := False;
 
             Project_2 := Project;
@@ -4859,14 +4823,11 @@ package body GPR.Nmsc is
 
             File_Name := Canonical_Case_File_Name (Element.Value.Value);
 
-            Get_Name_String (Element.Index);
-            To_Lower (Name_Buffer (1 .. Name_Len));
             Index := Element.Value.Index;
 
             --  Check if it is a valid unit name
 
-            Get_Name_String (Element.Index);
-            Check_Unit_Name (Name_Buffer (1 .. Name_Len), Unit);
+            Check_Unit_Name (Get_Name_String (Element.Index), Unit);
 
             if Unit = No_Name then
                Error_Msg_Name_1 := Element.Index;
@@ -5359,14 +5320,13 @@ package body GPR.Nmsc is
                Def_Lang_Id := No_Name;
 
             else
-               Get_Name_String (Def_Lang.Value);
-               To_Lower (Name_Buffer (1 .. Name_Len));
-               Def_Lang_Id := Name_Find;
+               Def_Lang_Id :=
+                 Get_Lower_Name_Id (Get_Name_String (Def_Lang.Value));
             end if;
 
             if Def_Lang_Id /= No_Name then
                Get_Name_String (Def_Lang_Id);
-               Name_Buffer (1) := GNAT.Case_Util.To_Upper (Name_Buffer (1));
+               Name_Buffer (1) := To_Upper (Name_Buffer (1));
                Add_Language
                  (Name         => Def_Lang_Id,
                   Display_Name => Name_Find);
@@ -5396,11 +5356,9 @@ package body GPR.Nmsc is
 
                   while Current /= Nil_String loop
                      Element := Shared.String_Elements.Table (Current);
-                     Get_Name_String (Element.Value);
-                     To_Lower (Name_Buffer (1 .. Name_Len));
 
                      Add_Language
-                       (Name         => Name_Find,
+                       (Get_Lower_Name_Id (Get_Name_String (Element.Value)),
                         Display_Name => Element.Value);
 
                      Current := Element.Next;
@@ -5523,7 +5481,7 @@ package body GPR.Nmsc is
 
          else
             Get_Name_String (Lib_Standalone.Value);
-            To_Lower (Name_Buffer (1 .. Name_Len));
+            Set_Casing (All_Lower_Case);
 
             if Name_Buffer (1 .. Name_Len) = "standard" then
                Project.Standalone_Library := Standard;
@@ -5559,7 +5517,7 @@ package body GPR.Nmsc is
 
          else
             Get_Name_String (Lib_Auto_Init.Value);
-            To_Lower (Name_Buffer (1 .. Name_Len));
+            Set_Casing (All_Lower_Case);
 
             if Name_Buffer (1 .. Name_Len) = "false" then
                Project.Lib_Auto_Init := False;
@@ -5801,7 +5759,7 @@ package body GPR.Nmsc is
    ---------------------
 
    procedure Check_Unit_Name (Name : String; Unit : out Name_Id) is
-      The_Name        : String := Name;
+      The_Name        : constant String := To_Lower (Name);
       Real_Name       : Name_Id;
       Need_Letter     : Boolean := True;
       Last_Underscore : Boolean := False;
@@ -5844,8 +5802,6 @@ package body GPR.Nmsc is
    --  Start of processing for Check_Unit_Name
 
    begin
-      To_Lower (The_Name);
-
       Name_Len := The_Name'Length;
       Name_Buffer (1 .. Name_Len) := The_Name;
 
@@ -9294,17 +9250,14 @@ package body GPR.Nmsc is
                              L.Project.Decl.Attributes,
                              Data.Tree.Shared);
                begin
-                  if not Var.Default then
-                     Get_Name_String (Var.Value);
-                     To_Lower (Name_Buffer (1 .. Name_Len));
-
-                     if Name_Buffer (1 .. Name_Len) = "true" then
-                        Error_Msg_Name_1 := L.Project.Display_Name;
-                        Error_Msg
-                          (Data.Flags,
-                           "cannot aggregate externally built project %%",
-                           Var.Location, Project);
-                     end if;
+                  if not Var.Default
+                    and then To_Lower (Get_Name_String (Var.Value)) = "true"
+                  then
+                     Error_Msg_Name_1 := L.Project.Display_Name;
+                     Error_Msg
+                       (Data.Flags,
+                        "cannot aggregate externally built project %%",
+                        Var.Location, Project);
                   end if;
 
                   if L.Project.Qualifier = Abstract_Project then

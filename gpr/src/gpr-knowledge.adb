@@ -35,7 +35,6 @@ with Ada.Strings.Fixed;                     use Ada.Strings.Fixed;
 with Ada.Strings.Hash_Case_Insensitive;
 with Ada.Text_IO;                           use Ada.Text_IO;
 
-with GNAT.Case_Util;                        use GNAT.Case_Util;
 with GNAT.Directory_Operations;             use GNAT.Directory_Operations;
 with GNAT.Expect;                           use GNAT.Expect;
 with GNAT.Regpat;                           use GNAT.Regpat;
@@ -869,21 +868,18 @@ package body GPR.Knowledge is
             C := First (Lang);
             while Has_Element (C) loop
                declare
-                  Lang_Name : Name_Id;
+                  Lang_Name : constant Name_Id :=
+                                Get_Lower_Name_Id
+                                  (Get_Name_String
+                                     (External_Value_Lists.Element (C).Value));
+                  Position : Known_Languages.Cursor;
+                  Inserted : Boolean;
                begin
-                  Get_Name_String (External_Value_Lists.Element (C).Value);
-                  To_Lower (Name_Buffer (1 .. Name_Len));
-                  Lang_Name := Name_Find;
-
-                  if not Known_Languages.Contains
-                    (Container => Languages_Known,
-                     Key       => Name_Find)
-                  then
-                     Known_Languages.Include
-                       (Container => Languages_Known,
-                        Key       => Lang_Name,
-                        New_Item  => Lang_Name);
-                  end if;
+                  Languages_Known.Insert
+                    (Key      => Lang_Name,
+                     New_Item => Lang_Name,
+                     Position => Position,
+                     Inserted => Inserted);
                end;
                Next (C);
             end loop;
@@ -3580,7 +3576,7 @@ package body GPR.Knowledge is
       Packages          : String_Maps.Map;
       Selected_Compiler : Compiler_Access;
       M                 : Boolean;
-      Project_Name      : String := "Default";
+      Project_Name      : constant String := "Default";
 
       procedure Gen (C : String_Maps.Cursor);
       --  C is a cursor of the map "Packages"
@@ -3621,8 +3617,6 @@ package body GPR.Knowledge is
       end Gen_And_Remove;
 
    begin
-      To_Mixed (Project_Name);
-
       while Has_Element (Config) loop
          Match (Configuration_Lists.Element (Config).Compilers_Filters,
                 Compilers, Selected_Compiler, M);

@@ -3699,16 +3699,13 @@ package body Gprbuild.Post_Compile is
                 ((Config.Kind = File_Based and then Source.Kind = Impl)
                  or else
                    (Config.Kind = Unit_Based
-                    and then
-                      Source.Unit /= No_Unit_Index
-                    and then
-                      Source.Unit /= Main_Source.Unit
-                    and then
-                      (Source.Kind = Impl
-                       or else Other_Part (Source) = No_Source)
+                    and then Source.Unit not in No_Unit_Index
+                                              | Main_Source.Unit
+                    and then (Source.Kind = Impl
+                              or else Other_Part (Source) = No_Source)
                     and then not Is_Subunit (Source)))
               and then Is_Included_In_Global_Archive
-                (Source.Object, Source.Project)
+                         (Source.Object, Source.Project)
             then
                if Source.Project = For_Project
                  or not Source.Project.Library

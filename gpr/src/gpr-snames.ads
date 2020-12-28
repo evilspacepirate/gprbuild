@@ -139,6 +139,7 @@ package GPR.Snames is
    Name_Config_Spec_File_Name_Pattern    : constant Name_Id := Name_Id (L) - N;
    Name_Configuration                    : constant Name_Id := Name_Id (L) - N;
    Name_Cross_Reference                  : constant Name_Id := Name_Id (L) - N;
+   Name_Def                              : constant Name_Id := Name_Id (L) - N;
    Name_Default_Language                 : constant Name_Id := Name_Id (L) - N;
    Name_Default_Switches                 : constant Name_Id := Name_Id (L) - N;
    Name_Dependency_Driver                : constant Name_Id := Name_Id (L) - N;
@@ -155,6 +156,11 @@ package GPR.Snames is
    Name_Executable_Suffix                : constant Name_Id := Name_Id (L) - N;
    Name_Externally_Built                 : constant Name_Id := Name_Id (L) - N;
    Name_Finder                           : constant Name_Id := Name_Id (L) - N;
+   Name_Flat                             : constant Name_Id := Name_Id (L) - N;
+   Name_Gcc                              : constant Name_Id := Name_Id (L) - N;
+   Name_Gcc_Gnu                          : constant Name_Id := Name_Id (L) - N;
+   Name_Gcc_Option_List                  : constant Name_Id := Name_Id (L) - N;
+   Name_Gcc_Object_List                  : constant Name_Id := Name_Id (L) - N;
    Name_Global_Compilation_Switches      : constant Name_Id := Name_Id (L) - N;
    Name_Global_Configuration_Pragmas     : constant Name_Id := Name_Id (L) - N;
    Name_Global_Config_File               : constant Name_Id := Name_Id (L) - N;

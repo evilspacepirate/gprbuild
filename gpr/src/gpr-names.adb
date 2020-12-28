@@ -471,16 +471,11 @@ package body GPR.Names is
    procedure Set_Casing (C : Casing_Type) is
       Ptr : Natural;
 
-      Actual_Casing : Casing_Type;
-      --  Set from C or D as appropriate
-
       After_Und : Boolean := True;
       --  True at start of string, and after an underline character or after
       --  any other special character that is not a normal identifier char).
 
    begin
-      Actual_Casing := C;
-
       Ptr := 1;
 
       while Ptr <= Name_Len loop
@@ -496,8 +491,8 @@ package body GPR.Names is
          --  Lower case letter
 
          elsif Is_Lower_Case_Letter (Name_Buffer (Ptr)) then
-            if Actual_Casing = All_Upper_Case
-              or else (After_Und and then Actual_Casing = Mixed_Case)
+            if C = All_Upper_Case
+              or else (After_Und and then C = Mixed_Case)
             then
                Name_Buffer (Ptr) := Fold_Upper (Name_Buffer (Ptr));
             end if;
@@ -508,8 +503,8 @@ package body GPR.Names is
          --  Upper case letter
 
          elsif Is_Upper_Case_Letter (Name_Buffer (Ptr)) then
-            if Actual_Casing = All_Lower_Case
-              or else (not After_Und and then Actual_Casing = Mixed_Case)
+            if C = All_Lower_Case
+              or else (not After_Und and then C = Mixed_Case)
             then
                Name_Buffer (Ptr) := Fold_Lower (Name_Buffer (Ptr));
             end if;

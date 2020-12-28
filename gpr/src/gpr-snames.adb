@@ -157,6 +157,7 @@ package body GPR.Snames is
       Add_Name ("config_spec_file_name_pattern");
       Add_Name ("configuration");
       Add_Name ("cross_reference");
+      Add_Name ("def");
       Add_Name ("default_language");
       Add_Name ("default_switches");
       Add_Name ("dependency_driver");
@@ -173,6 +174,11 @@ package body GPR.Snames is
       Add_Name ("executable_suffix");
       Add_Name ("externally_built");
       Add_Name ("finder");
+      Add_Name ("flat");
+      Add_Name ("gcc");
+      Add_Name ("gcc_gnu");
+      Add_Name ("gcc_option_list");
+      Add_Name ("gcc_object_list");
       Add_Name ("global_compilation_switches");
       Add_Name ("global_configuration_pragmas");
       Add_Name ("global_config_file");

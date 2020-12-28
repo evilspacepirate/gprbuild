@@ -29,7 +29,6 @@ with Ada.Environment_Variables;   use Ada.Environment_Variables;
 with Ada.Text_IO;                 use Ada.Text_IO;
 with Ada.Unchecked_Deallocation;
 
-with GNAT.Case_Util;            use GNAT.Case_Util;
 with GNAT.Directory_Operations; use GNAT.Directory_Operations;
 
 with GPR.Opt;
@@ -2072,10 +2071,7 @@ package body GPR is
       Result : Language_Ptr;
 
    begin
-      Name_Len := Name'Length;
-      Name_Buffer (1 .. Name_Len) := Name;
-      To_Lower (Name_Buffer (1 .. Name_Len));
-      N := Name_Find;
+      N := Get_Lower_Name_Id (Name);
 
       Result := Project.Languages;
       while Result /= No_Language_Index loop
