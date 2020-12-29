@@ -1886,11 +1886,9 @@ package body GPR is
    function Ultimate_Extending_Project_Of
      (Proj : Project_Id) return Project_Id
    is
-      Prj : Project_Id;
-
+      Prj : Project_Id := Proj;
    begin
-      Prj := Proj;
-      while Prj /= null and then Prj.Extended_By /= No_Project loop
+      while Prj /= No_Project and then Prj.Extended_By /= No_Project loop
          Prj := Prj.Extended_By;
       end loop;
 

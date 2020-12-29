@@ -703,6 +703,11 @@ package body Gprbuild.Post_Compile is
             --  the project is a library project. Otherwise, use the ALI file
             --  in the object directory.
 
+            function In_Library_SAL_Projs (Src : Source_Id) return Boolean is
+              (Library_SAL_Projs.Contains
+                 (Ultimate_Extending_Project_Of (Src.Project)));
+            --  Returns True of Src.Project founder is in the Library_SAL_Projs
+
             --------------------
             -- Add_To_Mapping --
             --------------------
@@ -848,7 +853,7 @@ package body Gprbuild.Post_Compile is
          --  Start of processing for Get_Closure
 
          begin
-            while Index < Closure_Sources.Last_Index loop
+            Over_Sources : while Index < Closure_Sources.Last_Index loop
                Index := Index + 1;
                Source := Closure_Sources (Index);
 
@@ -873,11 +878,11 @@ package body Gprbuild.Post_Compile is
 
                   --  Get the withed sources
 
-                  for J in ALI.ALIs.Table (The_ALI).First_Unit ..
-                    ALI.ALIs.Table (The_ALI).Last_Unit
+                  Over_Units : for J in ALI.ALIs.Table (The_ALI).First_Unit
+                                     .. ALI.ALIs.Table (The_ALI).Last_Unit
                   loop
-                     for K in ALI.Units.Table (J).First_With ..
-                       ALI.Units.Table (J).Last_With
+                     Over_Imports : for K in ALI.Units.Table (J).First_With
+                                          .. ALI.Units.Table (J).Last_With
                      loop
                         Sfile := ALI.Withs.Table (K).Sfile;
 
@@ -923,60 +928,41 @@ package body Gprbuild.Post_Compile is
                            end loop;
 
                            if Src_Id /= No_Source then
-                              declare
-                                 Proj : Project_Id := Src_Id.Project;
-                                 OK   : Boolean := False;
-                              begin
-                                 while Proj.Extended_By /= No_Project loop
-                                    Proj := Proj.Extended_By;
-                                 end loop;
+                              if not Closure_Sources.Contains (Src_Id) then
+                                 Closure_Sources.Append (Src_Id);
+                              end if;
 
-                                 for SAL_Prj of Library_SAL_Projs loop
-                                    if Proj = SAL_Prj then
-                                       OK := True;
-                                       exit;
-                                    end if;
-                                 end loop;
+                              if In_Library_SAL_Projs (Src_Id)
+                                and then not Library_Sources.Contains
+                                               (Src_Id)
+                              then
+                                 Library_Sources.Append (Src_Id);
+                                 Initialize_Source_Record (Src_Id);
 
-                                 if not Closure_Sources.Contains (Src_Id) then
-                                    Closure_Sources.Append (Src_Id);
-                                 end if;
+                                 if Src_Id.Object_TS = Empty_Time_Stamp then
+                                    Latest_Object_TS := Never;
 
-                                 if OK
-                                   and then not Library_Sources.Contains
-                                                  (Src_Id)
-                                 then
-                                    Library_Sources.Append (Src_Id);
-                                    Initialize_Source_Record (Src_Id);
+                                    if not Library_Needs_To_Be_Built then
+                                       Library_Needs_To_Be_Built := True;
 
-                                    if Src_Id.Object_TS = Empty_Time_Stamp then
-                                       Latest_Object_TS := Never;
-
-                                       if not Library_Needs_To_Be_Built then
-                                          Library_Needs_To_Be_Built := True;
-
-                                          if Opt.Verbosity_Level > Opt.Low then
-                                             Put
-                                               ("      ->"
-                                                & " missing object file: ");
-                                             Put_Line
-                                               (Get_Name_String
-                                                  (Src_Id.Object));
-                                          end if;
+                                       if Opt.Verbosity_Level > Opt.Low then
+                                          Put
+                                            ("      -> missing object file: ");
+                                          Put_Line
+                                            (Get_Name_String (Src_Id.Object));
                                        end if;
-
-                                    elsif Src_Id.Object_TS > Latest_Object_TS
-                                    then
-                                       Latest_Object_TS := Src_Id.Object_TS;
                                     end if;
+
+                                 elsif Src_Id.Object_TS > Latest_Object_TS then
+                                    Latest_Object_TS := Src_Id.Object_TS;
                                  end if;
-                              end;
+                              end if;
                            end if;
                         end if;
-                     end loop;
-                  end loop;
+                     end loop Over_Imports;
+                  end loop Over_Units;
                end if;
-            end loop;
+            end loop Over_Sources;
          end Get_Closure;
 
          procedure Process_Non_Standalone_Aggregate_Library is
