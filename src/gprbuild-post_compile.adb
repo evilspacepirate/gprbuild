@@ -262,6 +262,12 @@ package body Gprbuild.Post_Compile is
          Never : constant Time_Stamp_Type := (others => '9');
          --  A time stamp that is greater than any real one
 
+         procedure Check_Latest_Object_TS (Source : Source_Id);
+         --  Check if source object timestamp later than in Latest_Object_TS
+         --  and update it if this is the case. If object is absent, set the
+         --  Latest_Object_TS to Never and set Library_Needs_To_Be_Built to
+         --  True.
+
          procedure Check_Interface
            (Proj : Project_Id;
             Tree : Project_Tree_Ref);
@@ -298,6 +304,29 @@ package body Gprbuild.Post_Compile is
          --  For Stand-Alone libraries, get the closure of the Ada interface
          --  and put the object files in Library_Objs.
 
+         ----------------------------
+         -- Check_Latest_Object_TS --
+         ----------------------------
+
+         procedure Check_Latest_Object_TS (Source : Source_Id) is
+         begin
+            if Source.Object_TS = Empty_Time_Stamp then
+               Latest_Object_TS := Never;
+
+               if not Library_Needs_To_Be_Built then
+                  Library_Needs_To_Be_Built := True;
+
+                  if Opt.Verbosity_Level > Opt.Low then
+                     Put ("      -> missing object file: ");
+                     Put_Line (Get_Name_String (Source.Object));
+                  end if;
+               end if;
+
+            elsif Source.Object_TS > Latest_Object_TS then
+               Latest_Object_TS := Source.Object_TS;
+            end if;
+         end Check_Latest_Object_TS;
+
          -------------
          -- Process --
          -------------
@@ -307,9 +336,6 @@ package body Gprbuild.Post_Compile is
             Tree  : Project_Tree_Ref)
          is
             pragma Unreferenced (Tree);
-
-            Never : constant Time_Stamp_Type := (others => '9');
-            --  A time stamp that is greater than any real one
 
             Source : Source_Id;
             Iter   : Source_Iterator;
@@ -346,22 +372,7 @@ package body Gprbuild.Post_Compile is
                       TS    => Source.Object_TS,
                       Known => False));
 
-                  if Source.Object_TS = Empty_Time_Stamp then
-                     Latest_Object_TS := Never;
-
-                     if not Library_Needs_To_Be_Built then
-                        Library_Needs_To_Be_Built := True;
-
-                        if Opt.Verbosity_Level > Opt.Low then
-                           Put ("      -> missing object file: ");
-                           Get_Name_String (Source.Object);
-                           Put_Line (Name_Buffer (1 .. Name_Len));
-                        end if;
-                     end if;
-
-                  elsif Source.Object_TS > Latest_Object_TS then
-                     Latest_Object_TS := Source.Object_TS;
-                  end if;
+                  Check_Latest_Object_TS (Source);
                end if;
 
                Next (Iter);
@@ -641,20 +652,8 @@ package body Gprbuild.Post_Compile is
                      end loop;
                   end if;
 
-                  if OK and then Source.Object_TS = Empty_Time_Stamp then
-                     Latest_Object_TS := Never;
-
-                     if not Library_Needs_To_Be_Built then
-                        Library_Needs_To_Be_Built := True;
-
-                        if Opt.Verbosity_Level > Opt.Low then
-                           Put ("      -> missing object file: ");
-                           Put_Line (Get_Name_String (Source.Object));
-                        end if;
-                     end if;
-
-                  elsif OK and then Source.Object_TS > Latest_Object_TS then
-                     Latest_Object_TS := Source.Object_TS;
+                  if OK then
+                     Check_Latest_Object_TS (Source);
                   end if;
                end if;
 
@@ -939,23 +938,7 @@ package body Gprbuild.Post_Compile is
                                  Library_Sources.Append (Src_Id);
                                  Initialize_Source_Record (Src_Id);
 
-                                 if Src_Id.Object_TS = Empty_Time_Stamp then
-                                    Latest_Object_TS := Never;
-
-                                    if not Library_Needs_To_Be_Built then
-                                       Library_Needs_To_Be_Built := True;
-
-                                       if Opt.Verbosity_Level > Opt.Low then
-                                          Put
-                                            ("      -> missing object file: ");
-                                          Put_Line
-                                            (Get_Name_String (Src_Id.Object));
-                                       end if;
-                                    end if;
-
-                                 elsif Src_Id.Object_TS > Latest_Object_TS then
-                                    Latest_Object_TS := Src_Id.Object_TS;
-                                 end if;
+                                 Check_Latest_Object_TS (Src_Id);
                               end if;
                            end if;
                         end if;
