@@ -2,7 +2,7 @@
 --                                                                          --
 --                             GPR TECHNOLOGY                               --
 --                                                                          --
---                     Copyright (C) 2011-2020, AdaCore                     --
+--                     Copyright (C) 2011-2021, AdaCore                     --
 --                                                                          --
 -- This is  free  software;  you can redistribute it and/or modify it under --
 -- terms of the  GNU  General Public License as published by the Free Soft- --
@@ -222,6 +222,11 @@ package body Gprbuild.Post_Compile is
       procedure Wait_For_Dependency (P : Project_Id);
       --  Wait for dependent library project P build completed
 
+      function In_Library_SAL_Projs (Src : Source_Id) return Boolean is
+        (Library_SAL_Projs.Contains
+           (Ultimate_Extending_Project_Of (Src.Project)));
+      --  Returns True of Src.Project founder is in the Library_SAL_Projs
+
       Project_Name       : constant String :=
                              Get_Name_String (For_Project.Name);
       Current_Dir        : constant String := Get_Current_Dir;
@@ -281,6 +286,9 @@ package body Gprbuild.Post_Compile is
          --  Find the path of the ALI file The_ALI. It may be in project
          --  Proj, or if Proj is an aggregate library in one of its aggregated
          --  projects.
+
+         procedure Get_Roots (Source : Source_Id);
+         --  Get Roots of the SAL Source into object or ALI containers
 
          procedure Process
            (Proj : Project_Id;
@@ -600,6 +608,8 @@ package body Gprbuild.Post_Compile is
                          TS    => Source.Object_TS,
                          Known => False));
 
+                     Get_Roots (Source);
+
                   else
                      FNHS.Set (Library_ALIs, Source.Dep_Name, True);
 
@@ -701,11 +711,6 @@ package body Gprbuild.Post_Compile is
             --  in the library ALI directory if From_Object_Dir is False and
             --  the project is a library project. Otherwise, use the ALI file
             --  in the object directory.
-
-            function In_Library_SAL_Projs (Src : Source_Id) return Boolean is
-              (Library_SAL_Projs.Contains
-                 (Ultimate_Extending_Project_Of (Src.Project)));
-            --  Returns True of Src.Project founder is in the Library_SAL_Projs
 
             --------------------
             -- Add_To_Mapping --
@@ -945,8 +950,42 @@ package body Gprbuild.Post_Compile is
                      end loop Over_Imports;
                   end loop Over_Units;
                end if;
+
+               Get_Roots (Source);
+
             end loop Over_Sources;
          end Get_Closure;
+
+         ---------------
+         -- Get_Roots --
+         ---------------
+
+         procedure Get_Roots (Source : Source_Id) is
+            Root     : Roots_Access := Source.Roots;
+            Position : Objects.Cursor;
+            Inserted : Boolean;
+         begin
+            while Root /= null loop
+               Initialize_Source_Record (Root.Root);
+
+               if Root.Root.Unit = No_Unit_Index then
+                  Library_Objs.Insert
+                    ((Path  => Root.Root.Object_Path,
+                      TS    => Root.Root.Object_TS,
+                      Known => False), Position, Inserted);
+
+                  Get_Roots (Root.Root);
+
+               elsif In_Library_SAL_Projs (Root.Root)
+                 and then not Library_Sources.Contains (Root.Root)
+               then
+                  Library_Sources.Append (Root.Root);
+                  Check_Latest_Object_TS (Root.Root);
+               end if;
+
+               Root := Root.Next;
+            end loop;
+         end Get_Roots;
 
          procedure Process_Non_Standalone_Aggregate_Library is
            new For_Project_And_Aggregated (Process);

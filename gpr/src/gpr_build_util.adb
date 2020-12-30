@@ -2,7 +2,7 @@
 --                                                                          --
 --                             GPR TECHNOLOGY                               --
 --                                                                          --
---          Copyright (C) 2004-2020, Free Software Foundation, Inc.         --
+--          Copyright (C) 2004-2021, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -2064,6 +2064,34 @@ package body Gpr_Build_Util is
 
             Location : Source_Ptr;
 
+            function String_List_Contains
+              (List : String_List_Id; Item : File_Name_Type) return Boolean;
+            --  Returns True if Item is in the List
+
+            --------------------------
+            -- String_List_Contains --
+            --------------------------
+
+            function String_List_Contains
+              (List : String_List_Id; Item : File_Name_Type) return Boolean
+            is
+               Iterate : String_List_Id := List;
+               Element : String_Element;
+            begin
+               while Iterate /= Nil_String loop
+                  Element :=
+                    Project_Tree.Shared.String_Elements.Table (Iterate);
+
+                  if Element.Value = Name_Id (Item) then
+                     return True;
+                  end if;
+
+                  Iterate := Element.Next;
+               end loop;
+
+               return False;
+            end String_List_Contains;
+
          begin
             --  Nothing to do when "-u" was specified and some files were
             --  specified on the command line
@@ -2127,46 +2155,32 @@ package body Gpr_Build_Util is
                            OK := True;
                            Closure := False;
 
-                           if Source.Unit /= No_Unit_Index
-                             and then
-                               (Source.Project.Library
-                                or else Project.Qualifier = Aggregate_Library
-                                or else Context.In_Aggregate_Lib)
+                           if (Source.Project.Library
+                               or else Project.Qualifier = Aggregate_Library
+                               or else Context.In_Aggregate_Lib)
                              and then Source.Project.Standalone_Library /= No
                            then
-                              --  Check if the unit is in the interface
+                              --  Check if the source is in the interface
 
-                              OK := False;
-
-                              declare
-                                 List    : String_List_Id;
-                                 Element : String_Element;
-
-                              begin
-                                 List := Source.Project.Lib_Interface_ALIs;
-                                 while List /= Nil_String loop
-                                    Element :=
-                                      Project_Tree.Shared.String_Elements.Table
-                                        (List);
-
-                                    if Element.Value =
-                                       Name_Id (Source.Dep_Name)
-                                    then
-                                       OK := True;
-                                       Closure := True;
-                                       exit;
-                                    end if;
-
-                                    List := Element.Next;
-                                 end loop;
-                              end;
+                              if Source.Unit = No_Unit_Index then
+                                 OK := True;
+                                 Closure := String_List_Contains
+                                   (Source.Project.Other_Interfaces,
+                                    Source.File);
+                              else
+                                 OK := String_List_Contains
+                                   (Source.Project.Lib_Interface_ALIs,
+                                    Source.Dep_Name);
+                                 Closure := OK;
+                              end if;
                            end if;
 
                            if OK then
                               Queue.Insert
                                 (Source => (Tree    => Tree,
                                             Id      => Source,
-                                            Closure => Closure));
+                                            Closure => Closure),
+                                 With_Roots => Closure);
                            end if;
                         end if;
                      end if;
