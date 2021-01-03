@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2001-2020, Free Software Foundation, Inc.         --
+--          Copyright (C) 2001-2021, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -5017,6 +5017,7 @@ package body GPR.Util is
                                        Prev_Chs : constant Word :=
                                                     Dep_Src.Checksum;
                                        Prev_Sid : Source_Id;
+                                       Success  : Boolean;
                                     begin
                                        if Calculate_Checksum (Dep_Src) then
                                           if Dep_Src.Checksum /= Prev_Chs then
@@ -5030,11 +5031,13 @@ package body GPR.Util is
                                                  (Tree.Source_Files_HT,
                                                   Prev_Src);
 
-                                             --  Delete obsolete ALI file.
+                                             --  Delete obsolete ALI file if
+                                             --  exists.
 
                                              Delete_File
                                                (Get_Name_String
-                                                  (Prev_Sid.Dep_Path));
+                                                  (Prev_Sid.Dep_Path),
+                                                Success);
 
                                              --  Insert the source into the
                                              --  queue again.
