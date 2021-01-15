@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2006-2020, Free Software Foundation, Inc.         --
+--          Copyright (C) 2006-2021, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -45,9 +45,9 @@ package GPR.Knowledge is
    --------------------
    -- Knowledge base --
    --------------------
-   --  The following types and subprograms manipulate the knowldge base. This
+   --  The following types and subprograms manipulate the knowledge base. This
    --  base is a set of XML files that describe how to find compilers that are
-   --  installed on the system and that match specific criterias.
+   --  installed on the system and that match specific criteria.
 
    type Knowledge_Base is private;
 

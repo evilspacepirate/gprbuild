@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2004-2020, Free Software Foundation, Inc.         --
+--          Copyright (C) 2004-2021, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -489,7 +489,7 @@ package Gpr_Build_Util is
       --  extracted.
 
       function Processed return Natural;
-      --  Return the number of source in the queue that have aready been
+      --  Return the number of sources in the queue that have already been
       --  processed.
 
       procedure Set_Obj_Dir_Busy (Obj_Dir : Path_Name_Type);

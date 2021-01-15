@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2001-2020, Free Software Foundation, Inc.         --
+--          Copyright (C) 2001-2021, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -186,7 +186,7 @@ package GPR.Util is
 
    function Split (Source : String; Separator : String) return Name_Array_Type;
    --  Split string Source into several, using Separator. The different
-   --  occurences of Separator are not included in the result. The result
+   --  occurrences of Separator are not included in the result. The result
    --  includes no empty string.
 
    function Value_Of
