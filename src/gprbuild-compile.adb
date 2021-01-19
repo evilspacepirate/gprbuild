@@ -2,7 +2,7 @@
 --                                                                          --
 --                             GPR TECHNOLOGY                               --
 --                                                                          --
---                     Copyright (C) 2011-2020, AdaCore                     --
+--                     Copyright (C) 2011-2021, AdaCore                     --
 --                                                                          --
 -- This is  free  software;  you can redistribute it and/or modify it under --
 -- terms of the  GNU  General Public License as published by the Free Soft- --
@@ -3671,28 +3671,6 @@ package body Gprbuild.Compile is
                         No_Check);
                   end if;
 
-               elsif Current_Project.Library and then Opt.GnatProve_Mode
-                 and then Current_Project.Library_Dir.Display_Name /=
-                   Current_Project.Object_Directory.Display_Name
-                 and then Name_Id
-                   (Current_Project.Library_Dir.Display_Name) /= No_Name
-               then
-                  declare
-                     Success : Boolean;
-                     Str_Ali_File : constant String := Get_Name_String
-                       (Source_Identity.Id.Dep_Path);
-                     Str_Lib_Dir : constant String := Get_Name_String
-                       (Current_Project.Library_Dir.Display_Name);
-                  begin
-                     if Is_Regular_File (Str_Ali_File) then
-                        Copy_File
-                          (Str_Ali_File,
-                           Str_Lib_Dir,
-                           Success,
-                           Mode     => Overwrite,
-                           Preserve => Time_Stamps);
-                     end if;
-                  end;
                end if;
             end if;
 
