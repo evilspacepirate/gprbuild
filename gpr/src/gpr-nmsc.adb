@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2000-2020, Free Software Foundation, Inc.         --
+--          Copyright (C) 2000-2021, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -6301,7 +6301,7 @@ package body GPR.Nmsc is
          if Project.Qualifier = Standard then
             Error_Msg
               (Data.Flags,
-               "a standard project cannot have no sources",
+               "a standard project must have sources",
                Source_Files.Location, Project);
          end if;
 
@@ -6394,7 +6394,7 @@ package body GPR.Nmsc is
          then
             Error_Msg
               (Data.Flags,
-               "a standard project cannot have no source directories",
+               "a standard project must have source directories",
                Source_Dirs.Location, Project);
          end if;
       end if;
