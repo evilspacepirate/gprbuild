@@ -1783,11 +1783,11 @@ package body Gprbuild.Post_Compile is
                      Check_Attribute : declare
                         Opts : constant Variable_Value :=
                                  Value_Of
-                                   (Variable_Name     => Name_Linker_Options,
-                                    In_Variables =>
+                                   (Variable_Name => Name_Linker_Options,
+                                    In_Variables  =>
                                       Project_Tree.Shared.Packages.Table
                                         (Linker_Package).Decl.Attributes,
-                                    Shared       => Project_Tree.Shared);
+                                    Shared => Project_Tree.Shared);
 
                      begin
                         --  If a Linker_Options attribute is found, output it
@@ -1798,18 +1798,13 @@ package body Gprbuild.Post_Compile is
                               List : String_List_Id := Opts.Values;
                               Elem : String_Element;
                            begin
-                              while List /= Nil_String loop
-                                 Elem :=
-                                   Project_Tree.Shared.
-                                     String_Elements.Table (List);
-
+                              if List /= Nil_String then
                                  --  First ensure the section is opended
 
                                  if not Section_Out then
                                     Put_Line
                                       (Exchange_File,
-                                       Library_Label
-                                         (Gprexch.Library_Options));
+                                       Library_Label (Library_Options));
                                     Section_Out := True;
                                  end if;
 
@@ -1819,6 +1814,12 @@ package body Gprbuild.Post_Compile is
                                        "-L"
                                        & Get_Name_String (P.Library_Dir.Name));
                                  end if;
+                              end if;
+
+                              while List /= Nil_String loop
+                                 Elem :=
+                                   Project_Tree.Shared.String_Elements.Table
+                                     (List);
 
                                  Put_Line
                                    (Exchange_File,
