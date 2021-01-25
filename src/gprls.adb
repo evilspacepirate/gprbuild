@@ -2,7 +2,7 @@
 --                                                                          --
 --                             GPR TECHNOLOGY                               --
 --                                                                          --
---                    Copyright (C) 2015-2020, AdaCore                      --
+--                    Copyright (C) 2015-2021, AdaCore                      --
 --                                                                          --
 -- This is  free  software;  you can redistribute it and/or modify it under --
 -- terms of the  GNU  General Public License as published by the Free Soft- --
@@ -441,6 +441,8 @@ package body Gprls is
       Get_Name_String (U.Uname);
       Kind := Name_Buffer (Name_Len);
       Name_Len := Name_Len - 2;
+
+      Set_Casing (Mixed_Case);
 
       if not Verbose_Mode then
          Put_Line ("   " & Name_Buffer (1 .. Name_Len));
