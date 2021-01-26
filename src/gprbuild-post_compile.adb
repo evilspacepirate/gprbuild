@@ -1059,6 +1059,11 @@ package body Gprbuild.Post_Compile is
       procedure Wait_For_Dependency (P : Project_Id) is
       begin
          while Libs_Are_Building.Contains (P.Name) loop
+            pragma Assert
+              (Natural (Libs_Are_Building.Length) = Outstanding_Processes,
+               Libs_Are_Building.Length'Img & Outstanding_Processes'Img
+               & ' ' & Get_Name_String (P.Name));
+
             Wait_For_Slots_Less_Than (Outstanding_Processes);
          end loop;
       end Wait_For_Dependency;
@@ -5132,8 +5137,11 @@ package body Gprbuild.Post_Compile is
       while Outstanding_Processes >= Count loop
          Await_Process (Data, OK);
 
-         if OK then
+         if Data /= No_Process_Data then
             Libs_Are_Building.Exclude (Data.Main.Project.Name);
+         end if;
+
+         if OK then
             Data.Main.Project.Was_Built := True;
          else
             Record_Failure (Data.Main);
