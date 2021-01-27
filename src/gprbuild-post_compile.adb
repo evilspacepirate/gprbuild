@@ -192,6 +192,10 @@ package body Gprbuild.Post_Compile is
         (Label : Library_Section; Filename : File_Name_Type);
       --  Write Filename with label if Filename /= No_File
 
+      procedure Check_Section (Section : Library_Section);
+      --  Check that current exchange file output section is Section and set it
+      --  if not.
+
       --  Procedures to write specific sections of the exchange file
 
       procedure Write_Object_Files;
@@ -250,6 +254,18 @@ package body Gprbuild.Post_Compile is
       Iter        : Source_Iterator;
 
       Current_Section : Library_Section := No_Library_Section;
+
+      -------------------
+      -- Check_Section --
+      -------------------
+
+      procedure Check_Section (Section : Library_Section) is
+      begin
+         if Current_Section /= Section then
+            Current_Section := Section;
+            Put_Line (Exchange_File, Library_Label (Section));
+         end if;
+      end Check_Section;
 
       -----------------
       -- Get_Objects --
@@ -1451,21 +1467,15 @@ package body Gprbuild.Post_Compile is
       ----------------
 
       procedure Write_List (Label : Library_Section; List : String_List_Id) is
-         Current      : String_List_Id := List;
-         Element      : String_Element;
-         Output_Label : Boolean := True;
+         Current : String_List_Id := List;
+         Element : String_Element;
       begin
          while Current /= Nil_String loop
             Element := Project_Tree.Shared.String_Elements.Table (Current);
             Get_Name_String (Element.Value);
 
             if Name_Len /= 0 then
-               if Output_Label and then Current_Section /= Label then
-                  Put_Line (Exchange_File, Library_Label (Label));
-                  Output_Label := False;
-                  Current_Section := Label;
-               end if;
-
+               Check_Section (Label);
                Put_Line (Exchange_File, Name_Buffer (1 .. Name_Len));
             end if;
 
@@ -1484,15 +1494,13 @@ package body Gprbuild.Post_Compile is
          Nam     : Name_Node;
       begin
          if List /= No_Name_List then
-            if Current_Section /= Label then
-               Put_Line (Exchange_File, Library_Label (Label));
-               Current_Section := Label;
-            end if;
+            Check_Section (Label);
 
-            while Current /= No_Name_List loop
+            loop
                Nam := Project_Tree.Shared.Name_Lists.Table (Current);
                Put_Line (Exchange_File, Get_Name_String (Nam.Name));
                Current := Nam.Next;
+               exit when Current = No_Name_List;
             end loop;
          end if;
       end Write_Name_List;
@@ -1768,8 +1776,7 @@ package body Gprbuild.Post_Compile is
          ------------------------------
 
          procedure Write_All_Linker_Options (Project : Project_Id) is
-            Section_Out : Boolean := Current_Section = Gprexch.Library_Options;
-            L           : Project_List := Project.All_Imported_Projects;
+            L : Project_List := Project.All_Imported_Projects;
          begin
             --  For all imported projects
 
@@ -1806,12 +1813,7 @@ package body Gprbuild.Post_Compile is
                               if List /= Nil_String then
                                  --  First ensure the section is opended
 
-                                 if not Section_Out then
-                                    Put_Line
-                                      (Exchange_File,
-                                       Library_Label (Library_Options));
-                                    Section_Out := True;
-                                 end if;
+                                 Check_Section (Library_Options);
 
                                  if P.Library_Dir.Name /= No_Path then
                                     Put_Line
@@ -1819,19 +1821,21 @@ package body Gprbuild.Post_Compile is
                                        "-L"
                                        & Get_Name_String (P.Library_Dir.Name));
                                  end if;
+
+                                 loop
+                                    Elem :=
+                                      Project_Tree.Shared.String_Elements.Table
+                                        (List);
+
+                                    Put_Line
+                                      (Exchange_File,
+                                       Get_Name_String (Elem.Value));
+
+                                    List := Elem.Next;
+
+                                    exit when List = Nil_String;
+                                 end loop;
                               end if;
-
-                              while List /= Nil_String loop
-                                 Elem :=
-                                   Project_Tree.Shared.String_Elements.Table
-                                     (List);
-
-                                 Put_Line
-                                   (Exchange_File,
-                                    Get_Name_String (Elem.Value));
-
-                                 List := Elem.Next;
-                              end loop;
                            end Output_Options;
                         end if;
                      end Check_Attribute;
@@ -1865,9 +1869,8 @@ package body Gprbuild.Post_Compile is
             --  Also, skip this check for SALs so that Library_Options other
             --  than object files may be specified for the partial linking.
 
-            if For_Project.Standalone_Library = No and then
-              (For_Project.Library_Kind = Static or else
-               For_Project.Library_Kind = Static_Pic)
+            if For_Project.Standalone_Library = No
+              and then For_Project.Library_Kind in Static | Static_Pic
             then
                declare
                   List : String_List_Id := Library_Options.Values;
