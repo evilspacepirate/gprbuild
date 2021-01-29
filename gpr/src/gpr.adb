@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2001-2020, Free Software Foundation, Inc.         --
+--          Copyright (C) 2001-2021, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -2013,8 +2013,9 @@ package body GPR is
    begin
       case Source.Compilable is
          when Unknown =>
-            if Source.Language.Config.Compiler_Driver
-                 not in No_File | Empty_File
+            if (Source.Language.Config.Compiler_Driver not in
+                  No_File | Empty_File
+                or else Gprls_Mode)
               and then not Source.Locally_Removed
               and then (Source.Language.Config.Kind /= File_Based
                          or else Source.Kind /= Spec)

@@ -2,7 +2,7 @@
 --                                                                          --
 --                             GPR TECHNOLOGY                               --
 --                                                                          --
---                     Copyright (C) 2006-2020, AdaCore                     --
+--                     Copyright (C) 2006-2021, AdaCore                     --
 --                                                                          --
 -- This is  free  software;  you can redistribute it and/or modify it under --
 -- terms of the  GNU  General Public License as published by the Free Soft- --
@@ -1668,9 +1668,9 @@ procedure Gprlib is
                declare
                   Arg_List : String_List_Access :=
                     new String_List'(To_Argument_List (Objcopy_Args));
-                  FD             : File_Descriptor;
-                  Tmp_File       : Path_Name_Type;
-                  Status         : aliased Integer;
+                  FD       : File_Descriptor;
+                  Tmp_File : Path_Name_Type;
+                  Status   : aliased Integer;
 
                begin
                   --  Create the temporary file to receive (and

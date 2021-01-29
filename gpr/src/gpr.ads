@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2001-2020, Free Software Foundation, Inc.         --
+--          Copyright (C) 2001-2021, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -2833,6 +2833,11 @@ private
    Warnings_Treated_As_Errors : Nat := 0;
 
    Info_Messages : Nat := 0;
+
+   Gprls_Mode : Boolean := False;
+   --  When True, an ALI file may be found in an extending project, even if
+   --  the corresponding object file is not found in the same project.
+   --  This is only for gprls.
 
    All_Packages : constant String_List_Access := null;
 

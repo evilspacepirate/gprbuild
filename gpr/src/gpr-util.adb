@@ -66,11 +66,6 @@ with Gpr_Build_Util;  use Gpr_Build_Util;
 package body GPR.Util is
    use Ada.Containers;
 
-   Gprls_Mode : Boolean := False;
-   --  When True, an ALI file may be found in an extending project, even if
-   --  the corresponding object file is not found in the same project.
-   --  This is only for gprls.
-
    Program_Name : String_Access := null;
 
    type File_Stamp_Record is record
