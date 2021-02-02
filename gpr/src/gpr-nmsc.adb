@@ -215,18 +215,18 @@ package body GPR.Nmsc is
    --  as appropriate.
 
    type Search_Type is (Search_Files, Search_Directories);
+   --  Search_Files is to find project files.
+   --  Search_Directories is to find source directories.
 
-   generic
-      with procedure Callback
-        (Path          : Path_Information;
-         Pattern_Index : Natural);
    procedure Expand_Subdirectory_Pattern
      (Project       : Project_Id;
       Data          : in out Tree_Processing_Data;
       Patterns      : String_List_Id;
       Ignore        : String_List_Id;
       Search_For    : Search_Type;
-      Resolve_Links : Boolean);
+      Resolve_Links : Boolean;
+      Callback      : access procedure
+        (Path : Path_Information; Pattern_Index : Natural));
    --  Search the subdirectories of Project's directory for files or
    --  directories that match the globbing patterns found in Patterns (for
    --  instance "**/*.adb"). Typically, Patterns will be the value of the
@@ -998,11 +998,6 @@ package body GPR.Nmsc is
       procedure Found_Project_File (Path : Path_Information; Rank : Natural);
       --  Called for each project file aggregated by Project
 
-      procedure Expand_Project_Files is
-        new Expand_Subdirectory_Pattern (Callback => Found_Project_File);
-      --  Search for all project files referenced by the patterns given in
-      --  parameter. Calls Found_Project_File for each of them.
-
       ------------------------
       -- Found_Project_File --
       ------------------------
@@ -1061,13 +1056,14 @@ package body GPR.Nmsc is
       --  project path, and are only found through the path specified in
       --  the Project_Files attribute.
 
-      Expand_Project_Files
+      Expand_Subdirectory_Pattern
         (Project       => Project,
          Data          => Data,
          Patterns      => Project_Files.Values,
          Ignore        => Nil_String,
          Search_For    => Search_Files,
-         Resolve_Links => Opt.Follow_Links_For_Files);
+         Resolve_Links => Opt.Follow_Links_For_Files,
+         Callback      => Found_Project_File'Access);
 
       Free (Project_Path_For_Aggregate);
    end Process_Aggregated_Projects;
@@ -6089,25 +6085,56 @@ package body GPR.Nmsc is
                       GPR.Util.Value_Of
                         (Name_Languages, Project.Decl.Attributes, Shared);
 
-      Remove_Source_Dirs : Boolean := False;
-
       procedure Add_To_Or_Remove_From_Source_Dirs
-        (Path : Path_Information;
-         Rank : Natural);
-      --  When Removed = False, the directory Path_Id to the list of
-      --  source_dirs if not already in the list. When Removed = True,
-      --  removed directory Path_Id if in the list.
+        (Path : Path_Information; Rank : Natural; Remove : Boolean);
+      --  When Remove = False, Adds the directory Path_Id to the list of
+      --  source_dirs if not already in the list. When Remove = True,
+      --  removes directory Path_Id if in the list.
 
-      procedure Find_Source_Dirs is new Expand_Subdirectory_Pattern
-        (Add_To_Or_Remove_From_Source_Dirs);
+      procedure Add_To_Source_Dirs (Path : Path_Information; Rank : Natural);
+      --  Adds the directory Path_Id to the list of source_dirs if not already
+      --  in the list.
+
+      procedure Remove_From_Source_Dirs
+        (Path : Path_Information; Rank : Natural);
+      --  Removes directory Path_Id if in the list.
+
+      procedure Find_Source_Dirs
+        (Patterns  : String_List_Id;
+         Ignore    : String_List_Id;
+         Callback  : not null access procedure
+           (Path          : Path_Information;
+            Pattern_Index : Natural) := Add_To_Source_Dirs'Access);
+
+      ----------------------
+      -- Find_Source_Dirs --
+      ----------------------
+
+      procedure Find_Source_Dirs
+        (Patterns  : String_List_Id;
+         Ignore    : String_List_Id;
+         Callback  : not null access procedure
+           (Path          : Path_Information;
+            Pattern_Index : Natural) := Add_To_Source_Dirs'Access) is
+      begin
+         Expand_Subdirectory_Pattern
+           (Project       => Project,
+            Data          => Data,
+            Patterns      => Patterns,
+            Ignore        => Ignore,
+            Search_For    => Search_Directories,
+            Resolve_Links => Opt.Follow_Links_For_Dirs,
+            Callback      => Callback);
+      end Find_Source_Dirs;
 
       ---------------------------------------
       -- Add_To_Or_Remove_From_Source_Dirs --
       ---------------------------------------
 
       procedure Add_To_Or_Remove_From_Source_Dirs
-        (Path : Path_Information;
-         Rank : Natural)
+        (Path   : Path_Information;
+         Rank   : Natural;
+         Remove : Boolean)
       is
          List      : String_List_Id;
          Prev      : String_List_Id;
@@ -6131,51 +6158,49 @@ package body GPR.Nmsc is
 
          --  The directory is in the list if List is not Nil_String
 
-         if not Remove_Source_Dirs and then List = Nil_String then
-               Debug_Output
-                 ("adding source dir=", Name_Id (Path.Display_Name));
+         if not Remove and then List = Nil_String then
+            Debug_Output ("adding source dir=", Name_Id (Path.Display_Name));
 
-               String_Element_Table.Increment_Last (Shared.String_Elements);
-               Element :=
-                 (Value         => Name_Id (Path.Name),
-                  Index         => 0,
-                  Display_Value => Name_Id (Path.Display_Name),
-                  Location      => No_Location,
-                  Next          => Nil_String);
+            String_Element_Table.Increment_Last (Shared.String_Elements);
+            Element :=
+              (Value         => Name_Id (Path.Name),
+               Index         => 0,
+               Display_Value => Name_Id (Path.Display_Name),
+               Location      => No_Location,
+               Next          => Nil_String);
 
-               Number_List_Table.Increment_Last (Shared.Number_Lists);
+            Number_List_Table.Increment_Last (Shared.Number_Lists);
 
-               if Last_Source_Dir = Nil_String then
+            if Last_Source_Dir = Nil_String then
 
-                  --  This is the first source directory
+               --  This is the first source directory
 
-                  Project.Source_Dirs :=
-                    String_Element_Table.Last (Shared.String_Elements);
-                  Project.Source_Dir_Ranks :=
-                    Number_List_Table.Last (Shared.Number_Lists);
-
-               else
-                  --  We already have source directories, link the previous
-                  --  last to the new one.
-
-                  Shared.String_Elements.Table (Last_Source_Dir).Next :=
-                    String_Element_Table.Last (Shared.String_Elements);
-                  Shared.Number_Lists.Table (Last_Src_Dir_Rank).Next :=
-                    Number_List_Table.Last (Shared.Number_Lists);
-               end if;
-
-               --  And register this source directory as the new last
-
-               Last_Source_Dir :=
+               Project.Source_Dirs :=
                  String_Element_Table.Last (Shared.String_Elements);
-               Shared.String_Elements.Table (Last_Source_Dir) := Element;
-               Last_Src_Dir_Rank :=
+               Project.Source_Dir_Ranks :=
                  Number_List_Table.Last (Shared.Number_Lists);
-               Shared.Number_Lists.Table (Last_Src_Dir_Rank) :=
-                 (Number => Rank, Next => No_Number_List);
 
-         elsif Remove_Source_Dirs and then List /= Nil_String then
+            else
+               --  We already have source directories, link the previous
+               --  last to the new one.
 
+               Shared.String_Elements.Table (Last_Source_Dir).Next :=
+                 String_Element_Table.Last (Shared.String_Elements);
+               Shared.Number_Lists.Table (Last_Src_Dir_Rank).Next :=
+                 Number_List_Table.Last (Shared.Number_Lists);
+            end if;
+
+            --  And register this source directory as the new last
+
+            Last_Source_Dir :=
+              String_Element_Table.Last (Shared.String_Elements);
+            Shared.String_Elements.Table (Last_Source_Dir) := Element;
+            Last_Src_Dir_Rank :=
+              Number_List_Table.Last (Shared.Number_Lists);
+            Shared.Number_Lists.Table (Last_Src_Dir_Rank) :=
+              (Number => Rank, Next => No_Number_List);
+
+         elsif Remove and then List /= Nil_String then
             --  Remove source dir if present
 
             if Prev = Nil_String then
@@ -6191,6 +6216,26 @@ package body GPR.Nmsc is
             end if;
          end if;
       end Add_To_Or_Remove_From_Source_Dirs;
+
+      ------------------------
+      -- Add_To_Source_Dirs --
+      ------------------------
+
+      procedure Add_To_Source_Dirs
+        (Path : Path_Information; Rank : Natural) is
+      begin
+         Add_To_Or_Remove_From_Source_Dirs (Path, Rank, Remove => False);
+      end Add_To_Source_Dirs;
+
+      -----------------------------
+      -- Remove_From_Source_Dirs --
+      -----------------------------
+
+      procedure Remove_From_Source_Dirs
+        (Path : Path_Information; Rank : Natural) is
+      begin
+         Add_To_Or_Remove_From_Source_Dirs (Path, Rank, Remove => True);
+      end Remove_From_Source_Dirs;
 
       --  Local declarations
 
@@ -6346,7 +6391,7 @@ package body GPR.Nmsc is
                   --  Set Rank to 0 so that duplicate units are silently
                   --  accepted.
 
-                  Add_To_Or_Remove_From_Source_Dirs
+                  Add_To_Source_Dirs
                     (Path => (Name => Name,
                               Display_Name => Get_Path_Name_Id
                                 (Get_Name_String
@@ -6363,31 +6408,19 @@ package body GPR.Nmsc is
          begin
             if Try_Src_Subdir (Project.Name) or else Try_Src_Subdir (No_Name)
             then
-               Remove_Source_Dirs := False;
+               null;
             end if;
          end;
       end if;
 
       if Source_Dirs.Default then
-
          --  No Source_Dirs specified: the single source directory is the one
          --  containing the project file.
 
-         Remove_Source_Dirs := False;
-         Add_To_Or_Remove_From_Source_Dirs
-           (Path => (Name         => Project.Directory.Name,
-                     Display_Name => Project.Directory.Display_Name),
-            Rank => 1);
+         Add_To_Source_Dirs (Path => Project.Directory, Rank => 1);
 
       else
-         Remove_Source_Dirs := False;
-         Find_Source_Dirs
-           (Project       => Project,
-            Data          => Data,
-            Patterns      => Source_Dirs.Values,
-            Ignore        => Ignore_Source_Sub_Dirs.Values,
-            Search_For    => Search_Directories,
-            Resolve_Links => Opt.Follow_Links_For_Dirs);
+         Find_Source_Dirs (Source_Dirs.Values, Ignore_Source_Sub_Dirs.Values);
 
          if Project.Source_Dirs = Nil_String
            and then Project.Qualifier = Standard
@@ -6402,14 +6435,9 @@ package body GPR.Nmsc is
       if not Excluded_Source_Dirs.Default
         and then Excluded_Source_Dirs.Values /= Nil_String
       then
-         Remove_Source_Dirs := True;
          Find_Source_Dirs
-           (Project       => Project,
-            Data          => Data,
-            Patterns      => Excluded_Source_Dirs.Values,
-            Ignore        => Nil_String,
-            Search_For    => Search_Directories,
-            Resolve_Links => Opt.Follow_Links_For_Dirs);
+           (Excluded_Source_Dirs.Values, Nil_String,
+            Remove_From_Source_Dirs'Access);
       end if;
 
       Debug_Output ("putting source directories in canonical cases");
@@ -8014,7 +8042,9 @@ package body GPR.Nmsc is
       Patterns      : String_List_Id;
       Ignore        : String_List_Id;
       Search_For    : Search_Type;
-      Resolve_Links : Boolean)
+      Resolve_Links : Boolean;
+      Callback      : access procedure
+        (Path : Path_Information; Pattern_Index : Natural))
    is
       Shared : constant Shared_Project_Tree_Data_Access := Data.Tree.Shared;
 

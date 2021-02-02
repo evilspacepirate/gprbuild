@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---            Copyright (C) 2006-2020, Free Software Foundation, Inc.       --
+--            Copyright (C) 2006-2021, Free Software Foundation, Inc.       --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -2326,13 +2326,9 @@ package body GPR.Conf is
 
       procedure Check_Project (Project : Project_Id) is
       begin
-         if Project.Qualifier = Aggregate
-              or else
-            Project.Qualifier = Aggregate_Library
-         then
+         if Project.Qualifier in Aggregate_Project then
             declare
                List : Aggregated_Project_List := Project.Aggregated_Projects;
-
             begin
                --  Look for a non aggregate project until one is found
 
