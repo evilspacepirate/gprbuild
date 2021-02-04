@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2002-2020, Free Software Foundation, Inc.         --
+--          Copyright (C) 2002-2021, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -104,6 +104,7 @@ package body GPR.Err is
 
       Sfile : Source_File_Index;
       Line  : Line_Number;
+      Col   : Column_Number;
    begin
       Prescan_Message (Msg);
       Set_Msg_Text (Msg);
@@ -126,6 +127,7 @@ package body GPR.Err is
 
       Sfile    := Get_Source_File_Index (Sptr);
       Line     := Get_Line_Number (Sptr);
+      Col      := Get_Column_Number (Sptr);
       Prev_Msg := No_Error_Msg;
       Next_Msg := First_Error_Msg;
 
@@ -152,6 +154,7 @@ package body GPR.Err is
 
       if Prev_Msg /= No_Error_Msg
         and then Errors.Table (Prev_Msg).Line = Line
+        and then Errors.Table (Prev_Msg).Col = Col
         and then Errors.Table (Prev_Msg).Sfile = Sfile
       then
          --  Don't delete unconditional messages and at this stage, don't
