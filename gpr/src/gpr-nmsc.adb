@@ -8820,40 +8820,19 @@ package body GPR.Nmsc is
                   In_Imported_Only => True,
                   Base_Name        => Excluded.File);
 
-               Error_Msg_File_1 := Excluded.File;
-
-               if Src = No_Source and then Excluded.Project = Project.Project
+               if (Src = No_Source and then Excluded.Project = Project.Project)
+                 or else Src /= No_Source
                then
-                  if Excluded.Excl_File = No_File then
-                     Error_Msg
-                       (Data.Flags,
-                        "unknown file {", Excluded.Location, Project.Project);
-
-                  else
-                     Error_Msg
+                  Error_Msg_File_1 := Excluded.File;
+                  Error_Msg
                     (Data.Flags,
-                     "in " &
-                     Get_Name_String (Excluded.Excl_File) & ":" &
-                     No_Space_Img (Excluded.Excl_Line) &
-                     ": unknown file {", Excluded.Location, Project.Project);
-                  end if;
-
-               elsif Src /= No_Source then
-                  if Excluded.Excl_File = No_File then
-                     Error_Msg
-                       (Data.Flags,
-                        "cannot remove a source from an imported project: {",
-                        Excluded.Location, Project.Project);
-
-                  else
-                     Error_Msg
-                       (Data.Flags,
-                        "in " &
-                        Get_Name_String (Excluded.Excl_File) & ":" &
-                          No_Space_Img (Excluded.Excl_Line) &
-                        ": cannot remove a source from an imported project: {",
-                        Excluded.Location, Project.Project);
-                  end if;
+                     (if Excluded.Excl_File = No_File then ""
+                      else "in " & Get_Name_String (Excluded.Excl_File)
+                      & ':' & No_Space_Img (Excluded.Excl_Line) & ": ")
+                      & (if Src = No_Source then "unknown file {"
+                         else "cannot remove a source from an imported project"
+                         & ": {"),
+                     Excluded.Location, Project.Project);
                end if;
             end if;
 
