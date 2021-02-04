@@ -2627,15 +2627,18 @@ package GPR is
    --  behavior of the parser, and indicate how to report error messages. This
    --  structure does not allocate memory and never needs to be freed
 
-   type Error_Warning is (Silent, Warning, Error);
+   type Error_Warning is (Silent, Warning, Error, Decide_Later);
    --  Severity of some situations, such as: no Ada sources in a project where
    --  Ada is one of the language.
    --
    --  When the situation occurs, the behaviour depends on the setting:
    --
-   --    - Silent:  no action
-   --    - Warning: issue a warning, does not cause the tool to fail
-   --    - Error:   issue an error, causes the tool to fail
+   --    - Silent:       no action
+   --    - Warning:      issue a warning, does not cause the tool to fail
+   --    - Error:        issue an error, causes the tool to fail
+   --    - Decide_Later: keep the message until call to Messages_Decision
+
+   subtype Decided_Message is Error_Warning range Error_Warning'First .. Error;
 
    type Error_Handler is access procedure
      (Project    : Project_Id;
@@ -2655,6 +2658,7 @@ package GPR is
       Error_On_Unknown_Language  : Boolean       := True;
       Require_Obj_Dirs           : Error_Warning := Error;
       Allow_Invalid_External     : Error_Warning := Error;
+      Missing_Project_Files      : Error_Warning := Error;
       Missing_Source_Files       : Error_Warning := Error;
       Ignore_Missing_With        : Boolean       := False;
       Check_Configuration_Only   : Boolean       := False)
@@ -2924,6 +2928,7 @@ private
       Error_On_Unknown_Language  : Boolean;
       Require_Obj_Dirs           : Error_Warning;
       Allow_Invalid_External     : Error_Warning;
+      Missing_Project_Files      : Error_Warning;
       Missing_Source_Files       : Error_Warning;
       Ignore_Missing_With        : Boolean;
       Check_Configuration_Only   : Boolean;
@@ -2943,6 +2948,7 @@ private
                          Error_On_Unknown_Language  => True,
                          Require_Obj_Dirs           => Error,
                          Allow_Invalid_External     => Error,
+                         Missing_Project_Files      => Error,
                          Missing_Source_Files       => Error,
                          Ignore_Missing_With        => False,
                          Incomplete_Withs           => False,
@@ -2957,6 +2963,7 @@ private
                          Error_On_Unknown_Language  => True,
                          Require_Obj_Dirs           => Silent,
                          Allow_Invalid_External     => Error,
+                         Missing_Project_Files      => Error,
                          Missing_Source_Files       => Error,
                          Ignore_Missing_With        => False,
                          Incomplete_Withs           => False,
@@ -2971,6 +2978,7 @@ private
                          Error_On_Unknown_Language  => True,
                          Require_Obj_Dirs           => Warning,
                          Allow_Invalid_External     => Error,
+                         Missing_Project_Files      => Error,
                          Missing_Source_Files       => Error,
                          Ignore_Missing_With        => False,
                          Incomplete_Withs           => False,
@@ -2985,6 +2993,7 @@ private
                          Error_On_Unknown_Language  => True,
                          Require_Obj_Dirs           => Error,
                          Allow_Invalid_External     => Error,
+                         Missing_Project_Files      => Error,
                          Missing_Source_Files       => Error,
                          Ignore_Missing_With        => False,
                          Incomplete_Withs           => False,
@@ -2999,6 +3008,7 @@ private
                          Error_On_Unknown_Language  => True,
                          Require_Obj_Dirs           => Error,
                          Allow_Invalid_External     => Error,
+                         Missing_Project_Files      => Error,
                          Missing_Source_Files       => Error,
                          Ignore_Missing_With        => False,
                          Incomplete_Withs           => False,

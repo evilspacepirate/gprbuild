@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2001-2020, Free Software Foundation, Inc.         --
+--          Copyright (C) 2001-2021, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -1740,7 +1740,7 @@ package body GPR.Proc is
                   Reset_Value := True;
                   Error_Msg
                     (Env.Flags, "?no value defined for %%", Loc, Project);
-               when Silent =>
+               when Silent | Decide_Later =>
                   Reset_Value := True;
             end case;
 
@@ -1785,7 +1785,7 @@ package body GPR.Proc is
                         Loc, Project);
                      Reset_Value := True;
 
-                  when Silent =>
+                  when Silent | Decide_Later =>
                      Reset_Value := True;
                   end case;
 

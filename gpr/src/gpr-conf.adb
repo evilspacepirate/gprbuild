@@ -30,6 +30,7 @@ with GNAT.Table;
 
 with GPR.Env;
 with GPR.Names;  use GPR.Names;
+with GPR.Nmsc;   use GPR.Nmsc;
 with GPR.Opt;    use GPR.Opt;
 with GPR.Output; use GPR.Output;
 with GPR.Part;
@@ -1746,6 +1747,7 @@ package body GPR.Conf is
          Set_Require_Obj_Dirs (Env.Flags, Silent);
          Set_Check_Configuration_Only (Env.Flags, True);
          Set_Missing_Source_Files (Env.Flags, Silent);
+         Env.Flags.Missing_Project_Files := Decide_Later;
          Store_Setup_Projects := Setup_Projects;
          Setup_Projects := False;
       else
@@ -2412,7 +2414,10 @@ package body GPR.Conf is
       --  projects in the project tree.
 
       if Conf_Project = No_Project then
+         Messages_Decision (Error);
          raise Invalid_Config with "there are no non-aggregate projects";
+      else
+         Messages_Decision (Silent);
       end if;
 
       --  Find configuration file

@@ -29,7 +29,9 @@ with Ada.Strings;                use Ada.Strings;
 with Ada.Strings.Fixed;          use Ada.Strings.Fixed;
 with Ada.Strings.Maps.Constants; use Ada.Strings.Maps.Constants;
 with Ada.Text_IO;                use Ada.Text_IO;
+
 with Ada.Containers.Hashed_Maps;
+with Ada.Containers.Indefinite_Vectors;
 with Ada.Strings.Hash_Case_Insensitive;
 with Ada.Strings.Equal_Case_Insensitive;
 
@@ -181,6 +183,20 @@ package body GPR.Nmsc is
    --  A table to record library names in order to check that two library
    --  projects do not have the same library names.
 
+   type Error_Message (Length : Positive) is record
+      Flags    : Processing_Flags;
+      Location : Source_Ptr;
+      Project  : Project_Id;
+      Msg      : String (1 .. Length);
+   end record;
+
+   package Hold_Errors is new Ada.Containers.Indefinite_Vectors
+     (Positive, Error_Message);
+
+   Errors_Holder : Hold_Errors.Vector;
+   --  Keep error messages until decision is it error, warning or should be
+   --  forgotten.
+
    procedure Initialize
      (Data      : out Tree_Processing_Data;
       Tree      : Project_Tree_Ref;
@@ -214,9 +230,9 @@ package body GPR.Nmsc is
    --  exceptions, and copied into the Source_Names and Unit_Exceptions tables
    --  as appropriate.
 
-   type Search_Type is (Search_Files, Search_Directories);
-   --  Search_Files is to find project files.
-   --  Search_Directories is to find source directories.
+   type Search_Type is (Search_Project_Files, Search_Source_Directories);
+   --  Search_Project_Files is to find project files.
+   --  Search_Source_Directories is to find source directories.
 
    procedure Expand_Subdirectory_Pattern
      (Project       : Project_Id;
@@ -520,7 +536,10 @@ package body GPR.Nmsc is
       Msg      : String;
       Location : Source_Ptr;
       Project  : Project_Id);
-   --  Emits either an error or warning message (or nothing), depending on Kind
+   --  Process a message depending on Kind.
+   --  Error or Warning going to be printed.
+   --  Silent going to be ignored.
+   --  Decide_Later going to be kept until call to Messages_Decision,
 
    function No_Space_Img (N : Natural) return String;
    --  Image of a Natural without the initial space
@@ -537,11 +556,27 @@ package body GPR.Nmsc is
       Project  : Project_Id) is
    begin
       case Kind is
-         when Error   => Error_Msg (Flags, Msg, Location, Project);
-         when Warning => Error_Msg (Flags, "?" & Msg, Location, Project);
-         when Silent  => null;
+         when Silent       => null;
+         when Error        => Error_Msg (Flags, Msg, Location, Project);
+         when Warning      => Error_Msg (Flags, "?" & Msg, Location, Project);
+         when Decide_Later =>
+            Errors_Holder.Append
+              (Error_Message'(Msg'Length, Flags, Location, Project, Msg));
       end case;
    end Error_Or_Warning;
+
+   -----------------------
+   -- Messages_Decision --
+   -----------------------
+
+   procedure Messages_Decision (Kind : Decided_Message) is
+   begin
+      for M of Errors_Holder loop
+         Error_Or_Warning (M.Flags, Kind, M.Msg, M.Location, M.Project);
+      end loop;
+
+      Errors_Holder.Clear;
+   end Messages_Decision;
 
    ------------------------------
    -- Replace_Into_Name_Buffer --
@@ -1061,7 +1096,7 @@ package body GPR.Nmsc is
          Data          => Data,
          Patterns      => Project_Files.Values,
          Ignore        => Nil_String,
-         Search_For    => Search_Files,
+         Search_For    => Search_Project_Files,
          Resolve_Links => Opt.Follow_Links_For_Files,
          Callback      => Found_Project_File'Access);
 
@@ -6122,7 +6157,7 @@ package body GPR.Nmsc is
             Data          => Data,
             Patterns      => Patterns,
             Ignore        => Ignore,
-            Search_For    => Search_Directories,
+            Search_For    => Search_Source_Directories,
             Resolve_Links => Opt.Follow_Links_For_Dirs,
             Callback      => Callback);
       end Find_Source_Dirs;
@@ -8094,11 +8129,11 @@ package body GPR.Nmsc is
 
       begin
          case Search_For is
-            when Search_Directories =>
+            when Search_Source_Directories =>
                Callback (Path, Rank);
                return True;
 
-            when Search_Files =>
+            when Search_Project_Files =>
                Open (Dir, Get_Name_String (Path.Display_Name));
 
                loop
@@ -8251,7 +8286,7 @@ package body GPR.Nmsc is
 
          --  If we are looking for files, find the pattern for the files
 
-         if Search_For = Search_Files then
+         if Search_For = Search_Project_Files then
             while Pattern_End >= Pattern'First
               and then not Is_Directory_Separator (Pattern (Pattern_End))
             loop
@@ -8333,14 +8368,15 @@ package body GPR.Nmsc is
 
             if not Success then
                case Search_For is
-                  when Search_Directories =>
+                  when Search_Source_Directories =>
                      null;  --  Error can't occur
 
-                  when Search_Files =>
-                     Error_Msg_File_1 := File_Name_Type (Pattern_Id);
+                  when Search_Project_Files =>
                      Error_Or_Warning
-                       (Data.Flags, Data.Flags.Missing_Source_Files,
-                        "file { not found", Location, Project);
+                       (Data.Flags, Data.Flags.Missing_Project_Files,
+                        "file """ & Get_Name_String (Pattern_Id)
+                        & """ not found",
+                        Location, Project);
                end case;
             end if;
          end if;
@@ -9154,7 +9190,7 @@ package body GPR.Nmsc is
       end loop;
 
       case Data.Flags.When_No_Sources is
-         when Silent =>
+         when Silent | Decide_Later =>
             null;
 
          when Warning | Error =>
