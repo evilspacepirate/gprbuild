@@ -2,7 +2,7 @@
 --                                                                          --
 --                             GPR TECHNOLOGY                               --
 --                                                                          --
---                     Copyright (C) 2012-2020, AdaCore                     --
+--                     Copyright (C) 2012-2021, AdaCore                     --
 --                                                                          --
 -- This is  free  software;  you can redistribute it and/or modify it under --
 -- terms of the  GNU  General Public License as published by the Free Soft- --
@@ -955,9 +955,7 @@ begin
             Normalized_Hostname        => Knowledge.Normalized_Hostname,
             Implicit_Project           => No_Project_File_Found);
       exception
-         when E : GPR.Conf.Invalid_Config =>
-            Fail_Program (Project_Tree, Exception_Message (E));
-         when E : Name_Error =>
+         when E : GPR.Conf.Invalid_Config | Name_Error =>
             Fail_Program (Project_Tree, Exception_Message (E));
       end;
 
