@@ -827,7 +827,9 @@ package body GPR.Util is
 
          --  ??? Should pass user flags here instead
 
-         Err.Error_Msg (Gprbuild_Flags, Token_Image & " expected", Token_Ptr);
+         Err.Error_Msg
+           (Gprbuild_Flags, Token_Image & " expected", Token_Ptr,
+            One_Line => True);
       end if;
    end Expect;
 

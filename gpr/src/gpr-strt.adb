@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2001-2017, Free Software Foundation, Inc.         --
+--          Copyright (C) 2001-2021, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -1711,7 +1711,9 @@ package body GPR.Strt is
             Set_Current_Term (Term, In_Tree, To => Reference);
 
          when others =>
-            Error_Msg (Flags, "cannot be part of an expression", Token_Ptr);
+            Error_Msg
+              (Flags, "cannot be part of an expression", Token_Ptr,
+               One_Line => True);
             Term := Empty_Project_Node;
             return;
       end case;
