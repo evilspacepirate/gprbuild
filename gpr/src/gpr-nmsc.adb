@@ -8278,6 +8278,7 @@ package body GPR.Nmsc is
          Dir_Exists  : Boolean;
          Success     : Boolean;
          Has_Error   : Boolean := False;
+         Msg_Mode    : Error_Warning;
 
       begin
          Debug_Increase_Indent ("Find_Pattern", Pattern_Id);
@@ -8347,11 +8348,16 @@ package body GPR.Nmsc is
             Must_Exist  => False);
 
          if not Dir_Exists then
-            Error_Msg_File_1 := Dir;
+            Msg_Mode := (case Search_For is
+                             when Search_Source_Directories =>
+                               Data.Flags.Missing_Source_Files,
+                             when Search_Project_Files =>
+                               Data.Flags.Missing_Project_Files);
             Error_Or_Warning
-              (Data.Flags, Data.Flags.Missing_Source_Files,
-               "{ is not a valid directory", Location, Project);
-            Has_Error := Data.Flags.Missing_Source_Files = Error;
+              (Data.Flags, Msg_Mode,
+               '"' & Get_Name_String (Dir) & """ is not a valid directory",
+               Location, Project);
+            Has_Error := Msg_Mode = Error;
          end if;
 
          if not Has_Error then
