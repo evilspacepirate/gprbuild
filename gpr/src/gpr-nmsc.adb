@@ -6935,8 +6935,7 @@ package body GPR.Nmsc is
    is
       Parent          : constant Path_Name_Type :=
                           Project.Directory.Display_Name;
-      The_Parent      : constant String :=
-                          Get_Name_String (Parent);
+      The_Parent      : constant String := Get_Name_String (Parent);
       The_Parent_Last : constant Natural :=
                           Compute_Directory_Last (The_Parent);
       Full_Name       : File_Name_Type;
@@ -6972,7 +6971,6 @@ package body GPR.Nmsc is
            and then Build_Tree_Dir /= null
            and then Create /= ""
          then
-
             --  Issue a warning that we cannot relocate absolute obj dir
 
             Error_Msg_File_1 := Name;
@@ -6985,6 +6983,16 @@ package body GPR.Nmsc is
          Get_Name_String (Name);
       end if;
 
+      --  Convert '/' to directory separator (for Windows)
+
+      if Directory_Separator /= '/' then
+         for J in 1 .. Name_Len loop
+            if Name_Buffer (J) = '/' then
+               Name_Buffer (J) := Directory_Separator;
+            end if;
+         end loop;
+      end if;
+
       --  Add Subdirs.all if it is a directory that may be created and
       --  Subdirs is not null;
 
@@ -6995,14 +7003,6 @@ package body GPR.Nmsc is
 
          Add_Str_To_Name_Buffer (Subdirs.all);
       end if;
-
-      --  Convert '/' to directory separator (for Windows)
-
-      for J in 1 .. Name_Len loop
-         if Name_Buffer (J) = '/' then
-            Name_Buffer (J) := Directory_Separator;
-         end if;
-      end loop;
 
       The_Name := Name_Find;
 
@@ -7050,6 +7050,7 @@ package body GPR.Nmsc is
                      Add_Str_To_Name_Buffer (Get_Name_String (Name));
                   end if;
 
+                  Free (Full_Path_Name);
                   Full_Path_Name := new String'(Name_Buffer (1 .. Name_Len));
 
                else
@@ -7068,15 +7069,13 @@ package body GPR.Nmsc is
                            Display
                              (Section  => Setup,
                               Command  => "mkdir",
-                              Argument =>
-                                Create & " directory for project " &
-                                Get_Name_String (Project.Display_Name));
+                              Argument => Create & " directory for project "
+                              & Get_Name_String (Project.Display_Name));
                         end if;
                      end if;
 
                   exception
                      when Ada.Directories.Use_Error =>
-
                         --  Output message with name of directory. Note that we
                         --  use the ~ insertion method here in case the name
                         --  has special characters in it.
@@ -7087,8 +7086,7 @@ package body GPR.Nmsc is
                         Error_Msg
                           (Data.Flags,
                            "could not create " & Create & " directory ~",
-                           Location,
-                           Project);
+                           Location, Project);
                   end;
                end if;
             end if;
