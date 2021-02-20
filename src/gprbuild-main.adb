@@ -30,7 +30,7 @@ pragma Warnings (On);
 with GNAT.Command_Line;         use GNAT.Command_Line;
 with GNAT.Directory_Operations; use GNAT.Directory_Operations;
 
-with Gpr_Build_Util;             use Gpr_Build_Util;
+with Gpr_Build_Util;            use Gpr_Build_Util;
 with Gprbuild.Compile;
 with Gprbuild.Link;
 with Gprbuild.Post_Compile;

@@ -4373,7 +4373,6 @@ package body Gprbuild.Post_Compile is
                declare
                   Mapping_Path : constant Path_Name_Type :=
                                    Create_Binder_Mapping_File (Project_Tree);
-
                begin
                   if Mapping_Path /= No_Path then
                      Put_Line
@@ -4737,11 +4736,21 @@ package body Gprbuild.Post_Compile is
                if Main_Proj.Standalone_Library = Encapsulated
                  or else not Proj_List.From_Encapsulated_Lib
                then
-                  Put_Line
-                    (Exchange_File,
-                     Get_Name_String
-                       (Proj_List.Project.Path.Display_Name) & ASCII.LF
-                     & Get_Project_Checkline (Proj_List.Project));
+                  declare
+                     Project : Project_Id := Proj_List.Project;
+                  begin
+                     while Project.Virtual
+                       and then Project.Extends /= No_Project
+                     loop
+                        Project := Project.Extends;
+                     end loop;
+
+                     Put_Line
+                       (Exchange_File,
+                        Get_Name_String (Project.Path.Display_Name));
+                     Put_Line
+                       (Exchange_File, Get_Project_Checkline (Project));
+                  end;
                end if;
 
                Proj_List := Proj_List.Next;
