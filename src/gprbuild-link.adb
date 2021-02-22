@@ -2041,12 +2041,12 @@ package body Gprbuild.Link is
                if Is_Static (Library_Projs (J).Proj) then
                   declare
                      Proj     : constant Project_Id := Library_Projs (J).Proj;
-                     Lib_Name : constant String := Get_Name_String
-                       (Proj.Library_Name);
-                     Lib_Path : constant String := Get_Name_String
-                       (Proj.Library_Dir.Display_Name)
-                       & "lib" & Lib_Name
-                       & Archive_Suffix (Proj);
+                     Lib_Name : constant String :=
+                                  Get_Name_String (Proj.Library_Name);
+                     Lib_Path : constant String :=
+                                  Get_Name_String
+                                    (Proj.Library_Dir.Display_Name)
+                                  & "lib" & Lib_Name & Archive_Suffix (Proj);
                      Arg_List : Argument_List_Access;
                      Arg_Disp : Options_Data;
 
@@ -2365,7 +2365,7 @@ package body Gprbuild.Link is
                   --  directory.
 
                   if not Library_Dirs.Get
-                    (Library_Projs (J).Proj.Library_Dir.Name)
+                           (Library_Projs (J).Proj.Library_Dir.Name)
                   then
                      Library_Dirs.Set
                        (Library_Projs (J).Proj.Library_Dir.Name, True);
@@ -2373,20 +2373,20 @@ package body Gprbuild.Link is
                      if Main_Proj.Config.Linker_Lib_Dir_Option = No_Name then
                         Add_Argument
                           (Other_Arguments,
-                           "-L" &
-                             Get_Name_String
-                             (Library_Projs (J).
-                                Proj.Library_Dir.Display_Name),
+                           "-L"
+                           & Get_Name_String
+                               (Library_Projs
+                                  (J).Proj.Library_Dir.Display_Name),
                            Opt.Verbose_Mode);
 
                      else
                         Add_Argument
                           (Other_Arguments,
                            Get_Name_String
-                             (Main_Proj.Config.Linker_Lib_Dir_Option) &
-                             Get_Name_String
-                             (Library_Projs (J).
-                                Proj.Library_Dir.Display_Name),
+                             (Main_Proj.Config.Linker_Lib_Dir_Option)
+                           & Get_Name_String
+                               (Library_Projs
+                                  (J).Proj.Library_Dir.Display_Name),
                            Opt.Verbose_Mode);
                      end if;
 
@@ -2405,18 +2405,17 @@ package body Gprbuild.Link is
                   if Main_Proj.Config.Linker_Lib_Name_Option = No_Name then
                      Add_Argument
                        (Other_Arguments,
-                        "-l" &
-                          Get_Name_String
-                          (Library_Projs (J).Proj.Library_Name),
+                        "-l" & Get_Name_String
+                                 (Library_Projs (J).Proj.Library_Name),
                         Opt.Verbose_Mode);
 
                   else
                      Add_Argument
                        (Other_Arguments,
                         Get_Name_String
-                          (Main_Proj.Config.Linker_Lib_Name_Option) &
-                          Get_Name_String
-                          (Library_Projs (J).Proj.Library_Name),
+                          (Main_Proj.Config.Linker_Lib_Name_Option)
+                        & Get_Name_String
+                            (Library_Projs (J).Proj.Library_Name),
                         Opt.Verbose_Mode);
                   end if;
                end if;
