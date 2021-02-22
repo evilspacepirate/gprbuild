@@ -1904,15 +1904,15 @@ package body GPR.Proc is
                --  renaming, as the first declarative item is null).
 
                Process_Declarative_Items
-                 (Project                => Project,
-                  In_Tree                => In_Tree,
-                  From_Project_Node      => From_Project_Node,
-                  Node_Tree              => Node_Tree,
-                  Env                    => Env,
-                  Pkg                    => New_Pkg,
-                  Item                   =>
-                    First_Declarative_Item_Of (Current_Item, Node_Tree),
-                  Child_Env              => Child_Env);
+                 (Project           => Project,
+                  In_Tree           => In_Tree,
+                  From_Project_Node => From_Project_Node,
+                  Node_Tree         => Node_Tree,
+                  Env               => Env,
+                  Pkg               => New_Pkg,
+                  Item              => First_Declarative_Item_Of
+                    (Current_Item, Node_Tree),
+                  Child_Env         => Child_Env);
             end;
          end if;
       end Process_Package_Declaration;
@@ -2604,14 +2604,14 @@ package body GPR.Proc is
 
          if Present (Decl_Item) then
             Process_Declarative_Items
-              (Project                => Project,
-               In_Tree                => In_Tree,
-               From_Project_Node      => From_Project_Node,
-               Node_Tree              => Node_Tree,
-               Env                    => Env,
-               Pkg                    => Pkg,
-               Item                   => Decl_Item,
-               Child_Env              => Child_Env);
+              (Project           => Project,
+               In_Tree           => In_Tree,
+               From_Project_Node => From_Project_Node,
+               Node_Tree         => Node_Tree,
+               Env               => Env,
+               Pkg               => Pkg,
+               Item              => Decl_Item,
+               Child_Env         => Child_Env);
          end if;
       end Process_Case_Construction;
 
@@ -2832,7 +2832,7 @@ package body GPR.Proc is
    is
       Shared : constant Shared_Project_Tree_Data_Access := In_Tree.Shared;
 
-      Child_Env              : GPR.Tree.Environment;
+      Child_Env : GPR.Tree.Environment;
       --  Only used for the root aggregate project (if any). This is left
       --  uninitialized otherwise.
 
@@ -3116,7 +3116,7 @@ package body GPR.Proc is
       else
          declare
             Imported, Mark   : Project_List;
-            Declaration_Node : Project_Node_Id  := Empty_Project_Node;
+            Declaration_Node : Project_Node_Id := Empty_Project_Node;
 
             Name : constant Name_Id :=
                      Name_Of (From_Project_Node, From_Project_Node_Tree);
@@ -3201,15 +3201,10 @@ package body GPR.Proc is
             Project.Name := Name;
             Project.Display_Name := Display_Name;
 
-            Get_Name_String (Name);
-
             --  If name starts with the virtual prefix, flag the project as
             --  being a virtual extending project.
 
-            if Name_Len > Virtual_Prefix'Length
-              and then
-                Name_Buffer (1 .. Virtual_Prefix'Length) = Virtual_Prefix
-            then
+            if Util.Starts_With (Get_Name_String (Name), Virtual_Prefix) then
                Project.Virtual := True;
             end if;
 
@@ -3248,7 +3243,6 @@ package body GPR.Proc is
                Initialize_And_Copy (Child_Env, Copy_From => Env);
 
             elsif Project.Qualifier = Aggregate_Library then
-
                --  The child environment is the same as the current one.
                --  Copy the Project_Path, so that if it is freed, the project
                --  path of the parent is not modified.
@@ -3272,9 +3266,8 @@ package body GPR.Proc is
               (In_Tree                => In_Tree,
                Project                => Project.Extends,
                Packages_To_Check      => Packages_To_Check,
-               From_Project_Node      =>
-                 Extended_Project_Of
-                   (Declaration_Node, From_Project_Node_Tree),
+               From_Project_Node      => Extended_Project_Of
+                 (Declaration_Node, From_Project_Node_Tree),
                From_Project_Node_Tree => From_Project_Node_Tree,
                Env                    => Env,
                Extended_By            => Project,
@@ -3282,15 +3275,15 @@ package body GPR.Proc is
                On_New_Tree_Loaded     => On_New_Tree_Loaded);
 
             Process_Declarative_Items
-              (Project                => Project,
-               In_Tree                => In_Tree,
-               From_Project_Node      => From_Project_Node,
-               Node_Tree              => From_Project_Node_Tree,
-               Env                    => Env,
-               Pkg                    => No_Package,
-               Item                   => First_Declarative_Item_Of
+              (Project           => Project,
+               In_Tree           => In_Tree,
+               From_Project_Node => From_Project_Node,
+               Node_Tree         => From_Project_Node_Tree,
+               Env               => Env,
+               Pkg               => No_Package,
+               Item              => First_Declarative_Item_Of
                  (Declaration_Node, From_Project_Node_Tree),
-               Child_Env              => Child_Env);
+               Child_Env         => Child_Env);
 
             if Project.Extends /= No_Project then
                Process_Extended_Project;
