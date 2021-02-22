@@ -257,17 +257,7 @@ package GPR.Knowledge is
    -- knowledge base contents --
    -----------------------------
 
-   function Hash_Name_Id
-     (Name : Name_Id) return Ada.Containers.Hash_Type
-   is
-     (Ada.Containers.Hash_Type (Name));
-
-   package Variables_Maps is new Ada.Containers.Hashed_Maps
-     (Key_Type        => Name_Id,
-      Element_Type    => Name_Id,
-      Hash            => Hash_Name_Id,
-      Equivalent_Keys => "=",
-      "="             => "=");
+   package Variables_Maps renames Name_Id_Maps;
 
    No_Compiler : constant Compiler;
    --  Describes one of the compilers found on the PATH.
@@ -488,8 +478,7 @@ private
    --  taken as a regular expression.
 
    package Compiler_Description_Maps is new
-     Ada.Containers.Hashed_Maps
-       (Name_Id, Compiler_Description, Hash_Name_Id, "=");
+     Ada.Containers.Hashed_Maps (Name_Id, Compiler_Description, To_Hash, "=");
 
    type Compiler_Filter is record
       Name        : Name_Id;
