@@ -188,13 +188,9 @@ package body GPR.Proc is
       --  If Str is nil, then do not change To_Ext
 
       elsif Str not in No_Name | Empty_String then
-         declare
-            S : constant String := Get_Name_String (Str);
-         begin
-            Get_Name_String (To_Exp);
-            Add_Str_To_Name_Buffer (S);
-            To_Exp := Name_Find;
-         end;
+         Get_Name_String (To_Exp);
+         Get_Name_String_And_Append (Str);
+         To_Exp := Name_Find;
       end if;
    end Add;
 

@@ -1332,7 +1332,7 @@ package body GPR is
       if Object_File_Suffix = No_Name then
          Add_Str_To_Name_Buffer (Object_Suffix);
       else
-         Add_Str_To_Name_Buffer (Get_Name_String (Object_File_Suffix));
+         Get_Name_String_And_Append (Object_File_Suffix);
       end if;
 
       return Name_Find;

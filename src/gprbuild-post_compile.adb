@@ -4218,7 +4218,7 @@ package body Gprbuild.Post_Compile is
                              (Source_Identity.Project
                               .Library_ALI_Dir.Display_Name));
                         Add_Char_To_Name_Buffer (Directory_Separator);
-                        Add_Str_To_Name_Buffer (Get_Name_String (Dep_File));
+                        Get_Name_String_And_Append (Dep_File);
 
                         Dep_TS := Unknown_Attributes;
                         if Is_Regular_File (Name_Buffer (1 .. Name_Len)) then
@@ -4237,20 +4237,17 @@ package body Gprbuild.Post_Compile is
                              and then
                                Proj.Library_ALI_Dir /= No_Path_Information
                            then
-                              Add_Str_To_Name_Buffer
-                                (Get_Name_String
-                                   (Proj.Library_ALI_Dir.Display_Name));
+                              Get_Name_String_And_Append
+                                (Proj.Library_ALI_Dir.Display_Name);
 
                            else
-                              Add_Str_To_Name_Buffer
-                                (Get_Name_String
-                                   (Proj.Object_Directory.Display_Name));
+                              Get_Name_String_And_Append
+                                (Proj.Object_Directory.Display_Name);
                            end if;
 
                            Add_Char_To_Name_Buffer
                              (Directory_Separator);
-                           Add_Str_To_Name_Buffer
-                             (Get_Name_String (Dep_File));
+                           Get_Name_String_And_Append (Dep_File);
 
                            --  Check if the dependency file exists in
                            --  the extended project, and if it does,

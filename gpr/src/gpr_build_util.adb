@@ -2754,7 +2754,7 @@ package body Gpr_Build_Util is
       Name_Len := 0;
 
       for Index in Directories.First .. Directories.Last loop
-         Add_Str_To_Name_Buffer (Get_Name_String (Directories.Table (Index)));
+         Get_Name_String_And_Append (Directories.Table (Index));
          Add_Char_To_Name_Buffer (ASCII.LF);
       end loop;
 

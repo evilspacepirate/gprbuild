@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2001-2020, Free Software Foundation, Inc.         --
+--          Copyright (C) 2001-2021, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -268,6 +268,16 @@ package body GPR.Names is
       if Debug.Debug_Flag_A then
          Put_Line (" Found: '" & Name_Entries (Id).Value & "' >>>>");
       end if;
+   end Get_Name_String_And_Append;
+
+   procedure Get_Name_String_And_Append (Id : File_Name_Type) is
+   begin
+      Get_Name_String_And_Append (Name_Id (Id));
+   end Get_Name_String_And_Append;
+
+   procedure Get_Name_String_And_Append (Id : Path_Name_Type) is
+   begin
+      Get_Name_String_And_Append (Name_Id (Id));
    end Get_Name_String_And_Append;
 
    -------------------------

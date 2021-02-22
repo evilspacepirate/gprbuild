@@ -398,8 +398,7 @@ package body Gprbuild.Compile is
                         end loop;
                      end if;
 
-                     Add_Str_To_Name_Buffer
-                       (Get_Name_String (Source.Id.Path.Display_Name));
+                     Get_Name_String_And_Append (Source.Id.Path.Display_Name);
                      Add_Option
                        (Name_Buffer (1 .. Name_Len),
                         Compilation_Options,
@@ -487,7 +486,7 @@ package body Gprbuild.Compile is
                Add_Char_To_Name_Buffer (Directory_Separator);
             end if;
 
-            Add_Str_To_Name_Buffer (Get_Name_String (Path));
+            Get_Name_String_And_Append (Path);
          end if;
 
          return Name_Find;
@@ -1554,7 +1553,7 @@ package body Gprbuild.Compile is
             Get_Name_String (Nam.Name);
 
             if Nam.Next = No_Name_List then
-               Add_Str_To_Name_Buffer (Get_Name_String (Path_Name));
+               Get_Name_String_And_Append (Path_Name);
             end if;
 
             Add_Option
@@ -2438,21 +2437,21 @@ package body Gprbuild.Compile is
             if Id.Object /= No_File then
                Get_Name_String
                  (Id.Object_Project.Object_Directory.Display_Name);
-               Add_Str_To_Name_Buffer (Get_Name_String (Id.Object));
+               Get_Name_String_And_Append (Id.Object);
                Id.Object_Path := Name_Find;
             end if;
 
             if Id.Dep_Name /= No_File then
                Get_Name_String
                  (Id.Object_Project.Object_Directory.Display_Name);
-               Add_Str_To_Name_Buffer (Get_Name_String (Id.Dep_Name));
+               Get_Name_String_And_Append (Id.Dep_Name);
                Id.Dep_Path := Name_Find;
             end if;
 
             if Id.Switches /= No_File then
                Get_Name_String
                  (Id.Object_Project.Object_Directory.Display_Name);
-               Add_Str_To_Name_Buffer (Get_Name_String (Id.Switches));
+               Get_Name_String_And_Append (Id.Switches);
                Id.Switches_Path := Name_Find;
             end if;
          end if;
@@ -2508,7 +2507,7 @@ package body Gprbuild.Compile is
             end loop;
 
             Get_Name_String (Node.Name);
-            Add_Str_To_Name_Buffer (Get_Name_String (Id.Object));
+            Get_Name_String_And_Append (Id.Object);
 
             Add_Option
               (Name_Buffer (1 .. Name_Len),
@@ -2555,8 +2554,7 @@ package body Gprbuild.Compile is
             end loop;
 
             Get_Name_String (Node.Name);
-            Add_Str_To_Name_Buffer
-              (Get_Name_String (Id.Project.Object_Path_File));
+            Get_Name_String_And_Append (Id.Project.Object_Path_File);
 
             Add_Option
               (Name_Buffer (1 .. Name_Len),
@@ -2725,7 +2723,7 @@ package body Gprbuild.Compile is
 
                else
                   Get_Name_String (Node.Name);
-                  Add_Str_To_Name_Buffer (Get_Name_String (Mapping_File_Path));
+                  Get_Name_String_And_Append (Mapping_File_Path);
                   Add_Option
                     (Name_Buffer (1 .. Name_Len),
                      To      => Compilation_Options,

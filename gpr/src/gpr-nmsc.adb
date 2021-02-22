@@ -5759,10 +5759,8 @@ package body GPR.Nmsc is
 
             else
                if not Is_Absolute_Path (Name_Buffer (1 .. Name_Len)) then
-                  Set_Name_Buffer
-                    (Get_Name_String (Project.Directory.Display_Name));
-                  Add_Str_To_Name_Buffer
-                    (Get_Name_String (Lib_Symbol_File.Value));
+                  Get_Name_String (Project.Directory.Display_Name);
+                  Get_Name_String_And_Append (Lib_Symbol_File.Value);
                   Project.Symbol_Data.Symbol_File := Name_Find;
                end if;
 
@@ -6964,7 +6962,7 @@ package body GPR.Nmsc is
            (Relative_Path
               (The_Parent (The_Parent'First .. The_Parent_Last),
                Root_Dir.all));
-         Add_Str_To_Name_Buffer (Get_Name_String (Name));
+         Get_Name_String_And_Append (Name);
 
       else
          if not Externally_Built
@@ -7024,7 +7022,7 @@ package body GPR.Nmsc is
       else
          Set_Name_Buffer
            (The_Parent (The_Parent'First .. The_Parent_Last));
-         Add_Str_To_Name_Buffer (Get_Name_String (The_Name));
+         Get_Name_String_And_Append (The_Name);
          Full_Name := Name_Find;
       end if;
 
@@ -7047,7 +7045,7 @@ package body GPR.Nmsc is
                   else
                      Set_Name_Buffer
                        (The_Parent (The_Parent'First .. The_Parent_Last));
-                     Add_Str_To_Name_Buffer (Get_Name_String (Name));
+                     Get_Name_String_And_Append (Name);
                   end if;
 
                   Free (Full_Path_Name);

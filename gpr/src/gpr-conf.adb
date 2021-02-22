@@ -951,11 +951,11 @@ package body GPR.Conf is
                        (Get_Name_String (Conf_Project.Directory.Display_Name),
                         Root_Dir.all));
                else
-                  Add_Str_To_Name_Buffer
-                    (Get_Name_String (Conf_Project.Directory.Display_Name));
+                  Get_Name_String_And_Append
+                    (Conf_Project.Directory.Display_Name);
                end if;
 
-               Add_Str_To_Name_Buffer (Get_Name_String (Obj_Dir.Value));
+               Get_Name_String_And_Append (Obj_Dir.Value);
             end if;
          end if;
 
@@ -2389,7 +2389,7 @@ package body GPR.Conf is
                   else
                      Set_Name_Buffer
                        (Get_Name_String (Main_Project.Directory.Display_Name));
-                     Add_Str_To_Name_Buffer (Get_Name_String (Obj_Dir.Value));
+                     Get_Name_String_And_Append (Obj_Dir.Value);
                   end if;
                end if;
 

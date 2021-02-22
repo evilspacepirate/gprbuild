@@ -2,7 +2,7 @@
 --                                                                          --
 --                             GPR TECHNOLOGY                               --
 --                                                                          --
---                     Copyright (C) 2012-2020, AdaCore                     --
+--                     Copyright (C) 2012-2021, AdaCore                     --
 --                                                                          --
 -- This is  free  software;  you can redistribute it and/or modify it under --
 -- terms of the  GNU  General Public License as published by the Free Soft- --
@@ -431,10 +431,8 @@ package body Gprinstall.Install is
                                  end if;
 
                               else
-                                 Set_Name_Buffer
-                                   (Global_Prefix_Dir.V.all);
-                                 Add_Str_To_Name_Buffer
-                                   (Value);
+                                 Set_Name_Buffer (Global_Prefix_Dir.V.all);
+                                 Add_Str_To_Name_Buffer (Value);
                                  Res := Name_Find;
                                  Changed := True;
                               end if;
@@ -629,29 +627,26 @@ package body Gprinstall.Install is
          if not Is_Static (Project)
            and then Project.Config.Shared_Lib_Prefix /= No_File
          then
-            Set_Name_Buffer
-              (Get_Name_String (Project.Config.Shared_Lib_Prefix));
+            Get_Name_String (Project.Config.Shared_Lib_Prefix);
          else
             Set_Name_Buffer ("lib");
          end if;
 
          --  Library name
 
-         Add_Str_To_Name_Buffer (Get_Name_String (Project.Library_Name));
+         Get_Name_String_And_Append (Project.Library_Name);
 
          --  Library suffix
 
          if Is_Static (Project)
            and then Project.Config.Archive_Suffix /= No_File
          then
-            Add_Str_To_Name_Buffer
-              (Get_Name_String (Project.Config.Archive_Suffix));
+            Get_Name_String_And_Append (Project.Config.Archive_Suffix);
 
          elsif not Is_Static (Project)
            and then Project.Config.Shared_Lib_Suffix /= No_File
          then
-            Add_Str_To_Name_Buffer
-              (Get_Name_String (Project.Config.Shared_Lib_Suffix));
+            Get_Name_String_And_Append (Project.Config.Shared_Lib_Suffix);
 
          else
             Add_Str_To_Name_Buffer (".so");

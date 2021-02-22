@@ -1582,9 +1582,8 @@ package body Gprbuild.Link is
 
       else
          Get_Name_String (Main_Proj.Exec_Directory.Display_Name);
-         Name_Len := Name_Len + 1;
-         Name_Buffer (Name_Len) := Directory_Separator;
-         Add_Str_To_Name_Buffer (Get_Name_String (Exec_Name));
+         Add_Char_To_Name_Buffer (Directory_Separator);
+         Get_Name_String_And_Append (Exec_Name);
          Exec_Path_Name := Name_Find;
       end if;
 
@@ -1925,8 +1924,8 @@ package body Gprbuild.Link is
          Linker_Needs_To_Be_Called := True;
 
          if Opt.Verbosity_Level > Opt.Low then
-            Put_Line ("      -> global archive is more recent than " &
-                          "executable");
+            Put_Line
+              ("      -> global archive is more recent than executable");
          end if;
       end if;
 
@@ -1936,8 +1935,6 @@ package body Gprbuild.Link is
       declare
          List : Project_List := Main_Proj.All_Imported_Projects;
          Proj : Project_Id;
-
-         Current_Dir : constant String := Get_Current_Dir;
       begin
          while List /= null loop
             Proj := List.Project;
@@ -1955,13 +1952,12 @@ package body Gprbuild.Link is
 
                if Is_Static (Proj) then
                   Add_Str_To_Name_Buffer ("lib");
-                  Add_Str_To_Name_Buffer (Get_Name_String (Proj.Library_Name));
+                  Get_Name_String_And_Append (Proj.Library_Name);
 
                   if Proj.Config.Archive_Suffix = No_File then
                      Add_Str_To_Name_Buffer (".a");
                   else
-                     Add_Str_To_Name_Buffer
-                       (Get_Name_String (Proj.Config.Archive_Suffix));
+                     Get_Name_String_And_Append (Proj.Config.Archive_Suffix);
                   end if;
 
                else
@@ -1970,17 +1966,17 @@ package body Gprbuild.Link is
                   if Proj.Config.Shared_Lib_Prefix = No_File then
                      Add_Str_To_Name_Buffer ("lib");
                   else
-                     Add_Str_To_Name_Buffer
-                       (Get_Name_String (Proj.Config.Shared_Lib_Prefix));
+                     Get_Name_String_And_Append
+                       (Proj.Config.Shared_Lib_Prefix);
                   end if;
 
-                  Add_Str_To_Name_Buffer (Get_Name_String (Proj.Library_Name));
+                  Get_Name_String_And_Append (Proj.Library_Name);
 
                   if Proj.Config.Shared_Lib_Suffix = No_File then
                      Add_Str_To_Name_Buffer (".so");
                   else
-                     Add_Str_To_Name_Buffer
-                       (Get_Name_String (Proj.Config.Shared_Lib_Suffix));
+                     Get_Name_String_And_Append
+                       (Proj.Config.Shared_Lib_Suffix);
                   end if;
                end if;
 
@@ -1988,7 +1984,8 @@ package body Gprbuild.Link is
                --  recent than the executable.
 
                declare
-                  Lib_TS : constant Time := File_Stamp (Name_Find);
+                  Lib_TS : constant Time :=
+                             File_Time_Stamp (Name_Buffer (1 .. Name_Len));
                begin
                   if Lib_TS = Osint.Invalid_Time then
                      Linker_Needs_To_Be_Called := True;
@@ -2007,8 +2004,7 @@ package body Gprbuild.Link is
                      if Opt.Verbosity_Level > Opt.Low then
                         Put ("      -> library file """);
                         Put (Name_Buffer (1 .. Name_Len));
-                        Put_Line
-                          (""" is more recent than executable");
+                        Put_Line (""" is more recent than executable");
                      end if;
 
                      exit;
@@ -2016,8 +2012,6 @@ package body Gprbuild.Link is
                end;
             end if;
          end loop;
-
-         Change_Dir (Current_Dir);
       end;
 
       if not Linker_Needs_To_Be_Called then
@@ -2045,7 +2039,6 @@ package body Gprbuild.Link is
          for J in reverse 1 .. Library_Projs.Last_Index loop
             if not Library_Projs (J).Is_Aggregated then
                if Is_Static (Library_Projs (J).Proj) then
-
                   declare
                      Proj     : constant Project_Id := Library_Projs (J).Proj;
                      Lib_Name : constant String := Get_Name_String
@@ -2082,7 +2075,6 @@ package body Gprbuild.Link is
                      --  Extract linker switches in the case of a static SAL.
 
                      if Proj.Standalone_Library = GPR.Standard then
-
                         Linking_With_Static_SALs := True;
 
                         if Archive_Builder_Path = null then
@@ -2092,9 +2084,8 @@ package body Gprbuild.Link is
                         declare
                            Status : aliased Integer;
                            Output : String_Access;
+                           EOL    : constant String := "" & ASCII.LF;
 
-                           EOL           : constant String (1 .. 1) :=
-                             (1 => ASCII.LF);
                            Obj_Found     : Boolean := False;
                            Obj           : String_Access;
                            Obj_Path_Name : Path_Name_Type;
@@ -2117,8 +2108,8 @@ package body Gprbuild.Link is
 
                            Success     : Boolean := True;
                            Warning_Msg : String_Access;
-                        begin
 
+                        begin
                            --  Create the temporary file to receive (and
                            --  discard) the output from spawned processes.
 
@@ -2127,17 +2118,18 @@ package body Gprbuild.Link is
                            if FD = Invalid_FD then
                               Fail_Program
                                 (Main_File.Tree,
-                                "could not create temporary file");
+                                 "could not create temporary file");
                            else
-                              Record_Temp_File (Main_File.Tree.Shared,
-                                                Tmp_File);
+                              Record_Temp_File
+                                (Main_File.Tree.Shared, Tmp_File);
                            end if;
 
                            --  Use the archive builder path to compute the
                            --  path to objcopy.
 
-                           if AB_Path_Len > 2 and then AB_Path
-                             (AB_Path_Len - 1 .. AB_Path_Len) = "ar"
+                           if AB_Path_Len > 2
+                             and then AB_Path (AB_Path_Len - 1 .. AB_Path_Len)
+                                      = "ar"
                            then
                               Objcopy_Path := new String'
                                 (AB_Path (1 .. AB_Path_Len - 2) & "objcopy");
@@ -3108,8 +3100,7 @@ package body Gprbuild.Link is
                Add_Str_To_Name_Buffer (Map_File.all);
 
             else
-               Add_Str_To_Name_Buffer
-                 (Get_Name_String (Main_Base_Name_Index));
+               Get_Name_String_And_Append (Main_Base_Name_Index);
                Add_Str_To_Name_Buffer (".map");
             end if;
 
@@ -3134,7 +3125,7 @@ package body Gprbuild.Link is
 
             procedure Add_Executable_Name is
             begin
-               Add_Str_To_Name_Buffer (Get_Name_String (Exec_Path_Name));
+               Get_Name_String_And_Append (Exec_Path_Name);
                Add_Argument
                  (Other_Arguments,
                   Name_Buffer (1 .. Name_Len),

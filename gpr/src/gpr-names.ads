@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2001-2020, Free Software Foundation, Inc.         --
+--          Copyright (C) 2001-2021, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -58,6 +58,8 @@ package GPR.Names is
    function Get_Name_String_Or_Null (Id : Name_Id) return String;
    --  Same as above, except that on No_Name return Empty string
 
+   procedure Get_Name_String_And_Append (Id : File_Name_Type) with Inline;
+   procedure Get_Name_String_And_Append (Id : Path_Name_Type) with Inline;
    procedure Get_Name_String_And_Append (Id : Name_Id);
    --  Like Get_Name_String but the resulting characters are appended to the
    --  current contents of the entry stored in Name_Buffer, and Name_Len is
