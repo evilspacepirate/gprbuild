@@ -316,7 +316,7 @@ private
      (Value       : String;
       To          : in out Options_Data;
       Display     : Boolean;
-      Simple_Name : Boolean := False);
+      Simple_Name : Boolean := False) renames Add_Option;
    --  Add an option in a specific list of options
 
    procedure Add_Option_Internal_Codepeer

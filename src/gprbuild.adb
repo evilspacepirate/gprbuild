@@ -55,32 +55,20 @@ package body Gprbuild is
    ----------------
 
    procedure Add_Option
-     (Value       : String;
-      To          : in out Options_Data;
-      Display     : Boolean;
-      Simple_Name : Boolean := False)
-   is
-   begin
-      Name_Len := Value'Length;
-      Name_Buffer (1 .. Name_Len) := Value;
-      Add_Option_Internal (Get_Option (Name_Find), To, Display, Simple_Name);
-   end Add_Option;
-
-   procedure Add_Option
      (Value       : Name_Id;
       To          : in out Options_Data;
       Display     : Boolean;
       Simple_Name : Boolean := False)
    is
    begin
-      Add_Option_Internal (Get_Option (Value), To, Display, Simple_Name);
+      Add_Option (Get_Option (Value), To, Display, Simple_Name);
    end Add_Option;
 
-   -------------------------
-   -- Add_Option_Internal --
-   -------------------------
+   ----------------
+   -- Add_Option --
+   ----------------
 
-   procedure Add_Option_Internal
+   procedure Add_Option
      (Value       : String;
       To          : in out Options_Data;
       Display     : Boolean;
@@ -99,7 +87,7 @@ package body Gprbuild is
             Name        => Value,
             Displayed   => Display,
             Simple_Name => Simple_Name));
-   end Add_Option_Internal;
+   end Add_Option;
 
    ----------------------------------
    -- Add_Option_Internal_Codepeer --
@@ -116,7 +104,7 @@ package body Gprbuild is
         or else Value'Length <= 2
         or else Value (Value'First .. Value'First + 1) /= "-m"
       then
-         Add_Option_Internal (Value, To, Display, Simple_Name);
+         Add_Option (Value, To, Display, Simple_Name);
       end if;
    end Add_Option_Internal_Codepeer;
 
@@ -143,8 +131,8 @@ package body Gprbuild is
 
          if Element.Value /= Empty_String then
 
-            Add_Option_Internal
-              (Value       => Get_Option (Element.Value),
+            Add_Option
+              (Value       => Element.Value,
                To          => To,
                Display     => Display_All or First_Display,
                Simple_Name => Simple_Name);

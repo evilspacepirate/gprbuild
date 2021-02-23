@@ -2798,9 +2798,8 @@ package body Gprbuild.Compile is
       ---------------------------------
 
       procedure Add_Name_Of_Source_Switches (Id : Source_Id) is
-         List        : Name_List_Index :=
-                         Id.Language.Config.Source_File_Switches;
-         Node        : Name_Node;
+         List : Name_List_Index := Id.Language.Config.Source_File_Switches;
+         Node : Name_Node;
       begin
          --  Add any source file prefix
 
@@ -2819,28 +2818,12 @@ package body Gprbuild.Compile is
 
          --  Then handle the source file
 
-         Get_Name_String (Id.Path.Display_Name);
-
-         declare
-            Source_Path : constant String := Name_Buffer (1 .. Name_Len);
-         begin
-            if Node.Name = No_Name then
-               Add_Option_Internal
-                 (Source_Path,
-                  To          => Compilation_Options,
-                  Display     => True,
-                  Simple_Name => not Opt.Verbose_Mode);
-
-            else
-               Get_Name_String (Node.Name);
-
-               Add_Option
-                 (Name_Buffer (1 .. Name_Len) & Source_Path,
-                  To          => Compilation_Options,
-                  Display     => True,
-                  Simple_Name => not Opt.Verbose_Mode);
-            end if;
-         end;
+         Add_Option
+           (Get_Name_String_Or_Null (Node.Name)
+            & Get_Name_String (Id.Path.Display_Name),
+            To          => Compilation_Options,
+            Display     => True,
+            Simple_Name => not Opt.Verbose_Mode);
       end Add_Name_Of_Source_Switches;
 
       ---------------------------------
@@ -3403,7 +3386,7 @@ package body Gprbuild.Compile is
          if Data.Imported_Dirs_Switches /= null then
             for J in Data.Imported_Dirs_Switches'Range loop
                if Data.Imported_Dirs_Switches (J)'Length > 0 then
-                  Add_Option_Internal
+                  Add_Option
                     (Value   => Data.Imported_Dirs_Switches (J).all,
                      To      => Compilation_Options,
                      Display => Opt.Verbose_Mode);
