@@ -1075,12 +1075,17 @@ package body Gprbuild.Post_Compile is
       procedure Wait_For_Dependency (P : Project_Id) is
       begin
          while Libs_Are_Building.Contains (P.Name) loop
+            --  There may be some compilation in parallel to the link
+            --  operations: Outstanding_Processes may be greater than
+            --  the list of libs being built.
             pragma Assert
-              (Natural (Libs_Are_Building.Length) = Outstanding_Processes,
+              (Natural (Libs_Are_Building.Length) <= Outstanding_Processes,
                Libs_Are_Building.Length'Img & Outstanding_Processes'Img
                & ' ' & Get_Name_String (P.Name));
 
-            Wait_For_Slots_Less_Than (Outstanding_Processes);
+            --  Wait for all compilations to be done (remaining number of
+            --  processes is just the libs being built)
+            Wait_For_Slots_Less_Than (Natural (Libs_Are_Building.Length));
          end loop;
       end Wait_For_Dependency;
 
