@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2001-2020, Free Software Foundation, Inc.         --
+--          Copyright (C) 2001-2021, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -101,7 +101,7 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (To)
-          and then In_Tree.Project_Nodes.Table (To).Kind /= N_Comment);
+         and then In_Tree.Project_Nodes.Table (To).Kind /= N_Comment);
 
       Zone := In_Tree.Project_Nodes.Table (To).Comments;
 
@@ -203,10 +203,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            (In_Tree.Project_Nodes.Table (Node).Kind = N_Attribute_Declaration
-               or else
-             In_Tree.Project_Nodes.Table (Node).Kind = N_Attribute_Reference));
+         and then In_Tree.Project_Nodes.Table (Node).Kind in
+             N_Attribute_Declaration | N_Attribute_Reference);
+
       return In_Tree.Project_Nodes.Table (Node).Value;
    end Associative_Array_Index_Of;
 
@@ -221,8 +220,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-          (In_Tree.Project_Nodes.Table (Node).Kind = N_Attribute_Declaration));
+         and then
+         In_Tree.Project_Nodes.Table (Node).Kind = N_Attribute_Declaration);
+
       return In_Tree.Project_Nodes.Table (Node).Field3;
    end Associative_Package_Of;
 
@@ -237,8 +237,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-          (In_Tree.Project_Nodes.Table (Node).Kind = N_Attribute_Declaration));
+         and then
+         In_Tree.Project_Nodes.Table (Node).Kind = N_Attribute_Declaration);
+
       return In_Tree.Project_Nodes.Table (Node).Field2;
    end Associative_Project_Of;
 
@@ -253,10 +254,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            (In_Tree.Project_Nodes.Table (Node).Kind = N_Attribute_Declaration
-               or else
-             In_Tree.Project_Nodes.Table (Node).Kind = N_Attribute_Reference));
+         and then In_Tree.Project_Nodes.Table (Node).Kind in
+             N_Attribute_Declaration | N_Attribute_Reference);
+
       return In_Tree.Project_Nodes.Table (Node).Flag1;
    end Case_Insensitive;
 
@@ -271,8 +271,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Case_Construction);
+         and then
+         In_Tree.Project_Nodes.Table (Node).Kind = N_Case_Construction);
+
       return In_Tree.Project_Nodes.Table (Node).Field1;
    end Case_Variable_Reference_Of;
 
@@ -315,8 +316,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Declarative_Item);
+         and then
+         In_Tree.Project_Nodes.Table (Node).Kind = N_Declarative_Item);
+
       return In_Tree.Project_Nodes.Table (Node).Field1;
    end Current_Item_Node;
 
@@ -331,8 +333,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Term);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Term);
+
       return In_Tree.Project_Nodes.Table (Node).Field1;
    end Current_Term;
 
@@ -347,8 +349,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Attribute_Reference);
+         and then
+         In_Tree.Project_Nodes.Table (Node).Kind = N_Attribute_Reference);
+
       return In_Tree.Project_Nodes.Table (Node).Default;
    end Default_Of;
 
@@ -448,8 +451,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+
       return In_Tree.Project_Nodes.Table (Node).Directory;
    end Directory_Of;
 
@@ -485,29 +488,18 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-           and then -- should use Nkind_In here ??? why not???
-             (In_Tree.Project_Nodes.Table (Node).Kind = N_Literal_String
-                or else
-              In_Tree.Project_Nodes.Table (Node).Kind = N_Attribute_Declaration
-                or else
-              In_Tree.Project_Nodes.Table (Node).Kind = N_Variable_Declaration
-                or else
-              In_Tree.Project_Nodes.Table (Node).Kind =
-                                                  N_Typed_Variable_Declaration
-                or else
-              In_Tree.Project_Nodes.Table (Node).Kind = N_Package_Declaration
-                or else
-              In_Tree.Project_Nodes.Table (Node).Kind = N_Expression
-                or else
-              In_Tree.Project_Nodes.Table (Node).Kind = N_Term
-                or else
-              In_Tree.Project_Nodes.Table (Node).Kind = N_Split
-                or else
-              In_Tree.Project_Nodes.Table (Node).Kind = N_Variable_Reference
-                or else
-              In_Tree.Project_Nodes.Table (Node).Kind = N_Attribute_Reference
-                or else
-              In_Tree.Project_Nodes.Table (Node).Kind = N_External_Value));
+         and then In_Tree.Project_Nodes.Table (Node).Kind in N_Literal_String
+             | N_Attribute_Declaration
+             | N_Variable_Declaration
+             | N_Typed_Variable_Declaration
+             | N_Package_Declaration
+             | N_Expression
+             | N_Term
+             | N_Split
+             | N_Variable_Reference
+             | N_Attribute_Reference
+             | N_External_Value);
+
       return In_Tree.Project_Nodes.Table (Node).Expr_Kind;
    end Expression_Kind_Of;
 
@@ -522,15 +514,10 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-           (In_Tree.Project_Nodes.Table (Node).Kind =
-              N_Attribute_Declaration
-               or else
-            In_Tree.Project_Nodes.Table (Node).Kind =
-              N_Typed_Variable_Declaration
-               or else
-            In_Tree.Project_Nodes.Table (Node).Kind =
-              N_Variable_Declaration));
+         and then In_Tree.Project_Nodes.Table (Node).Kind in
+               N_Attribute_Declaration
+             | N_Typed_Variable_Declaration
+             | N_Variable_Declaration);
 
       return In_Tree.Project_Nodes.Table (Node).Field1;
    end Expression_Of;
@@ -546,8 +533,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Project_Declaration);
+         and then
+         In_Tree.Project_Nodes.Table (Node).Kind = N_Project_Declaration);
+
       return In_Tree.Project_Nodes.Table (Node).Field2;
    end Extended_Project_Of;
 
@@ -562,14 +550,15 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+
       return Path_Name_Type (In_Tree.Project_Nodes.Table (Node).Value);
    end Extended_Project_Path_Of;
 
    --------------------------
    -- Extending_Project_Of --
    --------------------------
+
    function Extending_Project_Of
      (Node    : Project_Node_Id;
       In_Tree : Project_Node_Tree_Ref) return Project_Node_Id
@@ -577,8 +566,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Project_Declaration);
+         and then In_Tree.Project_Nodes.Table (Node).Kind =
+             N_Project_Declaration);
+
       return In_Tree.Project_Nodes.Table (Node).Field3;
    end Extending_Project_Of;
 
@@ -593,8 +583,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_External_Value);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_External_Value);
+
       return In_Tree.Project_Nodes.Table (Node).Field1;
    end External_Reference_Of;
 
@@ -610,8 +600,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_External_Value);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_External_Value);
+
       return In_Tree.Project_Nodes.Table (Node).Field2;
    end External_Default_Of;
 
@@ -626,8 +616,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Split);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Split);
+
       return In_Tree.Project_Nodes.Table (Node).Field1;
    end String_Argument_Of;
 
@@ -642,8 +632,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Split);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Split);
+
       return In_Tree.Project_Nodes.Table (Node).Field2;
    end Separator_Of;
 
@@ -658,8 +648,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Case_Construction);
+         and then
+         In_Tree.Project_Nodes.Table (Node).Kind = N_Case_Construction);
+
       return In_Tree.Project_Nodes.Table (Node).Field2;
    end First_Case_Item_Of;
 
@@ -675,8 +666,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Case_Item);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Case_Item);
+
       return In_Tree.Project_Nodes.Table (Node).Field1;
    end First_Choice_Of;
 
@@ -779,12 +770,10 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            (In_Tree.Project_Nodes.Table (Node).Kind = N_Project_Declaration
-               or else
-             In_Tree.Project_Nodes.Table (Node).Kind = N_Case_Item
-               or else
-             In_Tree.Project_Nodes.Table (Node).Kind = N_Package_Declaration));
+         and then In_Tree.Project_Nodes.Table (Node).Kind in
+               N_Project_Declaration
+             | N_Case_Item
+             | N_Package_Declaration);
 
       if In_Tree.Project_Nodes.Table (Node).Kind = N_Project_Declaration then
          return In_Tree.Project_Nodes.Table (Node).Field1;
@@ -804,8 +793,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Literal_String_List);
+         and then
+         In_Tree.Project_Nodes.Table (Node).Kind = N_Literal_String_List);
+
       return In_Tree.Project_Nodes.Table (Node).Field1;
    end First_Expression_In_List;
 
@@ -820,9 +810,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-         In_Tree.Project_Nodes.Table (Node).Kind =
-           N_String_Type_Declaration);
+         and then
+         In_Tree.Project_Nodes.Table (Node).Kind = N_String_Type_Declaration);
+
       return In_Tree.Project_Nodes.Table (Node).Field1;
    end First_Literal_String;
 
@@ -837,8 +827,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+
       return In_Tree.Project_Nodes.Table (Node).Packages;
    end First_Package_Of;
 
@@ -853,8 +843,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+
       return In_Tree.Project_Nodes.Table (Node).Field3;
    end First_String_Type_Of;
 
@@ -869,8 +859,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Expression);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Expression);
+
       return In_Tree.Project_Nodes.Table (Node).Field1;
    end First_Term;
 
@@ -885,10 +875,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            (In_Tree.Project_Nodes.Table (Node).Kind = N_Project
-               or else
-             In_Tree.Project_Nodes.Table (Node).Kind = N_Package_Declaration));
+         and then In_Tree.Project_Nodes.Table (Node).Kind in
+             N_Project | N_Package_Declaration);
 
       return In_Tree.Project_Nodes.Table (Node).Variables;
    end First_Variable_Of;
@@ -904,8 +892,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+
       return In_Tree.Project_Nodes.Table (Node).Field1;
    end First_With_Clause_Of;
 
@@ -920,8 +908,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-         and then
-         In_Tree.Project_Nodes.Table (Node).Kind = N_Comment);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Comment);
+
       return In_Tree.Project_Nodes.Table (Node).Flag1;
    end Follows_Empty_Line;
 
@@ -955,10 +943,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-         and then
-           (In_Tree.Project_Nodes.Table (Node).Kind = N_Attribute_Declaration
-            or else
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Attribute_Reference));
+         and then In_Tree.Project_Nodes.Table (Node).Kind in
+             N_Attribute_Declaration | N_Attribute_Reference);
+
       return In_Tree.Project_Nodes.Table (Node).Flag2;
    end Is_Config_Concatenable;
 
@@ -1030,8 +1017,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Comment);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Comment);
+
       return In_Tree.Project_Nodes.Table (Node).Flag2;
    end Is_Followed_By_Empty_Line;
 
@@ -1046,10 +1033,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-           (In_Tree.Project_Nodes.Table (Node).Kind = N_Project
-              or else
-            In_Tree.Project_Nodes.Table (Node).Kind = N_With_Clause));
+         and then In_Tree.Project_Nodes.Table (Node).Kind in
+             N_Project | N_With_Clause);
+
       return In_Tree.Project_Nodes.Table (Node).Flag2;
    end Is_Extending_All;
 
@@ -1064,8 +1050,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_With_Clause);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_With_Clause);
+
       return In_Tree.Project_Nodes.Table (Node).Flag1;
    end Is_Not_Last_In_List;
 
@@ -1177,8 +1163,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-         and then
-         In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+
       return In_Tree.Project_Nodes.Table (Node).Display_Name;
    end Display_Name_Of;
 
@@ -1193,8 +1179,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Case_Item);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Case_Item);
+
       return In_Tree.Project_Nodes.Table (Node).Field3;
    end Next_Case_Item;
 
@@ -1209,8 +1195,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Comment);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Comment);
+
       return In_Tree.Project_Nodes.Table (Node).Comments;
    end Next_Comment;
 
@@ -1225,8 +1211,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Declarative_Item);
+         and then
+         In_Tree.Project_Nodes.Table (Node).Kind = N_Declarative_Item);
+
       return In_Tree.Project_Nodes.Table (Node).Field2;
    end Next_Declarative_Item;
 
@@ -1241,8 +1228,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Expression);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Expression);
+
       return In_Tree.Project_Nodes.Table (Node).Field2;
    end Next_Expression_In_List;
 
@@ -1258,8 +1245,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Literal_String);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Literal_String);
+
       return In_Tree.Project_Nodes.Table (Node).Field1;
    end Next_Literal_String;
 
@@ -1274,8 +1261,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Package_Declaration);
+         and then
+         In_Tree.Project_Nodes.Table (Node).Kind = N_Package_Declaration);
+
       return In_Tree.Project_Nodes.Table (Node).Field3;
    end Next_Package_In_Project;
 
@@ -1291,9 +1279,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-         In_Tree.Project_Nodes.Table (Node).Kind =
-           N_String_Type_Declaration);
+         and then
+         In_Tree.Project_Nodes.Table (Node).Kind = N_String_Type_Declaration);
+
       return In_Tree.Project_Nodes.Table (Node).Field2;
    end Next_String_Type;
 
@@ -1308,7 +1296,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then In_Tree.Project_Nodes.Table (Node).Kind = N_Term);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Term);
+
       return In_Tree.Project_Nodes.Table (Node).Field2;
    end Next_Term;
 
@@ -1323,12 +1312,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            (In_Tree.Project_Nodes.Table (Node).Kind =
-                                                  N_Typed_Variable_Declaration
-               or else
-             In_Tree.Project_Nodes.Table (Node).Kind =
-                                                  N_Variable_Declaration));
+         and then In_Tree.Project_Nodes.Table (Node).Kind in
+             N_Typed_Variable_Declaration | N_Variable_Declaration);
 
       return In_Tree.Project_Nodes.Table (Node).Field3;
    end Next_Variable;
@@ -1344,8 +1329,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_With_Clause);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_With_Clause);
+
       return In_Tree.Project_Nodes.Table (Node).Field2;
    end Next_With_Clause_Of;
 
@@ -1369,8 +1354,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-           (In_Tree.Project_Nodes.Table (Node).Kind = N_With_Clause));
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_With_Clause);
+
       return In_Tree.Project_Nodes.Table (Node).Field3;
    end Non_Limited_Project_Node_Of;
 
@@ -1385,8 +1370,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Package_Declaration);
+         and then
+         In_Tree.Project_Nodes.Table (Node).Kind = N_Package_Declaration);
+
       return In_Tree.Project_Nodes.Table (Node).Pkg_Id;
    end Package_Id_Of;
 
@@ -1401,10 +1387,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            (In_Tree.Project_Nodes.Table (Node).Kind = N_Variable_Reference
-               or else
-             In_Tree.Project_Nodes.Table (Node).Kind = N_Attribute_Reference));
+         and then In_Tree.Project_Nodes.Table (Node).Kind in
+             N_Variable_Reference | N_Attribute_Reference);
+
       return In_Tree.Project_Nodes.Table (Node).Field2;
    end Package_Node_Of;
 
@@ -1419,10 +1404,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            (In_Tree.Project_Nodes.Table (Node).Kind = N_Project
-               or else
-             In_Tree.Project_Nodes.Table (Node).Kind = N_With_Clause));
+         and then In_Tree.Project_Nodes.Table (Node).Kind in
+             N_Project | N_With_Clause);
+
       return In_Tree.Project_Nodes.Table (Node).Path_Name;
    end Path_Name_Of;
 
@@ -1446,8 +1430,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+
       return In_Tree.Project_Nodes.Table (Node).Field2;
    end Project_Declaration_Of;
 
@@ -1462,8 +1446,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+
       return In_Tree.Project_Nodes.Table (Node).Qualifier;
    end Project_Qualifier_Of;
 
@@ -1478,8 +1462,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+
       return In_Tree.Project_Nodes.Table (Node).Field4;
    end Parent_Project_Of;
 
@@ -1508,18 +1492,11 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            (In_Tree.Project_Nodes.Table (Node).Kind = N_With_Clause
-               or else
-             In_Tree.Project_Nodes.Table (Node).Kind = N_Variable_Reference
-               or else
-             In_Tree.Project_Nodes.Table (Node).Kind = N_Attribute_Reference
-               or else
-             In_Tree.Project_Nodes.Table (Node).Kind =
-               N_String_Type_Declaration
-               or else
-             In_Tree.Project_Nodes.Table (Node).Kind =
-               N_Typed_Variable_Declaration));
+         and then In_Tree.Project_Nodes.Table (Node).Kind in N_With_Clause
+             | N_Variable_Reference
+             | N_Attribute_Reference
+             | N_String_Type_Declaration
+             | N_Typed_Variable_Declaration);
 
       declare
          The_Node : Project_Node_Record renames
@@ -1554,8 +1531,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Package_Declaration);
+         and then
+         In_Tree.Project_Nodes.Table (Node).Kind = N_Package_Declaration);
+
       return In_Tree.Project_Nodes.Table (Node).Field1;
    end Project_Of_Renamed_Package_Of;
 
@@ -1760,10 +1738,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            (In_Tree.Project_Nodes.Table (Node).Kind = N_Attribute_Declaration
-               or else
-             In_Tree.Project_Nodes.Table (Node).Kind = N_Attribute_Reference));
+         and then In_Tree.Project_Nodes.Table (Node).Kind in
+             N_Attribute_Declaration | N_Attribute_Reference);
+
       In_Tree.Project_Nodes.Table (Node).Value := To;
    end Set_Associative_Array_Index_Of;
 
@@ -1780,7 +1757,8 @@ package body GPR.Tree is
       pragma Assert
          (Present (Node)
           and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Attribute_Declaration);
+          In_Tree.Project_Nodes.Table (Node).Kind = N_Attribute_Declaration);
+
       In_Tree.Project_Nodes.Table (Node).Field3 := To;
    end Set_Associative_Package_Of;
 
@@ -1796,9 +1774,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-           (In_Tree.Project_Nodes.Table (Node).Kind =
-              N_Attribute_Declaration));
+         and then
+         In_Tree.Project_Nodes.Table (Node).Kind = N_Attribute_Declaration);
+
       In_Tree.Project_Nodes.Table (Node).Field2 := To;
    end Set_Associative_Project_Of;
 
@@ -1814,10 +1792,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-           (In_Tree.Project_Nodes.Table (Node).Kind = N_Attribute_Declaration
-               or else
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Attribute_Reference));
+         and then In_Tree.Project_Nodes.Table (Node).Kind in
+             N_Attribute_Declaration | N_Attribute_Reference);
+
       In_Tree.Project_Nodes.Table (Node).Flag1 := To;
    end Set_Case_Insensitive;
 
@@ -1833,8 +1810,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Case_Construction);
+         and then
+         In_Tree.Project_Nodes.Table (Node).Kind = N_Case_Construction);
+
       In_Tree.Project_Nodes.Table (Node).Field1 := To;
    end Set_Case_Variable_Reference_Of;
 
@@ -1850,8 +1828,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Declarative_Item);
+         and then
+         In_Tree.Project_Nodes.Table (Node).Kind = N_Declarative_Item);
+
       In_Tree.Project_Nodes.Table (Node).Field1 := To;
    end Set_Current_Item_Node;
 
@@ -1867,8 +1846,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Term);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Term);
+
       In_Tree.Project_Nodes.Table (Node).Field1 := To;
    end Set_Current_Term;
 
@@ -1884,8 +1863,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Attribute_Reference);
+         and then
+         In_Tree.Project_Nodes.Table (Node).Kind = N_Attribute_Reference);
+
       In_Tree.Project_Nodes.Table (Node).Default := To;
    end Set_Default_Of;
 
@@ -1901,8 +1881,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+
       In_Tree.Project_Nodes.Table (Node).Directory := To;
    end Set_Directory_Of;
 
@@ -1927,27 +1907,17 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-           and then -- should use Nkind_In here ??? why not???
-             (In_Tree.Project_Nodes.Table (Node).Kind = N_Literal_String
-                or else
-              In_Tree.Project_Nodes.Table (Node).Kind = N_Attribute_Declaration
-                or else
-              In_Tree.Project_Nodes.Table (Node).Kind = N_Variable_Declaration
-                or else
-              In_Tree.Project_Nodes.Table (Node).Kind =
-                                                  N_Typed_Variable_Declaration
-                or else
-              In_Tree.Project_Nodes.Table (Node).Kind = N_Package_Declaration
-                or else
-              In_Tree.Project_Nodes.Table (Node).Kind = N_Expression
-                or else
-              In_Tree.Project_Nodes.Table (Node).Kind = N_Term
-                or else
-              In_Tree.Project_Nodes.Table (Node).Kind = N_Variable_Reference
-                or else
-              In_Tree.Project_Nodes.Table (Node).Kind = N_Attribute_Reference
-                or else
-              In_Tree.Project_Nodes.Table (Node).Kind = N_External_Value));
+         and then In_Tree.Project_Nodes.Table (Node).Kind in N_Literal_String
+             | N_Attribute_Declaration
+             | N_Variable_Declaration
+             | N_Typed_Variable_Declaration
+             | N_Package_Declaration
+             | N_Expression
+             | N_Term
+             | N_Variable_Reference
+             | N_Attribute_Reference
+             | N_External_Value);
+
       In_Tree.Project_Nodes.Table (Node).Expr_Kind := To;
    end Set_Expression_Kind_Of;
 
@@ -1963,15 +1933,11 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-           (In_Tree.Project_Nodes.Table (Node).Kind =
-              N_Attribute_Declaration
-               or else
-            In_Tree.Project_Nodes.Table (Node).Kind =
-              N_Typed_Variable_Declaration
-               or else
-            In_Tree.Project_Nodes.Table (Node).Kind =
-              N_Variable_Declaration));
+         and then In_Tree.Project_Nodes.Table (Node).Kind in
+             N_Attribute_Declaration
+           | N_Typed_Variable_Declaration
+           | N_Variable_Declaration);
+
       In_Tree.Project_Nodes.Table (Node).Field1 := To;
    end Set_Expression_Of;
 
@@ -1987,8 +1953,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_External_Value);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_External_Value);
+
       In_Tree.Project_Nodes.Table (Node).Field1 := To;
    end Set_External_Reference_Of;
 
@@ -2004,8 +1970,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_External_Value);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_External_Value);
+
       In_Tree.Project_Nodes.Table (Node).Field2 := To;
    end Set_External_Default_Of;
 
@@ -2021,8 +1987,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Split);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Split);
+
       In_Tree.Project_Nodes.Table (Node).Field1 := To;
    end Set_String_Argument_Of;
 
@@ -2038,8 +2004,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Split);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Split);
+
       In_Tree.Project_Nodes.Table (Node).Field2 := To;
    end Set_Separator_Of;
 
@@ -2055,8 +2021,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Case_Construction);
+         and then
+         In_Tree.Project_Nodes.Table (Node).Kind = N_Case_Construction);
+
       In_Tree.Project_Nodes.Table (Node).Field2 := To;
    end Set_First_Case_Item_Of;
 
@@ -2072,8 +2039,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Case_Item);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Case_Item);
+
       In_Tree.Project_Nodes.Table (Node).Field1 := To;
    end Set_First_Choice_Of;
 
@@ -2145,8 +2112,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Case_Item);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Case_Item);
+
       In_Tree.Project_Nodes.Table (Node).Field3 := To;
    end Set_Next_Case_Item;
 
@@ -2162,8 +2129,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Comment);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Comment);
+
       In_Tree.Project_Nodes.Table (Node).Comments := To;
    end Set_Next_Comment;
 
@@ -2179,12 +2146,10 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            (In_Tree.Project_Nodes.Table (Node).Kind = N_Project_Declaration
-               or else
-             In_Tree.Project_Nodes.Table (Node).Kind = N_Case_Item
-               or else
-             In_Tree.Project_Nodes.Table (Node).Kind = N_Package_Declaration));
+         and then In_Tree.Project_Nodes.Table (Node).Kind in
+             N_Project_Declaration
+           | N_Case_Item
+           | N_Package_Declaration);
 
       if In_Tree.Project_Nodes.Table (Node).Kind = N_Project_Declaration then
          In_Tree.Project_Nodes.Table (Node).Field1 := To;
@@ -2205,8 +2170,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Literal_String_List);
+         and then
+         In_Tree.Project_Nodes.Table (Node).Kind = N_Literal_String_List);
+
       In_Tree.Project_Nodes.Table (Node).Field1 := To;
    end Set_First_Expression_In_List;
 
@@ -2222,9 +2188,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-         In_Tree.Project_Nodes.Table (Node).Kind =
-           N_String_Type_Declaration);
+         and then
+         In_Tree.Project_Nodes.Table (Node).Kind = N_String_Type_Declaration);
+
       In_Tree.Project_Nodes.Table (Node).Field1 := To;
    end Set_First_Literal_String;
 
@@ -2240,8 +2206,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+
       In_Tree.Project_Nodes.Table (Node).Packages := To;
    end Set_First_Package_Of;
 
@@ -2257,8 +2223,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+
       In_Tree.Project_Nodes.Table (Node).Field3 := To;
    end Set_First_String_Type_Of;
 
@@ -2274,8 +2240,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Expression);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Expression);
+
       In_Tree.Project_Nodes.Table (Node).Field1 := To;
    end Set_First_Term;
 
@@ -2291,10 +2257,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            (In_Tree.Project_Nodes.Table (Node).Kind = N_Project
-               or else
-             In_Tree.Project_Nodes.Table (Node).Kind = N_Package_Declaration));
+         and then In_Tree.Project_Nodes.Table (Node).Kind in
+             N_Project | N_Package_Declaration);
+
       In_Tree.Project_Nodes.Table (Node).Variables := To;
    end Set_First_Variable_Of;
 
@@ -2310,8 +2275,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+
       In_Tree.Project_Nodes.Table (Node).Field1 := To;
    end Set_First_With_Clause_Of;
 
@@ -2326,10 +2291,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            (In_Tree.Project_Nodes.Table (Node).Kind = N_Project
-               or else
-             In_Tree.Project_Nodes.Table (Node).Kind = N_With_Clause));
+         and then In_Tree.Project_Nodes.Table (Node).Kind in
+             N_Project | N_With_Clause);
+
       In_Tree.Project_Nodes.Table (Node).Flag2 := True;
    end Set_Is_Extending_All;
 
@@ -2344,7 +2308,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then In_Tree.Project_Nodes.Table (Node).Kind = N_With_Clause);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_With_Clause);
+
       In_Tree.Project_Nodes.Table (Node).Flag1 := True;
    end Set_Is_Not_Last_In_List;
 
@@ -2388,8 +2353,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Project_Declaration);
+         and then
+         In_Tree.Project_Nodes.Table (Node).Kind = N_Project_Declaration);
+
       In_Tree.Project_Nodes.Table (Node).Field2 := To;
    end Set_Extended_Project_Of;
 
@@ -2405,8 +2371,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+
       In_Tree.Project_Nodes.Table (Node).Value := Name_Id (To);
    end Set_Extended_Project_Path_Of;
 
@@ -2422,8 +2388,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Project_Declaration);
+         and then
+         In_Tree.Project_Nodes.Table (Node).Kind = N_Project_Declaration);
+
       In_Tree.Project_Nodes.Table (Node).Field3 := To;
    end Set_Extending_Project_Of;
 
@@ -2453,7 +2420,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+
       In_Tree.Project_Nodes.Table (Node).Display_Name := To;
    end Set_Display_Name_Of;
 
@@ -2469,10 +2437,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-         and then
-           (In_Tree.Project_Nodes.Table (Node).Kind = N_Attribute_Declaration
-            or else
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Attribute_Reference));
+         and then In_Tree.Project_Nodes.Table (Node).Kind in
+             N_Attribute_Declaration | N_Attribute_Reference);
+
       In_Tree.Project_Nodes.Table (Node).Flag2 := To;
    end Set_Is_Config_Concatenable;
 
@@ -2488,8 +2455,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Declarative_Item);
+         and then
+         In_Tree.Project_Nodes.Table (Node).Kind = N_Declarative_Item);
+
       In_Tree.Project_Nodes.Table (Node).Field2 := To;
    end Set_Next_Declarative_Item;
 
@@ -2515,8 +2483,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Expression);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Expression);
+
       In_Tree.Project_Nodes.Table (Node).Field2 := To;
    end Set_Next_Expression_In_List;
 
@@ -2532,8 +2500,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Literal_String);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Literal_String);
+
       In_Tree.Project_Nodes.Table (Node).Field1 := To;
    end Set_Next_Literal_String;
 
@@ -2549,8 +2517,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Package_Declaration);
+         and then
+         In_Tree.Project_Nodes.Table (Node).Kind = N_Package_Declaration);
+
       In_Tree.Project_Nodes.Table (Node).Field3 := To;
    end Set_Next_Package_In_Project;
 
@@ -2566,9 +2535,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-         In_Tree.Project_Nodes.Table (Node).Kind =
-           N_String_Type_Declaration);
+         and then
+         In_Tree.Project_Nodes.Table (Node).Kind = N_String_Type_Declaration);
+
       In_Tree.Project_Nodes.Table (Node).Field2 := To;
    end Set_Next_String_Type;
 
@@ -2584,8 +2553,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Term);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Term);
+
       In_Tree.Project_Nodes.Table (Node).Field2 := To;
    end Set_Next_Term;
 
@@ -2601,12 +2570,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-           (In_Tree.Project_Nodes.Table (Node).Kind =
-              N_Typed_Variable_Declaration
-               or else
-            In_Tree.Project_Nodes.Table (Node).Kind =
-              N_Variable_Declaration));
+          and then In_Tree.Project_Nodes.Table (Node).Kind in
+             N_Typed_Variable_Declaration | N_Variable_Declaration);
+
       In_Tree.Project_Nodes.Table (Node).Field3 := To;
    end Set_Next_Variable;
 
@@ -2622,8 +2588,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_With_Clause);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_With_Clause);
+
       In_Tree.Project_Nodes.Table (Node).Field2 := To;
    end Set_Next_With_Clause_Of;
 
@@ -2639,8 +2605,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Package_Declaration);
+         and then
+         In_Tree.Project_Nodes.Table (Node).Kind = N_Package_Declaration);
+
       In_Tree.Project_Nodes.Table (Node).Pkg_Id := To;
    end Set_Package_Id_Of;
 
@@ -2656,10 +2623,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            (In_Tree.Project_Nodes.Table (Node).Kind = N_Variable_Reference
-               or else
-             In_Tree.Project_Nodes.Table (Node).Kind = N_Attribute_Reference));
+         and then In_Tree.Project_Nodes.Table (Node).Kind in
+             N_Variable_Reference | N_Attribute_Reference);
+
       In_Tree.Project_Nodes.Table (Node).Field2 := To;
    end Set_Package_Node_Of;
 
@@ -2675,10 +2641,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            (In_Tree.Project_Nodes.Table (Node).Kind = N_Project
-               or else
-             In_Tree.Project_Nodes.Table (Node).Kind = N_With_Clause));
+         and then In_Tree.Project_Nodes.Table (Node).Kind in
+             N_Project | N_With_Clause);
 
       In_Tree.Project_Nodes.Table (Node).Path_Name := To;
    end Set_Path_Name_Of;
@@ -2713,8 +2677,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-         and then
-           In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+
       In_Tree.Project_Nodes.Table (Node).Field2 := To;
    end Set_Project_Declaration_Of;
 
@@ -2730,7 +2694,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+
       In_Tree.Project_Nodes.Table (Node).Qualifier := To;
    end Set_Project_Qualifier_Of;
 
@@ -2746,7 +2711,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+         and then In_Tree.Project_Nodes.Table (Node).Kind = N_Project);
+
       In_Tree.Project_Nodes.Table (Node).Field4 := To;
    end Set_Parent_Project_Of;
 
@@ -2778,18 +2744,11 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            (In_Tree.Project_Nodes.Table (Node).Kind = N_With_Clause
-               or else
-             In_Tree.Project_Nodes.Table (Node).Kind = N_Variable_Reference
-               or else
-             In_Tree.Project_Nodes.Table (Node).Kind = N_Attribute_Reference
-               or else
-             In_Tree.Project_Nodes.Table (Node).Kind =
-               N_String_Type_Declaration
-               or else
-             In_Tree.Project_Nodes.Table (Node).Kind =
-               N_Typed_Variable_Declaration));
+         and then In_Tree.Project_Nodes.Table (Node).Kind in N_With_Clause
+             | N_Variable_Reference
+             | N_Attribute_Reference
+             | N_String_Type_Declaration
+             | N_Typed_Variable_Declaration);
 
       declare
          The_Node : Project_Node_Record renames
@@ -2830,8 +2789,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Package_Declaration);
+         and then
+         In_Tree.Project_Nodes.Table (Node).Kind = N_Package_Declaration);
+
       In_Tree.Project_Nodes.Table (Node).Field1 := To;
    end Set_Project_Of_Renamed_Package_Of;
 
@@ -2847,11 +2807,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-           (In_Tree.Project_Nodes.Table (Node).Kind = N_Literal_String
-            or else
-            In_Tree.Project_Nodes.Table (Node).Kind =
-              N_Attribute_Declaration));
+         and then In_Tree.Project_Nodes.Table (Node).Kind in
+             N_Literal_String | N_Attribute_Declaration);
+
       In_Tree.Project_Nodes.Table (Node).Src_Index := To;
    end Set_Source_Index_Of;
 
@@ -2867,14 +2825,10 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-           (In_Tree.Project_Nodes.Table (Node).Kind =
-              N_Variable_Reference
-               or else
-            In_Tree.Project_Nodes.Table (Node).Kind =
-              N_Typed_Variable_Declaration)
-          and then
-            In_Tree.Project_Nodes.Table (To).Kind = N_String_Type_Declaration);
+         and then In_Tree.Project_Nodes.Table (Node).Kind in
+             N_Variable_Reference
+           | N_Typed_Variable_Declaration
+           | N_String_Type_Declaration);
 
       if In_Tree.Project_Nodes.Table (Node).Kind = N_Variable_Reference then
          In_Tree.Project_Nodes.Table (Node).Field3 := To;
@@ -2895,12 +2849,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            (In_Tree.Project_Nodes.Table (Node).Kind = N_With_Clause
-               or else
-             In_Tree.Project_Nodes.Table (Node).Kind = N_Comment
-               or else
-             In_Tree.Project_Nodes.Table (Node).Kind = N_Literal_String));
+         and then In_Tree.Project_Nodes.Table (Node).Kind in N_With_Clause
+             | N_Comment | N_Literal_String);
+
       In_Tree.Project_Nodes.Table (Node).Value := To;
    end Set_String_Value_Of;
 
@@ -2915,11 +2866,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-            (In_Tree.Project_Nodes.Table (Node).Kind = N_Literal_String
-              or else
-             In_Tree.Project_Nodes.Table (Node).Kind =
-               N_Attribute_Declaration));
+         and then In_Tree.Project_Nodes.Table (Node).Kind in
+             N_Literal_String | N_Attribute_Declaration);
+
       return In_Tree.Project_Nodes.Table (Node).Src_Index;
    end Source_Index_Of;
 
@@ -2934,12 +2883,8 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-           (In_Tree.Project_Nodes.Table (Node).Kind =
-              N_Variable_Reference
-               or else
-            In_Tree.Project_Nodes.Table (Node).Kind =
-              N_Typed_Variable_Declaration));
+         and then In_Tree.Project_Nodes.Table (Node).Kind in
+             N_Variable_Reference | N_Typed_Variable_Declaration);
 
       if In_Tree.Project_Nodes.Table (Node).Kind = N_Variable_Reference then
          return In_Tree.Project_Nodes.Table (Node).Field3;
@@ -2959,12 +2904,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (Node)
-          and then
-           (In_Tree.Project_Nodes.Table (Node).Kind = N_With_Clause
-              or else
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Comment
-               or else
-            In_Tree.Project_Nodes.Table (Node).Kind = N_Literal_String));
+         and then In_Tree.Project_Nodes.Table (Node).Kind in
+             N_With_Clause | N_Comment | N_Literal_String);
+
       return In_Tree.Project_Nodes.Table (Node).Value;
    end String_Value_Of;
 
@@ -2980,9 +2922,9 @@ package body GPR.Tree is
    begin
       pragma Assert
         (Present (For_Typed_Variable)
-          and then
-           (In_Tree.Project_Nodes.Table (For_Typed_Variable).Kind =
-                                     N_Typed_Variable_Declaration));
+         and then
+         In_Tree.Project_Nodes.Table (For_Typed_Variable).Kind =
+             N_Typed_Variable_Declaration);
 
       declare
          Current_String : Project_Node_Id :=
