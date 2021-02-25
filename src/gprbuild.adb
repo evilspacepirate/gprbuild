@@ -542,6 +542,12 @@ package body Gprbuild is
          if not Processed_Projects.Get (Project.Name) then
             Processed_Projects.Set (Project.Name, True);
 
+            --  For an extending project, process the project being extended
+
+            if Project.Extends /= No_Project then
+               Process_Project (Project.Extends, Aggregated => Aggregated);
+            end if;
+
             --  We first process the imported projects to guarantee that
             --  We have a proper reverse order for the libraries. Do not add
             --  library for encapsulated libraries dependencies except when
@@ -560,12 +566,6 @@ package body Gprbuild is
 
                   Imported := Imported.Next;
                end loop;
-            end if;
-
-            --  For an extending project, process the project being extended
-
-            if Project.Extends /= No_Project then
-               Process_Project (Project.Extends, Aggregated => Aggregated);
             end if;
 
             --  If it is a library project, add it to Library_Projs

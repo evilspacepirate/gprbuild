@@ -1888,9 +1888,11 @@ package body GPR is
    is
       Prj : Project_Id := Proj;
    begin
-      while Prj /= No_Project and then Prj.Extended_By /= No_Project loop
-         Prj := Prj.Extended_By;
-      end loop;
+      if Prj /= No_Project then
+         while Prj.Extended_By /= No_Project loop
+            Prj := Prj.Extended_By;
+         end loop;
+      end if;
 
       return Prj;
    end Ultimate_Extending_Project_Of;

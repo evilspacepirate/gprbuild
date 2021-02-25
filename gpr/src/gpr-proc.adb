@@ -2887,6 +2887,17 @@ package body GPR.Proc is
                   From_Encapsulated_Lib  => From_Encapsulated_Lib,
                   On_New_Tree_Loaded     => On_New_Tree_Loaded);
 
+               while New_Project.Extended_By /= null
+                 and then New_Project.Extended_By.Virtual
+               loop
+                  --  Use extending instead of extended wherever possible.
+                  --  Non-virtual projects processed at
+                  --  GPR.Part.Parse_Single_Project.
+                  --  We have to do the same for virtual projects here.
+
+                  New_Project := New_Project.Extended_By;
+               end loop;
+
                if Imported = null then
                   Project.Imported_Projects := new Project_List_Element'
                     (Project               => New_Project,

@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2001-2020, Free Software Foundation, Inc.         --
+--          Copyright (C) 2001-2021, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -160,7 +160,7 @@ package body GPR.Part is
    --  Hash table to cache project path to avoid looking for them on the path
 
    procedure Check_Extending_All_Imports
-     (Flags : Processing_Flags;
+     (Flags   : Processing_Flags;
       In_Tree : Project_Node_Tree_Ref;
       Project : Project_Node_Id);
    --  Check that a non extending-all project does not import an
@@ -285,6 +285,14 @@ package body GPR.Part is
       Next_Clause : Project_Node_Id) return Project_Node_Id;
    --  Return a copy of With_Clause in In_Tree, whose Next_With_Clause is the
    --  indicated one.
+
+   procedure Ultimate_Extending
+     (Prj : in out Project_Node_Id; In_Tree : Project_Node_Tree_Ref);
+   --  Loop through extending projects to find the ultimate extending project,
+   --  that is the one that is not extended. For an abstract project, as it can
+   --  be extended several times, there is no extending project registered, so
+   --  the loop does not execute and the resulting project is the abstract
+   --  project.
 
    ----------------------
    -- Copy_With_Clause --
@@ -1430,7 +1438,6 @@ package body GPR.Part is
       loop
          if A_Project_Name_And_Node.Resolved_Path = Resolved_Path_Name then
             if Extended then
-
                if A_Project_Name_And_Node.Extended then
                   if A_Project_Name_And_Node.Proj_Qualifier /= Abstract_Project
                   then
@@ -1439,6 +1446,7 @@ package body GPR.Part is
                         "cannot extend the same project file several times",
                         Token_Ptr);
                   end if;
+
                elsif not A_Project_Name_And_Node.From_Extended then
                   Error_Msg
                     (Env.Flags,
@@ -1464,32 +1472,8 @@ package body GPR.Part is
                --  extending A.
 
                if From_Extended /= None then
-                  declare
-                     Decl : Project_Node_Id :=
-                              Project_Declaration_Of
-                                (A_Project_Name_And_Node.Node, In_Tree);
+                  Ultimate_Extending (A_Project_Name_And_Node.Node, In_Tree);
 
-                     Prj  : Project_Node_Id :=
-                              A_Project_Name_And_Node.Node;
-
-                  begin
-                     --  Loop through extending projects to find the ultimate
-                     --  extending project, that is the one that is not
-                     --  extended. For an abstract project, as it can be
-                     --  extended several times, there is no extending project
-                     --  registered, so the loop does not execute and the
-                     --  resulting project is the abstract project.
-
-                     while
-                       Extending_Project_Of (Decl, In_Tree) /=
-                         Empty_Project_Node
-                     loop
-                        Prj := Extending_Project_Of (Decl, In_Tree);
-                        Decl := Project_Declaration_Of (Prj, In_Tree);
-                     end loop;
-
-                     A_Project_Name_And_Node.Node := Prj;
-                  end;
                else
                   Error_Msg
                     (Env.Flags,
@@ -1498,7 +1482,7 @@ package body GPR.Part is
                end if;
 
             elsif From_Extended /= Extending_All
-                  and then A_Project_Name_And_Node.From_Extended
+              and then A_Project_Name_And_Node.From_Extended
             then
                --  This project is now imported from a non extending project.
                --  Indicate this in hash table Projects.HT.
@@ -1962,9 +1946,11 @@ package body GPR.Part is
             --  If the parent project is not the extended project,
             --  check each imported project until we find the parent project.
 
-            Imported_Loop :
-            while not Parent_Found and then Present (With_Clause) loop
+            Imported_Loop : while not Parent_Found
+              and then Present (With_Clause)
+            loop
                Parent_Node := Project_Node_Of (With_Clause, In_Tree);
+
                Extension_Loop : while Present (Parent_Node) loop
                   Imp_Proj_Name := Name_Of (Parent_Node, In_Tree);
                   Parent_Found := Imp_Proj_Name = Parent_Name;
@@ -2301,5 +2287,22 @@ package body GPR.Part is
          end if;
       end loop;
    end Project_Name_From;
+
+   ------------------------
+   -- Ultimate_Extending --
+   ------------------------
+
+   procedure Ultimate_Extending
+     (Prj : in out Project_Node_Id; In_Tree : Project_Node_Tree_Ref)
+   is
+      Next : Project_Node_Id;
+   begin
+      loop
+         Next := Extending_Project_Of
+           (Project_Declaration_Of (Prj, In_Tree), In_Tree);
+         exit when Next = Empty_Project_Node;
+         Prj := Next;
+      end loop;
+   end Ultimate_Extending;
 
 end GPR.Part;
