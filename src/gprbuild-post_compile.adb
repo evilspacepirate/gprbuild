@@ -1075,17 +1075,19 @@ package body Gprbuild.Post_Compile is
       procedure Wait_For_Dependency (P : Project_Id) is
       begin
          while Libs_Are_Building.Contains (P.Name) loop
-            --  There may be some compilation in parallel to the link
-            --  operations: Outstanding_Processes may be greater than
-            --  the list of libs being built.
+            --  There may be some executable binding in parallel to the library
+            --  build operations, i.e. Outstanding_Processes may be greater
+            --  than the list of libs being built.
+
             pragma Assert
               (Natural (Libs_Are_Building.Length) <= Outstanding_Processes,
                Libs_Are_Building.Length'Img & Outstanding_Processes'Img
                & ' ' & Get_Name_String (P.Name));
 
-            --  Wait for all compilations to be done (remaining number of
-            --  processes is just the libs being built)
-            Wait_For_Slots_Less_Than (Natural (Libs_Are_Building.Length));
+            --  Wait for any process to be done to check is the dependency
+            --  resolved.
+
+            Wait_For_Slots_Less_Than (Outstanding_Processes);
          end loop;
       end Wait_For_Dependency;
 
@@ -3465,7 +3467,7 @@ package body Gprbuild.Post_Compile is
                      MI.Tree    := Project_Tree;
 
                      Libs_Are_Building.Insert (For_Project.Name);
-                     Add_Process (Pid, (Binding, Pid, MI));
+                     Add_Process (Pid, (Binding, MI));
 
                      Display_Processes ("bind");
                   end if;
@@ -4921,7 +4923,7 @@ package body Gprbuild.Post_Compile is
                      Record_Failure (Main_File);
 
                   else
-                     Add_Process (Pid, (Binding, Pid, Main_File));
+                     Add_Process (Pid, (Binding, Main_File));
 
                      Display_Processes ("bind");
                   end if;

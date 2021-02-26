@@ -149,7 +149,7 @@ package body Gprbuild is
 
    procedure Add_Process (Process : Process_Id; Data : Process_Data) is
    begin
-      Process_Htable.Set (Process, Data);
+      Processes.Insert (Process, Data);
       Outstanding_Processes := Outstanding_Processes + 1;
    end Add_Process;
 
@@ -172,7 +172,8 @@ package body Gprbuild is
    -------------------
 
    procedure Await_Process (Data : out Process_Data; OK : out Boolean) is
-      Pid  : Process_Id;
+      Pid : Process_Id;
+      CP  : Process_Maps.Cursor;
    begin
       loop
          Data := No_Process_Data;
@@ -183,10 +184,11 @@ package body Gprbuild is
             return;
          end if;
 
-         Data := Process_Htable.Get (Pid);
+         CP := Processes.Find (Pid);
 
-         if Data /= No_Process_Data then
-            Process_Htable.Set (Pid, No_Process_Data);
+         if Process_Maps.Has_Element (CP) then
+            Data := Process_Maps.Element (CP);
+            Processes.Delete (CP);
             Outstanding_Processes := Outstanding_Processes - 1;
             return;
          end if;
@@ -507,10 +509,9 @@ package body Gprbuild is
    -- Hash --
    ----------
 
-   function Hash (Pid : Process_Id) return Header_Num is
-      Modulo : constant Integer := Integer (Header_Num'Last) + 1;
+   function Hash (Pid : Process_Id) return Ada.Containers.Hash_Type is
    begin
-      return Header_Num (Pid_To_Integer (Pid) mod Modulo);
+      return Ada.Containers.Hash_Type (Pid_To_Integer (Pid));
    end Hash;
 
    --------------------------------

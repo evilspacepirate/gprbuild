@@ -3356,9 +3356,7 @@ package body Gprbuild.Link is
                Record_Failure (Main_File);
 
             else
-               Add_Process
-                 (Pid,
-                  (Linking, Pid, Main_File));
+               Add_Process (Pid, (Linking, Main_File));
                Display_Processes ("link");
             end if;
          end;
