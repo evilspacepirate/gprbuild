@@ -4626,7 +4626,7 @@ package body GPR.Nmsc is
                   Error_Msg
                     (Data.Flags,
                      '"' & Repl &
-                     """ is illegal for Dot_Replacement.",
+                     """ is illegal for Dot_Replacement",
                      Dot_Repl_Loc, Project);
                end if;
             end;
