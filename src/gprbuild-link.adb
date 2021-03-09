@@ -24,9 +24,11 @@ with Ada.Unchecked_Deallocation; use Ada;
 
 with GNAT.Directory_Operations; use GNAT.Directory_Operations;
 with GNAT.Expect;
+with GNAT.Strings;
 
 with Gpr_Build_Util; use Gpr_Build_Util;
 with Gprexch;        use Gprexch;
+with GPR.Err;        use GPR.Err;
 with GPR.Debug;      use GPR.Debug;
 with GPR.Names;      use GPR.Names;
 with GPR.Script;     use GPR.Script;
@@ -2103,11 +2105,9 @@ package body Gprbuild.Link is
 
                            Lib_Dir_Name : Path_Name_Type;
 
-                           FD             : File_Descriptor;
-                           Tmp_File       : Path_Name_Type;
-
-                           Success     : Boolean := True;
-                           Warning_Msg : String_Access;
+                           FD       : File_Descriptor;
+                           Tmp_File : Path_Name_Type;
+                           Success  : Boolean := True;
 
                         begin
                            --  Create the temporary file to receive (and
@@ -2152,16 +2152,20 @@ package body Gprbuild.Link is
 
                               if Objcopy_Exec = null then
                                  --  Warning if we didn't find any objcopy.
-                                 Warning_Msg := new String'
-                                   ("Warning: unable to locate objcopy.");
+
+                                 Error_Msg
+                                   ("?unable to locate objcopy",
+                                    Proj.Location);
+
                                  goto Linker_Options_Incomplete;
                               end if;
                            end if;
 
                            --  List the archive content.
 
-                           Arg_List := Argument_String_To_List
-                             ("-t " & Lib_Path);
+                           Arg_List := new GNAT.Strings.String_List'
+                             (1 => new String'("-t"),
+                              2 => new String'(Lib_Path));
 
                            Fill_Options_Data_From_Arg_List_Access
                              (Arg_List, Arg_Disp);
@@ -2178,10 +2182,11 @@ package body Gprbuild.Link is
                            Free (Arg_List);
 
                            if Status /= 0 then
-                              --  Warning if the archive builder failed.
-                              Warning_Msg := new String'
-                                ("Warning: invocation of "
-                                 & Archive_Builder_Path.all & " failed.");
+                              --  Warning if the archive builder failed
+
+                              Error_Msg ('?' & Output.all, Proj.Location);
+                              Free (Output);
+
                               goto Linker_Options_Incomplete;
                            end if;
 
@@ -2213,17 +2218,21 @@ package body Gprbuild.Link is
 
                            if not Obj_Found then
                               --  Warning if no such object file is found.
-                              Warning_Msg := new String'
-                                ("Warning: linker options section "
-                                 & "not found in " & Lib_Name
-                                 & ".a, using defaults.");
+
+                              Error_Msg
+                                ("?linker options section not found in "
+                                 & Lib_Name & ".a, using defaults.",
+                                 Proj.Location);
+
                               goto Linker_Options_Incomplete;
                            end if;
 
                            --  Extract the object file.
 
-                           Arg_List := Argument_String_To_List
-                             ("-x " & Lib_Path & " " & Obj.all);
+                           Arg_List := new GNAT.Strings.String_List'
+                             (1 => new String'("-x"),
+                              2 => new String'(Lib_Path),
+                              3 => new String'(Obj.all));
 
                            Fill_Options_Data_From_Arg_List_Access
                              (Arg_List, Arg_Disp);
@@ -2237,11 +2246,13 @@ package body Gprbuild.Link is
                            Free (Arg_List);
 
                            if Status /= 0 then
-                              --  Warning if the archive builder failed.
-                              Warning_Msg := new String'
-                                ("Warning: invocation of "
-                                 & Archive_Builder_Path.all
-                                 & " failed.");
+                              --  Warning if the archive builder failed
+
+                              Error_Msg
+                                ("?invocation of " & Archive_Builder_Path.all
+                                 & " failed",
+                                 Proj.Location);
+
                               goto Linker_Options_Incomplete;
                            end if;
 
@@ -2252,10 +2263,12 @@ package body Gprbuild.Link is
 
                            --  Extract the linker options section.
 
-                           Arg_List := Argument_String_To_List
-                             ("--dump-section .GPR.linker_options="
-                              & Lib_Name & ".linker_options"
-                              & " " & Obj.all);
+                           Arg_List := new GNAT.Strings.String_List'
+                             (1 => new String'("--dump-section"),
+                              2 => new String'(".GPR.linker_options="
+                                               & Lib_Name & ".linker_options"),
+                              3 => Obj);
+                           --  Obj going to be Free together with Arg_List
 
                            --  Delete any existing linker option file.
                            Delete_File (Options_File, Success);
@@ -2270,13 +2283,16 @@ package body Gprbuild.Link is
                                   Status);
 
                            Free (Arg_List);
-                           Free (Obj);
+                           Obj := null;
 
                            if Status /= 0 then
-                              --  Warning if objcopy failed.
-                              Warning_Msg := new String'
-                                ("Warning: invocation of objcopy "
-                                 & Objcopy_Exec.all & " failed.");
+                              --  Warning if objcopy failed
+
+                              Error_Msg
+                                ("?invocation of objcopy " & Objcopy_Exec.all
+                                 & " failed",
+                                 Proj.Location);
+
                               goto Linker_Options_Incomplete;
                            end if;
 
@@ -2296,9 +2312,12 @@ package body Gprbuild.Link is
                               --  problem reading the section!
                               --  So, the definitive check is that the
                               --  linker_options file was generated.
-                              Warning_Msg := new String'
-                                ("Warning: invocation of "
-                                 & Objcopy_Exec.all & " failed.");
+
+                              Error_Msg
+                                ("?invocation of " & Objcopy_Exec.all
+                                 & " failed",
+                                 Proj.Location);
+
                               goto Linker_Options_Incomplete;
                            end if;
 
@@ -2341,10 +2360,7 @@ package body Gprbuild.Link is
                            --  We get there if anything went wrong.
 
                            if not Success and then Opt.Verbose_Mode then
-                              Put_Line
-                                (Warning_Msg.all
-                                 & " Linker options may be incomplete.");
-                              Free (Warning_Msg);
+                              Put_Line ("Linker options may be incomplete.");
                            end if;
 
                            if Is_Valid (File) then
