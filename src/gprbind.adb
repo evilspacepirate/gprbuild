@@ -2,7 +2,7 @@
 --                                                                          --
 --                             GPR TECHNOLOGY                               --
 --                                                                          --
---                     Copyright (C) 2006-2020, AdaCore                     --
+--                     Copyright (C) 2006-2021, AdaCore                     --
 --                                                                          --
 -- This is  free  software;  you can redistribute it and/or modify it under --
 -- terms of the  GNU  General Public License as published by the Free Soft- --
@@ -395,9 +395,7 @@ begin
 
                   --  Check if a gnatbind prefix is specified
 
-                  elsif Last >= Gnatbind_Prefix_Equal'Length
-                    and then Line (1 .. Gnatbind_Prefix_Equal'Length) =
-                             Gnatbind_Prefix_Equal
+                  elsif Starts_With (Line (1 .. Last), Gnatbind_Prefix_Equal)
                   then
                      --  Ignore an empty prefix
 
@@ -459,8 +457,8 @@ begin
                   if End_Of_File (IO_File) then
                      Fail_Program
                        (null,
-                        "no toolchain version for language " &
-                        Line (1 .. Last));
+                        "no toolchain version for language "
+                        & Line (1 .. Last));
 
                   elsif Line (1 .. Last) = "ada" then
                      Get_Line (IO_File, Line, Last);
@@ -487,8 +485,8 @@ begin
                   if End_Of_File (IO_File) then
                      Fail_Program
                        (null,
-                        "no object file suffix for language " &
-                        Line (1 .. Last));
+                        "no object file suffix for language "
+                        & Line (1 .. Last));
 
                   elsif Line (1 .. Last) = "ada" then
                      Get_Line (IO_File, Line, Last);
@@ -627,9 +625,7 @@ begin
       if Option = Dash_OO then
          Dash_O_Specified := True;
 
-      elsif Option'Length >= 4 and then
-            Option (1 .. 3) = Dash_OO & '='
-      then
+      elsif Starts_With (Option, Dash_OO & '=') then
          Dash_O_Specified := True;
          Dash_O_File_Specified := True;
          Objects_Path := Get_Path_Name_Id (Option (4 .. Option'Last));
@@ -751,10 +747,8 @@ begin
             Display
               (Section  => GPR.Bind,
                Command  => "Ada",
-               Argument =>
-                 Base_Name (ALI_Files_Table.First_Element) &
-                 " " &
-                 No_Main_Option);
+               Argument => Base_Name (ALI_Files_Table.First_Element)
+                           & " " &  No_Main_Option);
          end if;
       end if;
    end if;
