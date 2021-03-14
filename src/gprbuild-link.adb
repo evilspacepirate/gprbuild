@@ -2088,7 +2088,6 @@ package body Gprbuild.Link is
                            Output : String_Access;
                            EOL    : constant String := "" & ASCII.LF;
 
-                           Obj_Found     : Boolean := False;
                            Obj           : String_Access;
                            Obj_Path_Name : Path_Name_Type;
 
@@ -2196,27 +2195,30 @@ package body Gprbuild.Link is
                            declare
                               Lines : constant Name_Array_Type := Split
                                 (Output.all, EOL);
-
                            begin
                               for L of Lines loop
                                  Get_Name_String (L);
-                                 if On_Windows then
-                                    --  Skip the final CR.
+
+                                 if On_Windows
+                                   and then Name_Buffer (Name_Len) = ASCII.CR
+                                 then
+                                    --  Skip the final CR
+
                                     Name_Len := Name_Len - 1;
                                  end if;
-                                 Obj_Path_Name := Name_Find;
-                                 Obj := new String'
-                                   (Name_Buffer (1 .. Name_Len));
-                                 if Obj.all = "b__" & Lib_Name & ".o"
-                                   or else Obj.all = "p__" & Lib_Name & "_0.o"
+
+                                 if Name_Buffer (1 .. Name_Len) in
+                                   "b__" & Lib_Name & ".o"
+                                   | "p__" & Lib_Name & "_0.o"
                                  then
-                                    Obj_Found := True;
-                                    exit;
+                                    Obj := new String'
+                                      (Name_Buffer (1 .. Name_Len));
+                                    Obj_Path_Name := Name_Find;
                                  end if;
                               end loop;
                            end;
 
-                           if not Obj_Found then
+                           if Obj = null then
                               --  Warning if no such object file is found.
 
                               Error_Msg
