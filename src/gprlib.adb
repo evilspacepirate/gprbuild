@@ -1577,16 +1577,15 @@ procedure Gprlib is
          --  Put all objects in the archive.
 
          AB_Objects.Append (Object_Files);
-
       end if;
 
       --  Add the .GPR.linker_options section to Linker_Option_Object_File.
 
       if Linker_Option_Object_File /= null then
-
          --  Retrieve the relevant options in the binder-generated file.
          --  ??? This is a duplicated code from Process_Standalone!
          --  A refactoring would be nice.
+
          declare
             BG_File          : File_Type;
             Line             : String (1 .. 1_000);
@@ -1656,13 +1655,14 @@ procedure Gprlib is
 
             if Objcopy_Exec = null then
                Objcopy_Exec := Locate_Exec_On_Path ("objcopy");
-               if Objcopy_Exec = null then
-                  if Verbose_Mode then
-                     Put ("Warning: unable to locate objcopy " &
-                            Objcopy_Name.all & ".");
-                  end if;
-                  Success := False;
+            end if;
+
+            if Objcopy_Exec = null then
+               if Verbose_Mode then
+                  Put ("Warning: unable to locate objcopy " &
+                         Objcopy_Name.all & ".");
                end if;
+               Success := False;
 
             else
                declare
@@ -1675,6 +1675,7 @@ procedure Gprlib is
                begin
                   --  Create the temporary file to receive (and
                   --  discard) the output from spawned processes.
+
                   Tempdir.Create_Temp_File (FD, Tmp_File);
 
                   if FD = Invalid_FD then
@@ -1684,7 +1685,7 @@ procedure Gprlib is
 
                   Record_Temp_File (null, Tmp_File);
 
-                  Spawn (Objcopy_Name.all, Arg_List.all, FD, Status);
+                  Spawn (Objcopy_Exec.all, Arg_List.all, FD, Status);
 
                   Success := Status = 0;
                   Free (Arg_List);
@@ -1692,8 +1693,9 @@ procedure Gprlib is
                end;
 
                if not Success and then Verbose_Mode then
-                  Put ("Warning: invocation of " &
-                         Objcopy_Name.all & " failed.");
+                  Put_Line
+                    ("Warning: invocation of " &  Objcopy_Exec.all
+                     & " failed.");
                end if;
             end if;
 
