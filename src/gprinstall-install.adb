@@ -126,9 +126,11 @@ package body Gprinstall.Install is
                          Get_Name_String
                            (Project.Config.Shared_Lib_Suffix) = ".dll";
 
-      Pcks : Package_Table.Table_Ptr renames Tree.Shared.Packages.Table;
-      Strs : String_Element_Table.Table_Ptr renames
+      Pcks : constant Package_Table.Table_Ptr := Tree.Shared.Packages.Table;
+      Strs : constant String_Element_Table.Table_Ptr :=
                Tree.Shared.String_Elements.Table;
+      Vels : constant Variable_Element_Table.Table_Ptr :=
+               Tree.Shared.Variable_Elements.Table;
 
       --  Local values for the given project, these are initially set with the
       --  default values. It is updated using the Install package found in the
@@ -255,9 +257,7 @@ package body Gprinstall.Install is
       --  binary as built by gprbuild. This routine looks into the Builder
       --  switches for a the Executable attribute.
 
-      function Is_Install_Active
-        (Tree    : Project_Tree_Ref;
-         Project : Project_Id) return Boolean;
+      function Is_Install_Active (Project : Project_Id) return Boolean;
       --  Returns True if the Project is active, that is there is no attribute
       --  Active set to False in the Install package.
 
@@ -411,8 +411,7 @@ package body Gprinstall.Install is
                begin
                   while Id /= No_Variable loop
                      declare
-                        V : constant Variable :=
-                              Tree.Shared.Variable_Elements.Table (Id);
+                        V : constant Variable := Vels (Id);
                      begin
                         if V.Name = Name_Prefix then
                            --  If Install.Prefix is a relative path, it is made
@@ -524,7 +523,7 @@ package body Gprinstall.Install is
 
                         end if;
                      end;
-                     Id := Tree.Shared.Variable_Elements.Table (Id).Next;
+                     Id := Vels (Id).Next;
                   end loop;
                end;
 
@@ -659,11 +658,7 @@ package body Gprinstall.Install is
       -- Is_Install_Active --
       -----------------------
 
-      function Is_Install_Active
-        (Tree    : Project_Tree_Ref;
-         Project : Project_Id) return Boolean
-      is
-         Pcks : Package_Table.Table_Ptr renames Tree.Shared.Packages.Table;
+      function Is_Install_Active (Project : Project_Id) return Boolean is
          Pck  : Package_Id := Project.Decl.Packages;
       begin
          Look_Install_Package : while Pck /= No_Package loop
@@ -677,8 +672,7 @@ package body Gprinstall.Install is
                begin
                   while Id /= No_Variable loop
                      declare
-                        V : constant Variable :=
-                              Tree.Shared.Variable_Elements.Table (Id);
+                        V : constant Variable := Vels (Id);
                      begin
                         if V.Name = Name_Active then
                            declare
@@ -694,7 +688,7 @@ package body Gprinstall.Install is
                            end;
                         end if;
                      end;
-                     Id := Tree.Shared.Variable_Elements.Table (Id).Next;
+                     Id := Vels (Id).Next;
                   end loop;
                end;
 
@@ -1143,8 +1137,7 @@ package body Gprinstall.Install is
 
       procedure Copy_Files is
 
-         procedure Copy_Project_Sources
-           (Project : Project_Id; Tree : Project_Tree_Ref);
+         procedure Copy_Project_Sources (Project : Project_Id);
          --  Copy sources from the given project
 
          procedure Copy_Source (Sid : Source_Id);
@@ -1160,9 +1153,7 @@ package body Gprinstall.Install is
          -- Copy_Project_Sources --
          --------------------------
 
-         procedure Copy_Project_Sources
-           (Project : Project_Id; Tree : Project_Tree_Ref)
-         is
+         procedure Copy_Project_Sources (Project : Project_Id) is
             function Is_Ada (Sid : Source_Id) return Boolean with Inline;
             --  Returns True if Sid is an Ada source
 
@@ -1225,7 +1216,7 @@ package body Gprinstall.Install is
 
                if (Project.Qualifier /= Aggregate_Library
                    or else (Is_Part_Of_Aggregate_Lib (Project, Sid)
-                            and then Is_Install_Active (Tree, Sid.Project)))
+                            and then Is_Install_Active (Sid.Project)))
                  and then (Project.Standalone_Library = No
                            or else Sid.Declared_In_Interfaces)
                then
@@ -1311,9 +1302,7 @@ package body Gprinstall.Install is
 
          procedure Copy_Source (Sid : Source_Id) is
          begin
-            if Copy (Source)
-              and then Is_Install_Active (Tree, Sid.Project)
-            then
+            if Copy (Source) and then Is_Install_Active (Sid.Project) then
                declare
                   Prep_Filename : constant String :=
                                     Cat
@@ -1476,7 +1465,7 @@ package body Gprinstall.Install is
                      Copy_Interfaces (Tree, P);
                   end if;
 
-                  Copy_Project_Sources (P, Tree);
+                  Copy_Project_Sources (P);
 
                   P := P.Extends;
                end loop;
@@ -1805,7 +1794,7 @@ package body Gprinstall.Install is
                   begin
                      while V /= No_Variable loop
                         Content.Append ("      " & Image (V));
-                        V := Tree.Shared.Variable_Elements.Table (V).Next;
+                        V := Vels (V).Next;
                      end loop;
                   end;
                end if;
@@ -1862,8 +1851,7 @@ package body Gprinstall.Install is
 
             Var_Loop : while Vars /= No_Variable loop
                declare
-                  V : constant Variable :=
-                        Tree.Shared.Variable_Elements.Table (Vars);
+                  V : constant Variable := Vels (Vars);
                begin
                   --  Compute variable's name maximum length
 
@@ -1921,8 +1909,7 @@ package body Gprinstall.Install is
             Vars := Project.Decl.Variables;
             while Vars /= No_Variable loop
                declare
-                  V : constant Variable :=
-                        Tree.Shared.Variable_Elements.Table (Vars);
+                  V : constant Variable := Vels (Vars);
                begin
                   if V.Value.Kind in Single | List then
                      Write_Str ("   " & Get_Name_String (V.Name));
@@ -2205,25 +2192,18 @@ package body Gprinstall.Install is
             E : constant Array_Element :=
                   Tree.Shared.Array_Elements.Table (Id);
          begin
-            return "for "
-              & Get_Name_String (Name)
-              & " ("""
-              & Get_Name_String (E.Index)
-              & """) use "
-              & Image (E.Value);
+            return "for " & Get_Name_String (Name)
+              & " ("""  & Get_Name_String (E.Index)
+              & """) use " & Image (E.Value);
          end Image;
 
          function Image (Id : Variable_Id) return String is
-            V : constant Variable_Value :=
-                  Tree.Shared.Variable_Elements.Table (Id).Value;
+            V : constant Variable_Value := Vels (Id).Value;
          begin
             if V.Default then
                return "";
             else
-               return "for "
-                 & Get_Name_String
-                     (Tree.Shared.Variable_Elements.Table (Id).Name)
-                 & " use "
+               return "for " & Get_Name_String (Vels (Id).Name) & " use "
                  & Image (V);
             end if;
          end Image;
@@ -2337,17 +2317,11 @@ package body Gprinstall.Install is
                V : Variable_Id := Pcks (Pck).Decl.Attributes;
             begin
                while V /= No_Variable loop
-                  if Tree.Shared.Variable_Elements.Table (V).Name =
-                    Name_Linker_Options
-                  then
-                     declare
-                        Val : constant Variable_Value :=
-                                Tree.Shared.Variable_Elements.Table (V).Value;
-                     begin
-                        Append (Val.Values);
-                     end;
+                  if Vels (V).Name = Name_Linker_Options then
+                     Append (Vels (V).Value.Values);
                   end if;
-                  V := Tree.Shared.Variable_Elements.Table (V).Next;
+
+                  V := Vels (V).Next;
                end loop;
             end Linker_For;
 
@@ -2806,7 +2780,7 @@ package body Gprinstall.Install is
                begin
                   while L /= null loop
                      if Has_Sources (L.Project)
-                       and then Is_Install_Active (Tree, L.Project)
+                       and then Is_Install_Active (L.Project)
                      then
                         Content.Append
                           ("with """
