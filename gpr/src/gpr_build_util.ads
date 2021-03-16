@@ -242,7 +242,7 @@ package Gpr_Build_Util is
 
    procedure Compute_Builder_Switches
      (Project_Tree     : Project_Tree_Ref;
-      Env              : in out GPR.Tree.Environment;
+      Env              : GPR.Tree.Environment;
       Main_Project     : Project_Id;
       Only_For_Lang    : Name_Id := No_Name);
    --  Compute the builder switches and global compilation switches. Every time
