@@ -29,6 +29,7 @@ with GNAT.Strings;
 with Gpr_Build_Util; use Gpr_Build_Util;
 with Gprexch;        use Gprexch;
 with GPR.Err;        use GPR.Err;
+with GPR.Erroutc;    use GPR.Erroutc;
 with GPR.Debug;      use GPR.Debug;
 with GPR.Names;      use GPR.Names;
 with GPR.Script;     use GPR.Script;
@@ -2091,22 +2092,154 @@ package body Gprbuild.Link is
                            Obj           : String_Access;
                            Obj_Path_Name : Path_Name_Type;
 
-                           Objcopy_Path : String_Access;
                            Objcopy_Exec : String_Access;
+                           Objdump_Exec : String_Access;
                            AB_Path      : constant String :=
                              Archive_Builder_Path.all;
-                           AB_Path_Len  : constant Natural := AB_Path'Length;
+                           AB_Path_Last : Natural := 0;
 
-                           Options_File           : constant String :=
-                             Lib_Name & ".linker_options";
-                           Options_File_Path_Name : Path_Name_Type;
-                           File                   : Text_File;
-
+                           File         : Text_File;
                            Lib_Dir_Name : Path_Name_Type;
 
                            FD       : File_Descriptor;
                            Tmp_File : Path_Name_Type;
                            Success  : Boolean := True;
+
+                           function Check_Objtool
+                             (Exec : out String_Access;
+                              Name : String) return Boolean;
+
+                           procedure Set_Tmp_File_Line;
+                           --  Set Tmp_File first line to Error
+
+                           procedure Decode_Line;
+                           --  Decode line from File to Name_Buffer
+
+                           -----------------------
+                           -- Set_Tmp_File_Line --
+                           -----------------------
+
+                           procedure Set_Tmp_File_Line is
+                              File : File_Type;
+                           begin
+                              Open (File, In_File, Get_Name_String (Tmp_File));
+
+                              declare
+                                 Line : constant String := Get_Line (File);
+                              begin
+                                 Error_Msg_Strlen := Line'Length;
+                                 Error_Msg_String (1 .. Line'Length) := Line;
+                              end;
+
+                              Close (File);
+                           end Set_Tmp_File_Line;
+
+                           -------------------
+                           -- Check_Objtool --
+                           -------------------
+
+                           function Check_Objtool
+                             (Exec : out String_Access;
+                              Name : String) return Boolean
+                           is
+                              Path : constant String :=
+                                       AB_Path (1 .. AB_Path_Last) & Name;
+                           begin
+                              Exec := Locate_Exec_On_Path (Path);
+
+                              if Exec = null then
+                                 --  If objtool is not found this way, try with
+                                 --  the one from the system.
+
+                                 Exec := Locate_Exec_On_Path (Name);
+
+                                 if Exec = null then
+                                    --  Warning if we didn't find any objtool
+
+                                    Error_Msg
+                                      ("?unable to locate " & Name,
+                                       Proj.Location);
+
+                                    return False;
+                                 end if;
+                              end if;
+
+                              return True;
+                           end Check_Objtool;
+
+                           Line  : String (1 .. 128);
+                           First : Positive := 42;
+                           Last  : Natural  := 1;
+
+                           -----------------
+                           -- Decode_Line --
+                           -----------------
+
+                           procedure Decode_Line is
+
+                              function Is_Hex
+                                (Str : String) return Boolean
+                              is
+                                (for all Char of Str =>
+                                    Char in '0' .. '9' | 'a' .. 'f');
+
+                           begin
+                              Name_Len := 0;
+
+                              Decoding : loop
+                                 if First > 41 then
+                                    loop
+                                       exit Decoding when End_Of_File (File);
+                                       Get_Line (File, Line, Last);
+                                       exit when Last > 43
+                                         and then Is_Hex (Line (2 .. 4))
+                                         and then Is_Hex (Line (7 .. 8))
+                                         and then
+                                           (for all J in 9 .. 41 =>
+                                              Line (J) in ' ' | '0' .. '9'
+                                                  | 'a' .. 'f')
+                                         and then Line (1) = ' '
+                                         and then Line (5 .. 6) = "0 "
+                                         and then Line (15) = ' '
+                                         and then Line (24) = ' '
+                                         and then Line (33) = ' '
+                                         and then Line (42 .. 43) = "  ";
+                                    end loop;
+                                    First := 7;
+                                 end if;
+
+                                 while First < 42 loop
+                                    Name_Len := Name_Len + 1;
+                                    Name_Buffer (Name_Len) :=
+                                      Character'Val
+                                        (Integer'Value
+                                           ("16#" & Line (First .. First + 1)
+                                            & '#'));
+                                    First := First + 2;
+                                    if Line (First) = ' ' then
+                                       First := First + 1;
+
+                                       if Line (First) = ' '
+                                         and then First < 42
+                                       then
+                                          pragma Assert
+                                            (End_Of_File (File),
+                                             Line (1 .. Last) & First'Img);
+                                          First := 42;
+                                       end if;
+                                    end if;
+
+                                    if Name_Buffer (Name_Len) = ASCII.LF then
+                                       Name_Len := Name_Len - 1;
+                                       if Name_Buffer (Name_Len) = ASCII.CR
+                                       then
+                                          Name_Len := Name_Len - 1;
+                                       end if;
+                                       exit Decoding;
+                                    end if;
+                                 end loop;
+                              end loop Decoding;
+                           end Decode_Line;
 
                         begin
                            --  Create the temporary file to receive (and
@@ -2126,38 +2259,27 @@ package body Gprbuild.Link is
                            --  Use the archive builder path to compute the
                            --  path to objcopy.
 
-                           if AB_Path_Len > 2
-                             and then AB_Path (AB_Path_Len - 1 .. AB_Path_Len)
-                                      = "ar"
+                           if AB_Path'Length > 2
+                             and then
+                               AB_Path (AB_Path'Last - 1 .. AB_Path'Last)
+                               = "ar"
                            then
-                              Objcopy_Path := new String'
-                                (AB_Path (1 .. AB_Path_Len - 2) & "objcopy");
+                              AB_Path_Last := AB_Path'Last - 2;
 
-                           elsif AB_Path_Len > 6 and then AB_Path
-                             (AB_Path_Len - 5 .. AB_Path_Len) = "ar.exe"
+                           elsif AB_Path'Length > 6
+                             and then
+                               AB_Path (AB_Path'Last - 5 .. AB_Path'Last)
+                               = "ar.exe"
                            then
-                              Objcopy_Path := new String'
-                                (AB_Path (1 .. AB_Path_Len - 6) & "objcopy");
+                              AB_Path_Last := AB_Path'Last - 6;
                            end if;
 
-                           Objcopy_Exec := Locate_Exec_On_Path
-                             (Objcopy_Path.all);
-
-                           if Objcopy_Exec = null then
-                              --  If objcopy is not found this way, try with
-                              --  the one from the system.
-
-                              Objcopy_Exec := Locate_Exec_On_Path ("objcopy");
-
-                              if Objcopy_Exec = null then
-                                 --  Warning if we didn't find any objcopy.
-
-                                 Error_Msg
-                                   ("?unable to locate objcopy",
-                                    Proj.Location);
-
-                                 goto Linker_Options_Incomplete;
-                              end if;
+                           if not Check_Objtool
+                             (Objcopy_Exec, "objcopy")
+                             or else not Check_Objtool
+                               (Objdump_Exec, "objdump")
+                           then
+                              goto Linker_Options_Incomplete;
                            end if;
 
                            --  List the archive content.
@@ -2183,7 +2305,12 @@ package body Gprbuild.Link is
                            if Status /= 0 then
                               --  Warning if the archive builder failed
 
-                              Error_Msg ('?' & Output.all, Proj.Location);
+                              Error_Msg_Strlen := Output'Length;
+                              Error_Msg_String (1 .. Output'Length) :=
+                                Output.all;
+                              Error_Msg
+                                ("?list of archive content failed: ~",
+                                 Proj.Location);
                               Free (Output);
 
                               goto Linker_Options_Incomplete;
@@ -2240,19 +2367,18 @@ package body Gprbuild.Link is
                              (Arg_List, Arg_Disp);
                            Display_Command (Arg_Disp, Archive_Builder_Path);
 
-                           Spawn (Archive_Builder_Path.all,
-                                  Arg_List.all,
-                                  FD,
-                                  Status);
+                           Spawn
+                             (Archive_Builder_Path.all, Arg_List.all, FD,
+                              Status);
 
                            Free (Arg_List);
 
                            if Status /= 0 then
                               --  Warning if the archive builder failed
 
+                              Set_Tmp_File_Line;
                               Error_Msg
-                                ("?invocation of " & Archive_Builder_Path.all
-                                 & " failed",
+                                ("?extract of object file failed: ~",
                                  Proj.Location);
 
                               goto Linker_Options_Incomplete;
@@ -2266,23 +2392,16 @@ package body Gprbuild.Link is
                            --  Extract the linker options section.
 
                            Arg_List := new GNAT.Strings.String_List'
-                             (1 => new String'("--dump-section"),
-                              2 => new String'(".GPR.linker_options="
-                                               & Lib_Name & ".linker_options"),
-                              3 => Obj);
+                             (new String'("-s"),
+                              new String'("--section=.GPR.linker_options"),
+                              Obj);
                            --  Obj going to be Free together with Arg_List
-
-                           --  Delete any existing linker option file.
-                           Delete_File (Options_File, Success);
 
                            Fill_Options_Data_From_Arg_List_Access
                              (Arg_List, Arg_Disp);
-                           Display_Command (Arg_Disp, Objcopy_Exec);
+                           Display_Command (Arg_Disp, Objdump_Exec);
 
-                           Spawn (Objcopy_Exec.all,
-                                  Arg_List.all,
-                                  FD,
-                                  Status);
+                           Spawn (Objdump_Exec.all, Arg_List.all, FD, Status);
 
                            Free (Arg_List);
                            Obj := null;
@@ -2290,43 +2409,22 @@ package body Gprbuild.Link is
                            if Status /= 0 then
                               --  Warning if objcopy failed
 
+                              Set_Tmp_File_Line;
                               Error_Msg
-                                ("?invocation of objcopy " & Objcopy_Exec.all
-                                 & " failed",
+                                ("?extract of linker options failed: ~",
                                  Proj.Location);
 
                               goto Linker_Options_Incomplete;
                            end if;
 
-                           --  Read the .linker_options file.
+                           --  Read the objdump output file
 
-                           Open (File, Options_File);
+                           Open (File, Get_Name_String (Tmp_File));
 
-                           --  Record the linker options file as temporary.
-                           Options_File_Path_Name :=
-                             Get_Path_Name_Id (Get_Current_Dir & Options_File);
-                           Record_Temp_File
-                             (Shared => Main_File.Tree.Shared,
-                              Path => Options_File_Path_Name);
+                           --  Read the linker options
 
-                           if not Is_Valid (File) then
-                              --  Objcopy may return 0 even if there was a
-                              --  problem reading the section!
-                              --  So, the definitive check is that the
-                              --  linker_options file was generated.
-
-                              Error_Msg
-                                ("?invocation of " & Objcopy_Exec.all
-                                 & " failed",
-                                 Proj.Location);
-
-                              goto Linker_Options_Incomplete;
-                           end if;
-
-                           --  Read the linker options.
-
-                           while not End_Of_File (File) loop
-                              Get_Line (File, Name_Buffer, Name_Len);
+                           while not End_Of_File (File) or else First < 42 loop
+                              Decode_Line;
 
                               if Name_Len > 0
                                 and then Name_Buffer (1) = ASCII.NUL
@@ -2355,6 +2453,8 @@ package body Gprbuild.Link is
                               end if;
                            end loop;
 
+                           Close (File);
+
                            Success := True;
 
                            <<Linker_Options_Incomplete>>
@@ -2363,10 +2463,6 @@ package body Gprbuild.Link is
 
                            if not Success and then Opt.Verbose_Mode then
                               Put_Line ("Linker options may be incomplete.");
-                           end if;
-
-                           if Is_Valid (File) then
-                              Close (File);
                            end if;
 
                            if FD /= Invalid_FD then
