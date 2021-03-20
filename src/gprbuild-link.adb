@@ -2323,6 +2323,8 @@ package body Gprbuild.Link is
                               Lines : constant Name_Array_Type := Split
                                 (Output.all, EOL);
                            begin
+                              Free (Output);
+
                               for L of Lines loop
                                  Get_Name_String (L);
 
