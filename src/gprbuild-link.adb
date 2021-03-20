@@ -2322,7 +2322,9 @@ package body Gprbuild.Link is
                            declare
                               Lines : constant Name_Array_Type := Split
                                 (Output.all, EOL);
+                              Lib_Fn : String := Lib_Name;
                            begin
+                              Canonical_Case_File_Name (Lib_Fn);
                               Free (Output);
 
                               for L of Lines loop
@@ -2337,8 +2339,8 @@ package body Gprbuild.Link is
                                  end if;
 
                                  if Name_Buffer (1 .. Name_Len) in
-                                   "b__" & Lib_Name & ".o"
-                                   | "p__" & Lib_Name & "_0.o"
+                                   "b__" & Lib_Fn & ".o"
+                                   | "p__" & Lib_Fn & "_0.o"
                                  then
                                     Obj := new String'
                                       (Name_Buffer (1 .. Name_Len));
