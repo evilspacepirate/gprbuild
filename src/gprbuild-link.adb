@@ -2338,6 +2338,9 @@ package body Gprbuild.Link is
                                     Name_Len := Name_Len - 1;
                                  end if;
 
+                                 Canonical_Case_File_Name
+                                   (Name_Buffer (1 .. Name_Len));
+
                                  if Name_Buffer (1 .. Name_Len) in
                                    "b__" & Lib_Fn & ".o"
                                    | "p__" & Lib_Fn & "_0.o"
