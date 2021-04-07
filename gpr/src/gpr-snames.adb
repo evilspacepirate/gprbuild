@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---      Copyright (C) 2015-2020, Free Software Foundation, Inc.             --
+--      Copyright (C) 2015-2021, Free Software Foundation, Inc.             --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -328,6 +328,26 @@ package body GPR.Snames is
       Add_Name ("include_switches_via_spec");
       Add_Name ("required_toolchain_version");
       Add_Name ("toolchain_name");
+      Add_Name ("check");
+      Add_Name ("eliminate");
+      Add_Name ("remote_host");
+      Add_Name ("program_host");
+      Add_Name ("communication_protocol");
+      Add_Name ("debugger_command");
+      Add_Name ("gnatlist");
+      Add_Name ("vcs_kind");
+      Add_Name ("vcs_file_check");
+      Add_Name ("vcs_log_check");
+      Add_Name ("documentation_dir");
+      Add_Name ("codepeer");
+      Add_Name ("output_directory");
+      Add_Name ("database_directory");
+      Add_Name ("message_patterns");
+      Add_Name ("additional_patterns");
+      Add_Name ("prove");
+      Add_Name ("gnattest");
+      Add_Name ("origin_project");
+      Add_Name ("library_reference_symbol_file");
       Add_Name ("");
       Add_Name (".");
       Add_Name ("*");

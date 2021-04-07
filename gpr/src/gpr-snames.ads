@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---      Copyright (C) 2015-2020, Free Software Foundation, Inc.             --
+--      Copyright (C) 2015-2021, Free Software Foundation, Inc.             --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -310,6 +310,26 @@ package GPR.Snames is
    Name_Include_Switches_Via_Spec        : constant Name_Id := Name_Id (L) - N;
    Name_Required_Toolchain_Version       : constant Name_Id := Name_Id (L) - N;
    Name_Toolchain_Name                   : constant Name_Id := Name_Id (L) - N;
+   Name_Check                            : constant Name_Id := Name_Id (L) - N;
+   Name_Eliminate                        : constant Name_Id := Name_Id (L) - N;
+   Name_Remote_Host                      : constant Name_Id := Name_Id (L) - N;
+   Name_Program_Host                     : constant Name_Id := Name_Id (L) - N;
+   Name_Communication_Protocol           : constant Name_Id := Name_Id (L) - N;
+   Name_Debugger_Command                 : constant Name_Id := Name_Id (L) - N;
+   Name_Gnatlist                         : constant Name_Id := Name_Id (L) - N;
+   Name_Vcs_Kind                         : constant Name_Id := Name_Id (L) - N;
+   Name_Vcs_File_Check                   : constant Name_Id := Name_Id (L) - N;
+   Name_Vcs_Log_Check                    : constant Name_Id := Name_Id (L) - N;
+   Name_Documentation_Dir                : constant Name_Id := Name_Id (L) - N;
+   Name_Codepeer                         : constant Name_Id := Name_Id (L) - N;
+   Name_Output_Directory                 : constant Name_Id := Name_Id (L) - N;
+   Name_Database_Directory               : constant Name_Id := Name_Id (L) - N;
+   Name_Message_Patterns                 : constant Name_Id := Name_Id (L) - N;
+   Name_Additional_Patterns              : constant Name_Id := Name_Id (L) - N;
+   Name_Prove                            : constant Name_Id := Name_Id (L) - N;
+   Name_Gnattest                         : constant Name_Id := Name_Id (L) - N;
+   Name_Origin_Project                   : constant Name_Id := Name_Id (L) - N;
+   Name_Library_Reference_Symbol_File    : constant Name_Id := Name_Id (L) - N;
    The_Empty_String                      : constant Name_Id := Name_Id (L) - N;
    The_Dot_String                        : constant Name_Id := Name_Id (L) - N;
    The_Star_String                       : constant Name_Id := Name_Id (L) - N;
