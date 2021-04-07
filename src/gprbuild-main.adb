@@ -1119,7 +1119,7 @@ procedure Gprbuild.Main is
 
             --  Out-of-tree compilation also imply -p (create missing dirs)
 
-            Opt.Setup_Projects := True;
+            Opt.Create_Dirs := Create_All_Dirs;
 
          elsif Arg'Length >= Root_Dir_Option'Length
            and then Arg (1 .. Root_Dir_Option'Length) = Root_Dir_Option
@@ -1399,7 +1399,7 @@ procedure Gprbuild.Main is
 
          elsif Arg = "-p" or else Arg = "--create-missing-dirs" then
             Forbidden_In_Package_Builder;
-            Opt.Setup_Projects := True;
+            Opt.Create_Dirs := Create_All_Dirs;
 
          elsif Arg'Length >= 2 and then Arg (2) = 'P' then
             Forbidden_In_Package_Builder;
@@ -1732,6 +1732,11 @@ procedure Gprbuild.Main is
             OS_Exit (0);
          end if;
       end loop;
+
+      --  By default, gprbuild should create artefact dirs if they are
+      --  relative to the project directory
+
+      Opt.Create_Dirs := Create_Relative_Dirs_Only;
 
       --  Now process the other options
 

@@ -2,7 +2,7 @@
 --                                                                          --
 --                             GPR TECHNOLOGY                               --
 --                                                                          --
---                     Copyright (C) 2012-2020, AdaCore                     --
+--                     Copyright (C) 2012-2021, AdaCore                     --
 --                                                                          --
 -- This is  free  software;  you can redistribute it and/or modify it under --
 -- terms of the  GNU  General Public License as published by the Free Soft- --
@@ -2568,9 +2568,9 @@ begin
    Activate_Symbolic_Traceback;
 
    --  Always create the lib/object directories on the slave, this is needed
-   --  when parsing a projet file to retreive a specific driver.
+   --  when parsing a projet file to retrieve a specific driver.
 
-   Opt.Setup_Projects := True;
+   Opt.Create_Dirs := Create_All_Dirs;
 
    --  Setup the response handlers
 

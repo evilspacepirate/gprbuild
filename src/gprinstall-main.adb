@@ -461,7 +461,7 @@ procedure Gprinstall.Main is
 
                --  Out-of-tree compilation also imply -p (create missing dirs)
 
-               Opt.Setup_Projects := True;
+               Opt.Create_Dirs := Create_All_Dirs;
 
             elsif Arg'Length >= Root_Dir_Option'Length
               and then Arg (1 .. Root_Dir_Option'Length) = Root_Dir_Option

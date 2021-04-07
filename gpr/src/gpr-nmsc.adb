@@ -481,14 +481,14 @@ package body GPR.Nmsc is
       Must_Exist       : Boolean := True;
       Externally_Built : Boolean := False);
    --  Locate a directory. Name is the directory name. Relative paths are
-   --  resolved relative to the project's directory. If the directory does not
-   --  exist and Setup_Projects is True and Create is a non null string, an
-   --  attempt is made to create the directory. If the directory does not
-   --  exist, it is either created if Setup_Projects is False (and then
-   --  returned), or simply returned without checking for its existence (if
-   --  Must_Exist is False) or No_Path_Information is returned. In all cases,
-   --  Dir_Exists indicates whether the directory now exists. Create is also
-   --  used for debugging traces to show which path we are computing.
+   --  resolved relative to the project's directory. If the directory does
+   --  not exist:
+   --    - if Must_Exit is False, we return without checking for its existence
+   --    - otherwise, if Create is a non-empty string, it might get created,
+   --      following the behavior prescribed by Create_Dirs.
+   --  In all cases, Dir_Exists indicates whether the directory now exists.
+   --  Create is also used for debugging traces to show which path we are
+   --  computing.
 
    procedure Look_For_Sources
      (Project : in out Project_Processing_Data;
@@ -5990,7 +5990,7 @@ package body GPR.Nmsc is
                "Object_Dir cannot be empty",
                Object_Dir.Location, Project);
 
-         elsif Setup_Projects
+         elsif Create_Dirs /= Never_Create_Dirs
            and then No_Sources
            and then Project.Extends = No_Project
          then
@@ -6304,7 +6304,7 @@ package body GPR.Nmsc is
                "Exec_Dir cannot be empty",
                Exec_Dir.Location, Project);
 
-         elsif Setup_Projects
+         elsif Create_Dirs /= Never_Create_Dirs
            and then No_Sources
            and then Project.Extends = No_Project
          then
@@ -6935,6 +6935,8 @@ package body GPR.Nmsc is
       Full_Name       : File_Name_Type;
       The_Name        : File_Name_Type;
 
+      Is_Relative     : Boolean;
+
    begin
       --  Check if we have a root-object dir specified, if so relocate all
       --  artefact directories to it.
@@ -7013,9 +7015,11 @@ package body GPR.Nmsc is
       Dir_Exists := False;
 
       if Is_Absolute_Path (Get_Name_String (The_Name)) then
+         Is_Relative := False;
          Full_Name := The_Name;
 
       else
+         Is_Relative := True;
          Set_Name_Buffer
            (The_Parent (The_Parent'First .. The_Parent_Last));
          Get_Name_String_And_Append (The_Name);
@@ -7024,9 +7028,15 @@ package body GPR.Nmsc is
 
       declare
          Full_Path_Name : String_Access :=
-                            new String'(Get_Name_String (Full_Name));
+           new String'(Get_Name_String (Full_Name));
       begin
-         if (Setup_Projects or else Subdirs /= null)
+         --  We may proceed with directory creation depending on the value
+         --  of Create_Dirs: if it is set to Create_All_Dirs, or if the dir
+         --  is relative and Create_Dirs is set to Create_Relative_Dirs_Only.
+         if (Create_Dirs = Create_All_Dirs
+             or else
+               (Create_Dirs = Create_Relative_Dirs_Only and then Is_Relative)
+             or else Subdirs /= null)
            and then Create'Length > 0
            and then Project.Qualifier /= Abstract_Project
          then

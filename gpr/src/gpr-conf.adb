@@ -1706,8 +1706,8 @@ package body GPR.Conf is
 
       Fallback_Try_Again : Boolean := True;
 
-      Store_Setup_Projects  : Boolean;
       Store_Flags : Processing_Flags;
+      Store_Create_Dirs : Dir_Creation_Mode;
 
       N_Hostname : String_Access := new String'(Normalized_Hostname);
 
@@ -1748,8 +1748,8 @@ package body GPR.Conf is
          Set_Check_Configuration_Only (Env.Flags, True);
          Set_Missing_Source_Files (Env.Flags, Silent);
          Env.Flags.Missing_Project_Files := Decide_Later;
-         Store_Setup_Projects := Setup_Projects;
-         Setup_Projects := False;
+         Store_Create_Dirs := Create_Dirs;
+         Create_Dirs := Never_Create_Dirs;
       else
          Opt.Target_Value  := new String'(Target_Name);
          Opt.Target_Origin := Specified;
@@ -1844,7 +1844,7 @@ package body GPR.Conf is
          return;
       end if;
 
-      if not Fallback_Try_Again and then not Setup_Projects then
+      if not Fallback_Try_Again and then Create_Dirs = Never_Create_Dirs then
          --  Check if attribute Create_Missing_Dirs is specified with value
          --  "true".
 
@@ -1860,9 +1860,14 @@ package body GPR.Conf is
             then
                Get_Name_String (Variable.Value);
 
+               declare
+                  Do_Create : Boolean;
                begin
-                  Setup_Projects :=
-                    Boolean'Value (Name_Buffer (1 .. Name_Len));
+                  Do_Create := Boolean'Value (Name_Buffer (1 .. Name_Len));
+                  if Do_Create then
+                     Create_Dirs := Create_All_Dirs;
+                  end if;
+
                exception
                   when Constraint_Error =>
                      raise Invalid_Config with
@@ -1903,7 +1908,7 @@ package body GPR.Conf is
                   --  undo fallback preparations.
                   Fallback_Try_Again := False;
                   Env.Flags := Store_Flags;
-                  Setup_Projects := Store_Setup_Projects;
+                  Create_Dirs := Store_Create_Dirs;
                   goto Parse_Again;
 
                else
@@ -1973,7 +1978,7 @@ package body GPR.Conf is
                      Target_Try_Again := True;
                      Fallback_Try_Again := False;
                      Env.Flags := Store_Flags;
-                     Setup_Projects := Store_Setup_Projects;
+                     Create_Dirs := Store_Create_Dirs;
                      Warn_For_RTS := False;
 
                      goto Parse_Again;
@@ -1984,7 +1989,7 @@ package body GPR.Conf is
             --  Restore the flags and cancel Fallback_Try_Again
 
             Env.Flags := Store_Flags;
-            Setup_Projects := Store_Setup_Projects;
+            Create_Dirs := Store_Create_Dirs;
             Fallback_Try_Again := False;
          end if;
       end if;

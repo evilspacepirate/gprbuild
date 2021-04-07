@@ -196,9 +196,24 @@ package GPR.Opt is
    Run_Path_Option : Boolean := True;
    --  Set to False when no run_path_option should be issued to the linker
 
-   Setup_Projects : Boolean := False;
-   --  Set to True to indicate that the Project Manager needs to creates
-   --  non existing object, library and exec directories.
+   type Dir_Creation_Mode is
+     (Create_All_Dirs,
+      --  Indicate that the Project Manager needs to creates
+      --  non existing object, library and exec directories.
+      --  (Command line option "-p")
+
+      Create_Relative_Dirs_Only,
+      --  The Project Manager should create only directories that are
+      --  relative to the project directory. This is the desirable value
+      --  for tools whose primary vocation is to generate artefacts in these
+      --  directories.
+
+      Never_Create_Dirs
+      --  Never create directories.
+     );
+
+   Create_Dirs : Dir_Creation_Mode := Never_Create_Dirs;
+   --  Which directories we can create
 
    type Origin_Of_Target is (Unknown, Default, Specified);
 
