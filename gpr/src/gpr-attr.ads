@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2001-2017, Free Software Foundation, Inc.         --
+--          Copyright (C) 2001-2021, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -322,12 +322,12 @@ private
    end record;
    --  Data for an attribute
 
-   package Attrs is
-      new GNAT.Table (Table_Component_Type => Attribute_Record,
-                       Table_Index_Type     => Attr_Node_Id,
-                       Table_Low_Bound      => First_Attribute,
-                       Table_Initial        => Attributes_Initial,
-                       Table_Increment      => Attributes_Increment);
+   package Attrs is new GNAT.Table
+     (Table_Component_Type => Attribute_Record,
+      Table_Index_Type     => Attr_Node_Id,
+      Table_Low_Bound      => First_Attribute,
+      Table_Initial        => Attributes_Initial,
+      Table_Increment      => Attributes_Increment);
    --  The table of the attributes
 
    --------------
@@ -341,12 +341,12 @@ private
    end record;
    --  Data for a package
 
-   package Package_Attributes is
-      new GNAT.Table (Table_Component_Type => Package_Record,
-                       Table_Index_Type     => Pkg_Node_Id,
-                       Table_Low_Bound      => First_Package,
-                       Table_Initial        => Packages_Initial,
-                       Table_Increment      => Packages_Increment);
+   package Package_Attributes is new GNAT.Table
+     (Table_Component_Type => Package_Record,
+      Table_Index_Type     => Pkg_Node_Id,
+      Table_Low_Bound      => First_Package,
+      Table_Initial        => Packages_Initial,
+      Table_Increment      => Packages_Increment);
    --  The table of the packages
 
 end GPR.Attr;
