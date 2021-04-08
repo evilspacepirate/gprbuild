@@ -245,6 +245,16 @@ package body GPR.Attr is
          Add_Package_Name (Name_Str);
       end Add_Package;
 
+      Opt_Idx_AA : constant Attribute_Kind :=
+                     (if Osint.File_Names_Case_Sensitive
+                      then Optional_Index_Associative_Array
+                      else Optional_Index_Case_Insensitive_Associative_Array);
+
+      Assoc_Array : constant Attribute_Kind :=
+                      (if Osint.File_Names_Case_Sensitive
+                       then Associative_Array
+                       else Case_Insensitive_Associative_Array);
+
    --  Start of processing for Initialize
 
    begin
@@ -287,7 +297,7 @@ package body GPR.Attr is
       Add_Attribute
         (Name_Roots,
          Var_Kind   => List,
-         Attr_Kind  => Associative_Array,
+         Attr_Kind  => Assoc_Array,
          Conf_Conc  => False);
       Add_Attribute
         (Name_Externally_Built,
@@ -746,7 +756,7 @@ package body GPR.Attr is
       Add_Attribute
         (Name_Switches,
          Var_Kind   => List,
-         Attr_Kind  => Optional_Index_Associative_Array,
+         Attr_Kind  => Opt_Idx_AA,
          Others_Can => True,
          Conf_Conc  => True);
       Add_Attribute
@@ -939,7 +949,7 @@ package body GPR.Attr is
       Add_Attribute
         (Name_Switches,
          Var_Kind   => List,
-         Attr_Kind  => Optional_Index_Associative_Array,
+         Attr_Kind  => Opt_Idx_AA,
          Others_Can => True,
          Conf_Conc  => True);
       Add_Attribute
@@ -950,7 +960,7 @@ package body GPR.Attr is
       Add_Attribute
         (Name_Executable,
          Var_Kind   => Single,
-         Attr_Kind  => Optional_Index_Associative_Array,
+         Attr_Kind  => Opt_Idx_AA,
          Conf_Conc  => False);
       Add_Attribute
         (Name_Executable_Suffix,
@@ -984,7 +994,7 @@ package body GPR.Attr is
       Add_Attribute
         (Name_Switches,
          Var_Kind   => List,
-         Attr_Kind  => Optional_Index_Associative_Array,
+         Attr_Kind  => Opt_Idx_AA,
          Others_Can => True,
          Conf_Conc  => True);
       Add_Attribute
@@ -1027,19 +1037,19 @@ package body GPR.Attr is
       Add_Attribute
         (Name_Leading_Switches,
          Var_Kind   => List,
-         Attr_Kind  => Optional_Index_Associative_Array,
+         Attr_Kind  => Opt_Idx_AA,
          Others_Can => True,
          Conf_Conc  => True);
       Add_Attribute
         (Name_Switches,
          Var_Kind   => List,
-         Attr_Kind  => Optional_Index_Associative_Array,
+         Attr_Kind  => Opt_Idx_AA,
          Others_Can => True,
          Conf_Conc  => True);
       Add_Attribute
         (Name_Trailing_Switches,
          Var_Kind   => List,
-         Attr_Kind  => Optional_Index_Associative_Array,
+         Attr_Kind  => Opt_Idx_AA,
          Others_Can => True,
          Conf_Conc  => True);
       Add_Attribute
@@ -1119,7 +1129,7 @@ package body GPR.Attr is
       Add_Attribute
         (Name_Switches,
          Var_Kind   => List,
-         Attr_Kind  => Associative_Array,
+         Attr_Kind  => Assoc_Array,
          Others_Can => True,
          Conf_Conc  => True);
 
@@ -1132,7 +1142,7 @@ package body GPR.Attr is
       Add_Attribute
         (Name_Switches,
          Var_Kind   => List,
-         Attr_Kind  => Associative_Array,
+         Attr_Kind  => Assoc_Array,
          Others_Can => True,
          Conf_Conc  => True);
 
@@ -1145,7 +1155,7 @@ package body GPR.Attr is
       Add_Attribute
         (Name_Switches,
          Var_Kind   => List,
-         Attr_Kind  => Associative_Array,
+         Attr_Kind  => Assoc_Array,
          Others_Can => True,
          Conf_Conc  => True);
 
@@ -1158,7 +1168,7 @@ package body GPR.Attr is
       Add_Attribute
         (Name_Switches,
          Var_Kind   => List,
-         Attr_Kind  => Associative_Array,
+         Attr_Kind  => Assoc_Array,
          Others_Can => True,
          Conf_Conc  => True);
 
@@ -1171,7 +1181,7 @@ package body GPR.Attr is
       Add_Attribute
         (Name_Switches,
          Var_Kind   => List,
-         Attr_Kind  => Associative_Array,
+         Attr_Kind  => Assoc_Array,
          Others_Can => True,
          Conf_Conc  => True);
 
@@ -1184,7 +1194,7 @@ package body GPR.Attr is
       Add_Attribute
         (Name_Switches,
          Var_Kind   => List,
-         Attr_Kind  => Associative_Array,
+         Attr_Kind  => Assoc_Array,
          Others_Can => True,
          Conf_Conc  => True);
 
@@ -1197,7 +1207,7 @@ package body GPR.Attr is
       Add_Attribute
         (Name_Switches,
          Var_Kind   => List,
-         Attr_Kind  => Associative_Array,
+         Attr_Kind  => Assoc_Array,
          Others_Can => True,
          Conf_Conc  => True);
 
