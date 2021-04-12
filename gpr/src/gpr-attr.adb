@@ -1396,8 +1396,6 @@ package body GPR.Attr is
          Attr_Kind  => Single,
          Conf_Conc  => False);
 
-      Add_Package (Name_Prove);
-
       Initialized := True;
    end Initialize;
 

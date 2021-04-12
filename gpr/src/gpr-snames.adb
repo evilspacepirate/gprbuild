@@ -344,7 +344,6 @@ package body GPR.Snames is
       Add_Name ("database_directory");
       Add_Name ("message_patterns");
       Add_Name ("additional_patterns");
-      Add_Name ("prove");
       Add_Name ("origin_project");
       Add_Name ("library_reference_symbol_file");
       Add_Name ("");

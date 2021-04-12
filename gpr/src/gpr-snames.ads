@@ -326,7 +326,6 @@ package GPR.Snames is
    Name_Database_Directory               : constant Name_Id := Name_Id (L) - N;
    Name_Message_Patterns                 : constant Name_Id := Name_Id (L) - N;
    Name_Additional_Patterns              : constant Name_Id := Name_Id (L) - N;
-   Name_Prove                            : constant Name_Id := Name_Id (L) - N;
    Name_Origin_Project                   : constant Name_Id := Name_Id (L) - N;
    Name_Library_Reference_Symbol_File    : constant Name_Id := Name_Id (L) - N;
    The_Empty_String                      : constant Name_Id := Name_Id (L) - N;
