@@ -1827,4 +1827,17 @@ package body GPR.Attr is
       end if;
    end First_Attribute_Of;
 
+   ----------------------
+   -- Is_Package_Known --
+   ----------------------
+
+   function Is_Package_Known (Pkg : Package_Node_Id) return Boolean is
+   begin
+      if Pkg = Empty_Package or else Pkg = Unknown_Package then
+         return False;
+      else
+         return Package_Attributes.Table (Pkg.Value).Known;
+      end if;
+   end Is_Package_Known;
+
 end GPR.Attr;

@@ -210,8 +210,14 @@ package body GPR.Strt is
          --  If the identifier is not allowed, report an error
 
          if Current_Attribute = Empty_Attribute then
-            Error_Msg_Name_1 := Token_Name;
-            Error_Msg (Flags, "unknown attribute %%", Token_Ptr);
+            if No (Current_Package)
+              or else Is_Package_Known
+                        (Package_Id_Of (Current_Package, In_Tree))
+            then
+               Error_Msg_Name_1 := Token_Name;
+               Error_Msg (Flags, "unknown attribute %%", Token_Ptr);
+            end if;
+
             Reference := Empty_Project_Node;
 
             --  Scan past the attribute name

@@ -262,6 +262,9 @@ package GPR.Attr is
    --  Returns the first attribute in the list of attributes of package Pkg.
    --  Returns Empty_Attribute if Pkg is Empty_Package or Unknown_Package.
 
+   function Is_Package_Known (Pkg : Package_Node_Id) return Boolean;
+   --  Returns True if package is known for the tool
+
 private
    ----------------
    -- Attributes --
@@ -335,9 +338,9 @@ private
    --------------
 
    type Package_Record is record
-      Name             : Name_Id;
-      Known            : Boolean := True;
-      First_Attribute  : Attr_Node_Id;
+      Name            : Name_Id;
+      Known           : Boolean := True;
+      First_Attribute : Attr_Node_Id;
    end record;
    --  Data for a package
 
