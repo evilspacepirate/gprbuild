@@ -1398,8 +1398,6 @@ package body GPR.Attr is
 
       Add_Package (Name_Prove);
 
-      Add_Package (Name_Gnattest);
-
       Initialized := True;
    end Initialize;
 
