@@ -1844,7 +1844,7 @@ package body GPR.Conf is
          return;
       end if;
 
-      if not Fallback_Try_Again and then Create_Dirs = Never_Create_Dirs then
+      if not Fallback_Try_Again and then Create_Dirs /= Create_All_Dirs then
          --  Check if attribute Create_Missing_Dirs is specified with value
          --  "true".
 
