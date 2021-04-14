@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---                      Copyright (C) 2001-2020, AdaCore                    --
+--                      Copyright (C) 2001-2021, AdaCore                    --
 --                                                                          --
 -- GNAT is free software;  you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -1287,11 +1287,11 @@ package body GPRName is
                then
                   Name := GPR.Tree.Name_Of (Current_Node, Tree);
 
-                  if Name = Name_Source_Files or else
-                    Name = Name_Source_List_File or else
-                    Name = Name_Source_Dirs or else
-                    Name = Name_Languages or else
-                    Name = Name_Naming
+                  if Name in Name_Source_Files
+                           | Name_Source_List_File
+                           | Name_Source_Dirs
+                           | Name_Languages
+                           | Name_Naming
                   then
                      Comments :=
                        Tree.Project_Nodes.Table (Current_Node).Comments;
@@ -1316,14 +1316,12 @@ package body GPRName is
                         Set_First_Declarative_Item_Of
                           (Project_Declaration_Of (Project_Node, Tree),
                            Tree,
-                           To => Next_Declarative_Item
-                             (Declaration, Tree));
+                           To => Next_Declarative_Item (Declaration, Tree));
 
                      else
                         Set_Next_Declarative_Item
                           (Previous, Tree,
-                           To => Next_Declarative_Item
-                             (Declaration, Tree));
+                           To => Next_Declarative_Item (Declaration, Tree));
                      end if;
 
                   else
@@ -1344,26 +1342,22 @@ package body GPRName is
 
       --  Get the project name id
 
-      Name_Len := Output_Name_Last;
-      Name_Buffer (1 .. Name_Len) := Output_Name (1 .. Name_Len);
-      Output_Name_Id := Name_Find;
+      Output_Name_Id := Get_Name_Id (Output_Name (1 .. Output_Name_Last));
 
       --  Create the project naming file name
 
       Project_Naming_Last := Output_Name_Last;
       Project_Naming_File_Name :=
-        new String'(Output_Name (1 .. Output_Name_Last) &
-                      Naming_File_Suffix &
-                      Project_File_Extension);
+        new String'
+          (Output_Name (1 .. Output_Name_Last) & Naming_File_Suffix
+           & Project_File_Extension);
       Project_Naming_Last :=
         Project_Naming_Last + Naming_File_Suffix'Length;
 
       --  Get the project naming id
 
-      Name_Len := Project_Naming_Last;
-      Name_Buffer (1 .. Name_Len) :=
-        Project_Naming_File_Name (1 .. Name_Len);
-      Project_Naming_Id := Name_Find;
+      Project_Naming_Id :=
+        Get_Name_Id (Project_Naming_File_Name (1 .. Project_Naming_Last));
 
       Project_Naming_Last :=
         Project_Naming_Last + Project_File_Extension'Length;
@@ -1372,10 +1366,9 @@ package body GPRName is
 
       Source_List_Last := Output_Name_Last;
       Source_List_Path :=
-        new String'(Output_Name (1 .. Output_Name_Last) &
-                      Source_List_File_Suffix);
-      Source_List_Last :=
-        Output_Name_Last + Source_List_File_Suffix'Length;
+        new String'
+          (Output_Name (1 .. Output_Name_Last) & Source_List_File_Suffix);
+      Source_List_Last := Output_Name_Last + Source_List_File_Suffix'Length;
 
       --  Add the project file extension to the project name
 
@@ -1401,14 +1394,12 @@ package body GPRName is
             loop
                declare
                   Img : constant String := Nmb'Img;
-
+                  FN  : constant String := Saved_Path & Img (2 .. Img'Last);
                begin
-                  if not Is_Regular_File
-                    (Saved_Path & Img (2 .. Img'Last))
-                  then
+                  if not Is_Regular_File (FN) then
                      Copy_File
                        (Name     => Path_Name (1 .. Path_Last),
-                        Pathname => Saved_Path & Img (2 .. Img'Last),
+                        Pathname => FN,
                         Mode     => Overwrite,
                         Success  => Discard);
                      exit;
@@ -1429,9 +1420,8 @@ package body GPRName is
          exception
             when Directory_Error =>
                GPR.Com.Fail
-                 ("unknown directory """
-                  & Path_Name (1 .. Directory_Last)
-                  & """");
+                 ("unknown directory """ & Path_Name (1 .. Directory_Last)
+                  & '"');
          end;
       end if;
    end Initialize;
