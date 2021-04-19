@@ -2,7 +2,7 @@
 --                                                                          --
 --                           GPR PROJECT MANAGER                            --
 --                                                                          --
---          Copyright (C) 2000-2020, Free Software Foundation, Inc.         --
+--          Copyright (C) 2000-2021, Free Software Foundation, Inc.         --
 --                                                                          --
 -- This library is free software;  you can redistribute it and/or modify it --
 -- under terms of the  GNU General Public License  as published by the Free --
@@ -6376,6 +6376,7 @@ package body GPR.Nmsc is
 
       if Src_Subdirs /= null
         and then Project.Qualifier /= Abstract_Project
+        and then not No_Sources
       then
          declare
             function Try_Src_Subdir (Prefix : Name_Id) return Boolean;
