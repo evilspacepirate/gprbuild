@@ -6390,6 +6390,7 @@ package body GPR.Nmsc is
 
       if Src_Subdirs /= null
         and then Project.Qualifier /= Abstract_Project
+        and then not No_Sources
       then
          declare
             function Try_Src_Subdir (Prefix : Name_Id) return Boolean;
