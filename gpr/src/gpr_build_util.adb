@@ -2037,7 +2037,7 @@ package body Gpr_Build_Util is
            (Project : Project_Id;
             Tree    : Project_Tree_Ref;
             Context : Project_Context);
-         --  Local procedures must be commented ???
+         --  Insert appropriate project sources into compilation queue
 
          ---------------
          -- Do_Insert --
@@ -2147,7 +2147,7 @@ package body Gpr_Build_Util is
                      then
                         if (Unit_Based
                             or else Source.Unit = No_Unit_Index
-                            or else Source.Project.Library
+                            or else Proj.Library
                             or else Context.In_Aggregate_Lib
                             or else Project.Qualifier = Aggregate_Library)
                           and then not Is_Subunit (Source)
@@ -2155,7 +2155,7 @@ package body Gpr_Build_Util is
                            OK := True;
                            Closure := False;
 
-                           if (Source.Project.Library
+                           if (Proj.Library
                                or else Project.Qualifier = Aggregate_Library
                                or else Context.In_Aggregate_Lib)
                              and then Source.Project.Standalone_Library /= No
