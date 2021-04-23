@@ -2267,6 +2267,39 @@ package body GPR is
       return Name_Find;
    end Debug_Name;
 
+   --------------
+   -- Distance --
+   --------------
+
+   function Distance (L, R : String) return Natural is
+      D : array (L'First - 1 .. L'Last, R'First - 1 .. R'Last) of Natural;
+   begin
+      for I in D'Range (1) loop
+         D (I, D'First (2)) := I;
+      end loop;
+
+      for I in D'Range (2) loop
+         D (D'First (1), I) := I;
+      end loop;
+
+      for J in R'Range loop
+         for I in L'Range loop
+            D (I, J) :=
+              Natural'Min
+                (Natural'Min (D (I - 1, J), D (I, J - 1)) + 1,
+                 D (I - 1, J - 1) + (if L (I) = R (J) then 0 else 1));
+
+            if J > R'First and then I > L'First
+              and then R (J) = L (I - 1) and then R (J - 1) = L (I)
+            then
+               D (I, J) := Natural'Min (D (I, J), D (I - 2, J - 2) + 1);
+            end if;
+         end loop;
+      end loop;
+
+      return D (L'Last, R'Last);
+   end Distance;
+
    ----------
    -- Free --
    ----------

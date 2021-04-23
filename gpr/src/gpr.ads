@@ -2887,6 +2887,12 @@ private
    --  Table used to store the path name of all the created temporary files, so
    --  that they can be deleted at the end, or when the program is interrupted.
 
+   function Distance (L, R : String) return Natural;
+   --  Damerau Levenshtein distance between L and R strings.
+   --  Calculated in minimum number of elementary operations to convert one
+   --  string to another. The operations are deletion, insertion, substitution,
+   --  and transposition (swap 2 adjacent characters).
+
    package Temp_Files_Table is new GNAT.Dynamic_Tables
      (Table_Component_Type => Path_Name_Type,
       Table_Index_Type     => Integer,
